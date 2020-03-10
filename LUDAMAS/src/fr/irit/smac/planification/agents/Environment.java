@@ -133,7 +133,7 @@ public class Environment {
 	}
 
 	public void generateComposedFunction(String name, List<String> input, List<String> outputs, int i, int j) {
-		this.shieldUser.generateComposedFunction(name+"ComposedFunction", input, outputs, 3, 3);
+		this.shieldUser.generateComposedFunction(name, input, outputs, 3, 3);
 		
 	}
 

@@ -32,7 +32,7 @@ public class EffectorAgent {
 	/**
 	 * the value of the data chosen which can be modify
 	 */
-	private Map<String,Number> dpercom;
+	private Map<String,Float> dpercom;
 	
 	/**
 	 * The list of chosen data
@@ -100,12 +100,15 @@ public class EffectorAgent {
 		this.dpercom.clear();
 		this.chosen.clear();
 		// Choix des exteroceptives
-		
+		// TEST
+		for(String var: this.cav.getDataExteroceptiveInSituation()) {
+			this.chosen.add(var);
+		}
 		// Decision des objectifs en fonction des donnees choisies
 		this.lastPlaning = this.myPlaning;
 		
 		this.myPlaning = new Planing();
-		this.planActions();
+		//this.planActions();
 		
 		
 	}
@@ -113,7 +116,7 @@ public class EffectorAgent {
 
 	private void planActions() {
 		// Use the CAV function to get the planing using 
-		this.myPlaning = this.cav.computeDecision(this.dpercom, this.myObjectiveState);
+		this.myPlaning = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState);
 		Result res = this.myPlaning.getNextResult(this.currentStep);
 		int nbStep = res.getStep() - this.currentStep+1;
 		float action = res.getValue() - this.cav.getStateOfState(this.myObjectiveState);

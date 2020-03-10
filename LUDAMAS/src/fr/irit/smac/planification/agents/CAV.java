@@ -63,7 +63,7 @@ public class CAV {
 	private Integer currentTime;
 
 	private List<Objective> objectives;
-	
+
 	private int nbStep = 5;
 
 	public CAV(String name, int nbObjectiveStates, int nbEffectors, int nbSituation) {
@@ -135,7 +135,7 @@ public class CAV {
 		List<String> input = new ArrayList<String>();
 		//Etat interne
 		for(int i = 0; i < 3; i++) {
-			if(rand.nextInt()%2 == 0) {
+			if(i%2 == 0) {
 				input.add("float");
 			}
 			else {
@@ -172,7 +172,7 @@ public class CAV {
 		this.composedFunction = this.environment.getComposedFunctionWithName(this.name+"ComposedFunction");
 
 	}
-	
+
 	private void startSituation() {
 		Random rand = new Random();
 		int idSituation = rand.nextInt(this.nbSituation);
@@ -207,12 +207,36 @@ public class CAV {
 	 * 			The state of the effector
 	 * @return
 	 */
-	public Planing computeDecision( Map<String,Number> exteroceptive, Integer effectorState) {
+	public Planing computeDecision( List<String> chosen, Map<String,Float> exteroceptive, Integer effectorState) {
 		Planing plan = new Planing();
-		for(int i =0; i < this.objectives.size();i++) {
+		/*for(int i =0; i < this.objectives.size();i++) {
 			Objective subObj = this.objectives.get(i);
 			float valueState = this.internalState[effectorState];
+		}*/
+		// ajout des valeurs pour chaque entree de la fonction
+		int i = 0;
+		// ajout des donnees prioceptives
+		for(int j =0; j < this.internalData.size();j++) {
+			this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
+			i++;
 		}
+
+		// ajout de l'etat effecteur
+		this.composedFunction.setInitInput(i, (float)this.environment.getValueOfVariableWithName(this.effectorData.get(effectorState)));
+		i++;
+
+		// ajout du step courant
+		this.composedFunction.setInitInput(i, this.currentTime);
+		i++;
+
+
+		// ajout des donnees Exteroceptive
+		for(int j =0; j < chosen.size();j++) {
+			this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(chosen.get(j)));
+			i++;
+		}
+		this.composedFunction.compute();
+
 		return plan;
 	}
 
@@ -289,8 +313,10 @@ public class CAV {
 	}
 
 	public static void main(String args[]) {
-		CAV cav = new CAV("CAV1", 2, 2, 3);
-		
+		CAV cav = new CAV("CAV1", 2, 1, 3);
+		cav.senseData();
+		cav.planificationEffectors();
+
 	}
 
 	public String getDataEffector(int myObjectiveState) {
