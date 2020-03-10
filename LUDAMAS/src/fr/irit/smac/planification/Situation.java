@@ -1,11 +1,17 @@
 package fr.irit.smac.planification;
 
+import java.util.List;
+
 public class Situation {
 
 	
 	private int id;
 	
 	private Objective myobjective;
+	
+	private PlanificationFunction function;
+	
+	private List<Objective> subObjective;
 	
 	public Situation(int id, int nbState) {
 		this.id = id;
@@ -22,6 +28,10 @@ public class Situation {
 
 	public Objective getMyobjective() {
 		return myobjective;
+	}
+
+	public List<Objective> getSubObjective() {
+		return this.subObjective;
 	}
 	
 	

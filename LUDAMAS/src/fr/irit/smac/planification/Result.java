@@ -4,20 +4,38 @@ import java.util.Map;
 
 public class Result {
 
-	private Map<String,Data> dataUsed;
 	
 	private float value;
 	
-	public Result(float value, Map<String,Data> dataUsed) {
+	private int step;
+	
+	public Result(int step, float value) {
 		this.value = value;
-		this.dataUsed = dataUsed;
+		this.step = step;
 	}
 	
 	public float getValue() {
 		return this.value;
 	}
 	
-	public Data getDataUsedForInput(String input) {
-		return this.dataUsed.get(input);
+	
+	
+	public int getStep() {
+		return step;
 	}
+
+	public void setStep(int step) {
+		this.step = step;
+	}
+
+	public void setValue(float value) {
+		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return "Result "+" value=" + value + "]";
+	}
+	
+	
 }
