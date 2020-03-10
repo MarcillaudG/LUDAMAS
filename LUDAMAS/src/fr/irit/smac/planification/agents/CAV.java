@@ -236,6 +236,10 @@ public class CAV {
 			i++;
 		}
 		this.composedFunction.compute();
+		
+		System.out.println("NBSTEP:"+this.composedFunction.getOutput(0).getValue());
+		System.out.println("Value to achieve:"+this.composedFunction.getOutput(1).getValue());
+		plan.addRes(new Result((int) this.composedFunction.getOutput(0).getValue(),(float) this.composedFunction.getOutput(1).getValue()));
 
 		return plan;
 	}
@@ -307,10 +311,6 @@ public class CAV {
 
 	}
 
-	public float getStateOfState(int myObjectiveState) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	public static void main(String args[]) {
 		CAV cav = new CAV("CAV1", 2, 1, 3);
@@ -325,5 +325,9 @@ public class CAV {
 
 	public List<String> getExteroceptiveData() {
 		return this.exteroData;
+	}
+
+	public float getValueOfState(int myObjectiveState) {
+		return this.internalState[myObjectiveState];
 	}
 }

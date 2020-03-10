@@ -52,7 +52,7 @@ public class Environment {
 
 		this.shieldUser = new ShieldUser();
 		
-		this.shieldUser.initSetOfTypedVariableWithRange(15, 0, 200, "Type 1");
+		this.shieldUser.initSetOfTypedVariableWithRange(15, 0, 10, "Type 1");
 		this.shieldUser.generateAllFunctionsOfVariable();
 		
 		this.shieldUser.initGeneratorOfFunction();
@@ -69,7 +69,7 @@ public class Environment {
 	}
 	
 	public double getValueOfVariableWithName(String name) {
-		return this.shieldUser.getValueOfVariable(name)-100;
+		return this.shieldUser.getValueOfVariable(name);
 	}
 
 	public Set<String> getAllVariable() {

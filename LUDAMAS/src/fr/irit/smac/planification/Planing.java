@@ -59,4 +59,12 @@ public class Planing {
 		return "Planing [plan=" + plan + ", nbRes=" + nbRes + "]";
 	}
 
+	public Result getFirstRes() {
+		return this.plan.get(0);
+	}
+
+	public Result getLastRes() {
+		return this.plan.get(this.plan.size()-1);
+	}
+
 }

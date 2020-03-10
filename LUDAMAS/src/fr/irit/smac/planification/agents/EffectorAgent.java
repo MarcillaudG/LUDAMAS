@@ -108,7 +108,7 @@ public class EffectorAgent {
 		this.lastPlaning = this.myPlaning;
 		
 		this.myPlaning = new Planing();
-		//this.planActions();
+		this.planActions();
 		
 		
 	}
@@ -117,12 +117,20 @@ public class EffectorAgent {
 	private void planActions() {
 		// Use the CAV function to get the planing using 
 		this.myPlaning = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState);
-		Result res = this.myPlaning.getNextResult(this.currentStep);
-		int nbStep = res.getStep() - this.currentStep+1;
-		float action = res.getValue() - this.cav.getStateOfState(this.myObjectiveState);
-		float actionToDo = action / nbStep;
+		Result res = this.myPlaning.getLastRes();
+		int nbStep = res.getStep() - this.currentStep;
+		float valueRemaining = res.getValue() - this.cav.getValueOfState(this.myObjectiveState);
+		float center = valueRemaining / nbStep;
+		float decoupage = nbStep % 2 ==1 ?  (nbStep-1)/2 : (nbStep-2)/2;
+		float actionToDo = (this.cav.getValueOfState(this.myObjectiveState)-center)/decoupage;
 		for(int i = 0; i < nbStep;i++) {
-			Result resTmp = new Result(this.currentStep+i, actionToDo);
+			Result resTmp =null;
+			if(nbStep % 2 ==0 && i == nbStep /2) {
+				resTmp = new Result(this.currentStep+i, 0.0f);
+			}
+			else {
+				resTmp = new Result(this.currentStep+i, actionToDo);
+			}
 			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
 		}
 	}
