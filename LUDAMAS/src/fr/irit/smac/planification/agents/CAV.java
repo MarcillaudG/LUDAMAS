@@ -40,6 +40,8 @@ public class CAV {
 
 	private float[] internalState;
 
+	private float[] internalEffect;
+
 	private List<String> internalData;
 
 	private List<String> exteroData;
@@ -48,6 +50,8 @@ public class CAV {
 	private List<String> effectorData;
 
 	private Situation[] situations;
+
+	private Situation currentSituation;
 
 	private Environment environment;
 
@@ -78,6 +82,7 @@ public class CAV {
 		this.nbEffectors = nbEffectors;
 		this.nbSituation = nbSituation;
 		this.internalState = new float[this.nbObjectiveStates];
+		this.internalEffect = new float[this.nbObjectiveStates];
 		this.situations = new Situation[this.nbSituation];
 
 		this.environment = new Environment(10, 0, 200, 1);
@@ -176,7 +181,16 @@ public class CAV {
 	private void startSituation() {
 		Random rand = new Random();
 		int idSituation = rand.nextInt(this.nbSituation);
+		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
+
+		this.internalState = this.currentSituation.getInternalState();
+		this.internalEffect = this.currentSituation.getInternalEffect();
+
+		for(int i =0; i < this.internalState.length;i++) {
+			System.out.println("STATE:"+this.internalState[i]);
+			System.out.println("EFFECT:"+this.internalEffect[i]);
+		}
 	}
 
 	private void computeObjective() {
@@ -236,7 +250,7 @@ public class CAV {
 			i++;
 		}
 		this.composedFunction.compute();
-		
+
 		System.out.println("NBSTEP:"+this.composedFunction.getOutput(0).getValue());
 		System.out.println("Value to achieve:"+this.composedFunction.getOutput(1).getValue());
 		plan.addRes(new Result((int) this.composedFunction.getOutput(0).getValue(),(float) this.composedFunction.getOutput(1).getValue()));
@@ -256,9 +270,14 @@ public class CAV {
 			this.senseData();
 			this.planificationEffectors();
 			this.currentTime++;
+			this.updateInternalState();
 		}
 	}
 
+
+	private void updateInternalState() {
+
+	}
 
 	/**
 	 * Put all data that can be sense by the sensors in dataPerceivedInSituation
@@ -307,16 +326,16 @@ public class CAV {
 	}
 
 	public void effect(int myObjectiveState, Result resAtTime) {
-		this.internalState[myObjectiveState] += resAtTime.getValue();
-
+		this.internalEffect[myObjectiveState] = resAtTime.getValue();
+		this.internalState[myObjectiveState] += this.internalEffect[myObjectiveState];
 	}
 
 
 	public static void main(String args[]) {
 		CAV cav = new CAV("CAV1", 2, 1, 3);
+		cav.startSituation();
 		cav.senseData();
 		cav.planificationEffectors();
-
 	}
 
 	public String getDataEffector(int myObjectiveState) {
@@ -329,5 +348,9 @@ public class CAV {
 
 	public float getValueOfState(int myObjectiveState) {
 		return this.internalState[myObjectiveState];
+	}
+
+	public float getValueOfEffect(int myObjectiveState) {
+		return this.internalEffect[myObjectiveState];
 	}
 }

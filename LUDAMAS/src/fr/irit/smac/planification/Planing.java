@@ -43,6 +43,10 @@ public class Planing {
 		if(this.nbRes > time) {
 			this.plan.add(time, res);
 		}
+		else {
+			this.plan.add(time,res);
+			nbRes++;
+		}
 	}
 	
 	public void insertObjAtTime(Integer time, Result res) {
@@ -54,6 +58,8 @@ public class Planing {
 		return this.nbRes;
 	}
 	
+	
+
 	@Override
 	public String toString() {
 		return "Planing [plan=" + plan + ", nbRes=" + nbRes + "]";

@@ -13,12 +13,20 @@ public class Situation {
 	
 	private List<Objective> subObjective;
 	
+	private float[] internalState;
+	private float[] internalEffect;
+	
 	public Situation(int id, int nbState) {
 		this.id = id;
 		
 		this.myobjective = new Objective(nbState);
+
+		this.internalState = new float[nbState];
+		this.internalEffect = new float[nbState];
 		for(int i =0 ; i < nbState;i++) {
 			this.myobjective.setObjective(i, 30.0f);
+			this.internalState[i] = 0.0f;
+			this.internalEffect[i] = 10.0f;
 		}
 	}
 
@@ -33,6 +41,15 @@ public class Situation {
 	public List<Objective> getSubObjective() {
 		return this.subObjective;
 	}
+
+	public float[] getInternalState() {
+		return internalState;
+	}
+
+	public float[] getInternalEffect() {
+		return internalEffect;
+	}
+
 	
 	
 }

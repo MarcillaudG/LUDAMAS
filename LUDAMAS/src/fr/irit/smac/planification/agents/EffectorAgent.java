@@ -14,50 +14,50 @@ import fr.irit.smac.planification.Result;
 public class EffectorAgent {
 
 	private String name;
-	
+
 	private String dataInfluenced;
 
 	// inputs
 	private Set<String> dataUsed;
-	
+
 	// Data gathered by sensors
 	private Set<String> dataPerceived;
-	
+
 	// Data gathered by communication
 	private Set<String> dataCommunicated;
-	
+
 	// Objectives during situation
 	private Map<Integer,Float> objectives;
-	
+
 	/**
 	 * the value of the data chosen which can be modify
 	 */
 	private Map<String,Float> dpercom;
-	
+
 	/**
 	 * The list of chosen data
 	 */
 	private List<String> chosen;
-	
+
 	// The function used to plan the step
 	private CAV cav;
-	
+
 	private int myObjectiveState;
-	
+
 	private Matrix myMatrix;
-	
+
 	private Matrix subMatrix;
-	
+
 	private Planing myPlaning;
-	
+
 	private Planing lastPlaning;
-	
+
 	private float cost;
 
 	private float bestAction;
-	
+
 	private int currentStep;
-	
+
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
 		this.name = name;
@@ -66,8 +66,8 @@ public class EffectorAgent {
 		this.bestAction = actionOpt;
 		init();
 	}
-	
-	
+
+
 	private void init() {
 		this.dataCommunicated = new TreeSet<String>();
 		this.dataPerceived = new TreeSet<String>();
@@ -87,12 +87,12 @@ public class EffectorAgent {
 		// Recuperation des donnees percues
 		this.dataPerceived.clear();
 		this.dataPerceived.addAll(this.cav.getDataPerceivedInSituation());
-		
+
 		// Recuperation des donnees communiquees
 		this.dataCommunicated.clear();
 		this.dataCommunicated.addAll(this.cav.getDataComInSituation());
 	}
-	
+
 	public void decide() {
 		System.out.println("Decide");
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
@@ -106,42 +106,109 @@ public class EffectorAgent {
 		}
 		// Decision des objectifs en fonction des donnees choisies
 		this.lastPlaning = this.myPlaning;
-		
+
 		this.myPlaning = new Planing();
 		this.planActions();
-		
-		
+
+
 	}
-	
+
 
 	private void planActions() {
 		// Use the CAV function to get the planing using 
-		this.myPlaning = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState);
-		Result res = this.myPlaning.getLastRes();
+		Result res = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState).getLastRes();
 		int nbStep = res.getStep() - this.currentStep;
+		System.out.println("NBStep:"+nbStep);
 		float valueRemaining = res.getValue() - this.cav.getValueOfState(this.myObjectiveState);
-		float center = valueRemaining / nbStep;
-		float decoupage = nbStep % 2 ==1 ?  (nbStep-1)/2 : (nbStep-2)/2;
-		float actionToDo = (this.cav.getValueOfState(this.myObjectiveState)-center)/decoupage;
+		
+		// Too complicated, TODO
+		/*if(valueRemaining > 0) {
+			planActionSup(valueRemaining, nbStep);
+		}
+		else {
+			planActionInf(valueRemaining,nbStep);
+		}*/
+		
+		float action = valueRemaining / nbStep;
 		for(int i = 0; i < nbStep;i++) {
+			Result resTmp =new Result(this.currentStep+i, action);
+			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
+		}
+		System.out.println(myPlaning);
+	}
+
+
+	private void planActionInf(float valueRemaining, int nbStep) {
+		float factor = valueRemaining >0 ? -1.f:1.0f;
+		System.out.println("valueRemaining:"+valueRemaining);
+		float center = valueRemaining / nbStep;
+		System.out.println("center:"+center);
+		float decoupage = nbStep % 2 ==1 ?  (nbStep-1)/2 : (nbStep-2)/2;
+		System.out.println("decoupage:"+decoupage);
+		float distanceToZero = center / decoupage;
+		System.out.println("distanceToZero:"+distanceToZero);
+		float optimAction = (this.cav.getValueOfEffect(this.myObjectiveState)-center)/decoupage;
+		System.out.println("optimAction:"+optimAction);
+		float firstValue = center + decoupage * distanceToZero;
+		System.out.println("firstValue:"+firstValue);
+		float firstAction = this.cav.getValueOfEffect(this.myObjectiveState) - firstValue;
+		System.out.println("firstAction:"+firstAction);
+		this.myPlaning.setResAtTime(this.currentStep, new Result(currentStep, firstAction*factor));
+		for(int i = 1; i < nbStep;i++) {
 			Result resTmp =null;
 			if(nbStep % 2 ==0 && i == nbStep /2) {
 				resTmp = new Result(this.currentStep+i, 0.0f);
 			}
 			else {
-				resTmp = new Result(this.currentStep+i, actionToDo);
+				resTmp = new Result(this.currentStep+i, optimAction*factor);
 			}
 			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
 		}
+		System.out.println(myPlaning);
+
+	}
+
+
+	private void planActionSup(float valueRemaining, int nbStep) {
+		float factor = valueRemaining >0 ? -1.f:1.0f;
+		System.out.println("valueRemaining:"+valueRemaining);
+		float center = valueRemaining / nbStep;
+		System.out.println("center:"+center);
+		float decoupage = nbStep % 2 ==1 ?  (nbStep-1)/2 : (nbStep-2)/2;
+		System.out.println("decoupage:"+decoupage);
+		float distanceToZero = center / decoupage;
+		System.out.println("distanceToZero:"+distanceToZero);
+		float optimAction = (this.cav.getValueOfEffect(this.myObjectiveState)-center)/decoupage;
+		System.out.println("optimAction:"+optimAction);
+		float firstValue = center + decoupage * distanceToZero;
+		System.out.println("firstValue:"+firstValue);
+		float firstAction = this.cav.getValueOfEffect(this.myObjectiveState) - firstValue;
+		System.out.println("firstAction:"+firstAction);
+		this.myPlaning.setResAtTime(this.currentStep, new Result(currentStep, firstAction*factor));
+		for(int i = 1; i < nbStep;i++) {
+			Result resTmp =null;
+			if(nbStep % 2 ==0 && i == nbStep /2) {
+				resTmp = new Result(this.currentStep+i, 0.0f);
+			}
+			else {
+				resTmp = new Result(this.currentStep+i, optimAction*factor);
+			}
+			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
+		}
+		System.out.println(myPlaning);
 	}
 
 
 	public void act(Integer time) {
 		System.out.println("Act");
 		// Faire l'action suivante
+		// TEST
+		while(this.myPlaning.size() >time) {
 			this.cav.effect(this.myObjectiveState,this.myPlaning.getResAtTime(time));
-			
+			System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
 			this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
+			time++;
+		}
 	}
 
 	/**
@@ -200,9 +267,9 @@ public class EffectorAgent {
 		this.decide();
 		this.act(time);
 	}
-	
+
 	public float getCostOfSituation() {
 		return this.cost;
 	}
-	
+
 }
