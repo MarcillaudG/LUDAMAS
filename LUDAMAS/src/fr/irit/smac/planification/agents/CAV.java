@@ -191,6 +191,9 @@ public class CAV {
 			System.out.println("STATE:"+this.internalState[i]);
 			System.out.println("EFFECT:"+this.internalEffect[i]);
 		}
+		for(EffectorAgent eff: this.effectors.values()) {
+			eff.initSituation();
+		}
 	}
 
 	private void computeObjective() {
@@ -264,7 +267,7 @@ public class CAV {
 
 		//this.computeObjective();
 		this.startSituation();
-		this.currentTime = 1;
+		this.currentTime = 0;
 		boolean over = false;
 		while(!over) {
 			this.senseData();
@@ -333,9 +336,10 @@ public class CAV {
 
 	public static void main(String args[]) {
 		CAV cav = new CAV("CAV1", 2, 1, 3);
-		cav.startSituation();
+		/*cav.startSituation();
 		cav.senseData();
-		cav.planificationEffectors();
+		cav.planificationEffectors();*/
+		cav.manageSituation();
 	}
 
 	public String getDataEffector(int myObjectiveState) {

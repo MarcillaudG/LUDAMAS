@@ -78,7 +78,7 @@ public class EffectorAgent {
 	}
 
 	public void initSituation() {
-		this.myPlaning = null;
+		this.myPlaning = new Planing();
 		this.lastPlaning = null;
 		this.cost = 0.0f;
 	}
@@ -107,7 +107,7 @@ public class EffectorAgent {
 		// Decision des objectifs en fonction des donnees choisies
 		this.lastPlaning = this.myPlaning;
 
-		this.myPlaning = new Planing();
+		
 		this.planActions();
 
 
@@ -120,7 +120,7 @@ public class EffectorAgent {
 		int nbStep = res.getStep() - this.currentStep;
 		System.out.println("NBStep:"+nbStep);
 		float valueRemaining = res.getValue() - this.cav.getValueOfState(this.myObjectiveState);
-		
+
 		// Too complicated, TODO
 		/*if(valueRemaining > 0) {
 			planActionSup(valueRemaining, nbStep);
@@ -128,7 +128,7 @@ public class EffectorAgent {
 		else {
 			planActionInf(valueRemaining,nbStep);
 		}*/
-		
+
 		float action = valueRemaining / nbStep;
 		for(int i = 0; i < nbStep;i++) {
 			Result resTmp =new Result(this.currentStep+i, action);
@@ -203,12 +203,10 @@ public class EffectorAgent {
 		System.out.println("Act");
 		// Faire l'action suivante
 		// TEST
-		while(this.myPlaning.size() >time) {
-			this.cav.effect(this.myObjectiveState,this.myPlaning.getResAtTime(time));
-			System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
-			this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
-			time++;
-		}
+		this.cav.effect(this.myObjectiveState,this.myPlaning.getResAtTime(time));
+		System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
+		this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
+		time++;
 	}
 
 	/**
