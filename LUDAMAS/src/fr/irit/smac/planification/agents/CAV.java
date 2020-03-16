@@ -23,6 +23,8 @@ public class CAV {
 
 	private static final int MAX_DATA_MISSING = 6;
 
+	public static final int NB_EXTEROCEPTIVES = 4;
+
 	private String name;
 
 	private Objective myObjective;
@@ -118,9 +120,13 @@ public class CAV {
 		for(int k = 0; k < this.nbObjectiveStates;k++) {
 			this.internalState[k] = 0.0f;
 		}
+		List<String> dataInSituation = new ArrayList<String>();
+		for(String s : this.exteroData) {
+			dataInSituation.add(this.environment.getCopyOfVar(s));
+		}
 
 		for(int k = 0; k < this.nbSituation;k++) {
-			Situation s = new Situation(k, this.nbObjectiveStates);
+			Situation s = new Situation(k, this.nbObjectiveStates, dataInSituation, this.composedFunction, 2);
 			this.situations[k] = s;
 		}
 	}
@@ -156,7 +162,7 @@ public class CAV {
 		// nbstep
 		input.add("int");
 		// Donnees exteroceptive
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < NB_EXTEROCEPTIVES; i++) {
 			if(rand.nextInt()%2 == 0) {
 				input.add("float");
 			}
@@ -226,36 +232,36 @@ public class CAV {
 	 */
 	public Planing computeDecision( List<String> chosen, Map<String,Float> exteroceptive, Integer effectorState) {
 		Planing plan = new Planing();
-		/*for(int i =0; i < this.objectives.size();i++) {
-			Objective subObj = this.objectives.get(i);
-			float valueState = this.internalState[effectorState];
-		}*/
 		// ajout des valeurs pour chaque entree de la fonction
 		int i = 0;
 		// ajout des donnees prioceptives
 		for(int j =0; j < this.internalData.size();j++) {
-			this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
+			//this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
+			this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
 			i++;
 		}
 
 		// ajout de l'etat effecteur
-		this.composedFunction.setInitInput(i, (float)this.environment.getValueOfVariableWithName(this.effectorData.get(effectorState)));
+		//this.composedFunction.setInitInput(i, (float)this.environment.getValueOfVariableWithName(this.effectorData.get(effectorState)));
+		this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(this.effectorData.get(effectorState)));
 		i++;
 
 		// ajout du step courant
-		this.composedFunction.setInitInput(i, this.currentTime);
+		//this.composedFunction.setInitInput(i, this.currentTime);
+		this.currentSituation.setInitInputCF(i, this.currentTime);
 		i++;
 
 
 		// ajout des donnees Exteroceptive
 		for(int j =0; j < chosen.size();j++) {
-			this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(chosen.get(j)));
+			//this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(chosen.get(j)));
+			this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(chosen.get(j)));
 			i++;
 		}
-		this.composedFunction.compute();
+		this.currentSituation.compute();
 
-		System.out.println("NBSTEP:"+this.composedFunction.getOutput(0).getValue());
-		System.out.println("Value to achieve:"+this.composedFunction.getOutput(1).getValue());
+		System.out.println("NBSTEP:"+this.currentSituation.getCf().getOutput(0).getValue());
+		System.out.println("Value to achieve:"+this.currentSituation.getCf().getOutput(1).getValue());
 		plan.addRes(new Result((int) this.composedFunction.getOutput(0).getValue(),(float) this.composedFunction.getOutput(1).getValue()));
 
 		return plan;
@@ -274,12 +280,17 @@ public class CAV {
 			this.planificationEffectors();
 			this.currentTime++;
 			this.updateInternalState();
+			for(EffectorAgent eff: this.effectors.values()) {
+				if((float)this.currentSituation.getCf().getOutput(1).getValue() == this.internalState[eff.getMyObjectiveState()]) {
+					over = true;
+				}
+			}
 		}
 	}
 
 
 	private void updateInternalState() {
-
+		
 	}
 
 	/**
@@ -331,6 +342,7 @@ public class CAV {
 	public void effect(int myObjectiveState, Result resAtTime) {
 		this.internalEffect[myObjectiveState] = resAtTime.getValue();
 		this.internalState[myObjectiveState] += this.internalEffect[myObjectiveState];
+		
 	}
 
 
@@ -356,5 +368,9 @@ public class CAV {
 
 	public float getValueOfEffect(int myObjectiveState) {
 		return this.internalEffect[myObjectiveState];
+	}
+
+	public Collection<? extends String> getInformationAvailable(int myObjectiveState) {
+		return this.currentSituation.getInformationAvailable(this.internalState[myObjectiveState]);
 	}
 }

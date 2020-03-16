@@ -3,6 +3,7 @@ package fr.irit.smac.planification;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.planification.agents.Environment;
@@ -42,7 +43,7 @@ public class Situation {
 
 	public Situation(int id, int nbState, List<String> informationAvailable, ComposedFunction cf, int nbDecoupage) {
 		this.id = id;
-
+		this.informationAvailable = new TreeMap<>();
 		this.myobjective = new Objective(nbState);
 
 		this.internalState = new float[nbState];
@@ -79,7 +80,7 @@ public class Situation {
 	public List<String> getInformationAvailable(float value){
 		List<String> res = new ArrayList<>();
 		for(String s: this.informationAvailable.keySet()) {
-			if(this.informationAvailable.get(s)< value) {
+			if(this.informationAvailable.get(s)<= value) {
 				res.add(s);
 			}
 		}
@@ -106,6 +107,21 @@ public class Situation {
 		return internalEffect;
 	}
 
+	public void setInitInputCF(int i, float value) {
+		this.cf.setInitInput(i, value);
+	}
+	
+	public void setInitInputCF(int i, int value) {
+		this.cf.setInitInput(i, value);
+	}
+
+	public void compute() {
+		this.cf.compute();
+	}
+
+	public ComposedFunction getCf() {
+		return this.cf;
+	}
 
 
 }

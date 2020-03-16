@@ -21,7 +21,7 @@ public class EffectorAgent {
 	private Set<String> dataUsed;
 
 	// Data gathered by sensors
-	private Set<String> dataPerceived;
+	private List<String> dataPerceived;
 
 	// Data gathered by communication
 	private Set<String> dataCommunicated;
@@ -70,7 +70,7 @@ public class EffectorAgent {
 
 	private void init() {
 		this.dataCommunicated = new TreeSet<String>();
-		this.dataPerceived = new TreeSet<String>();
+		this.dataPerceived = new ArrayList<String>();
 		this.dataUsed = new TreeSet<String>();
 		this.objectives = new TreeMap<Integer,Float>();
 		this.dpercom = new TreeMap<>();
@@ -86,7 +86,8 @@ public class EffectorAgent {
 	public void perceive() {
 		// Recuperation des donnees percues
 		this.dataPerceived.clear();
-		this.dataPerceived.addAll(this.cav.getDataPerceivedInSituation());
+		//this.dataPerceived.addAll(this.cav.getDataPerceivedInSituation());
+		this.dataPerceived.addAll(this.cav.getInformationAvailable(this.myObjectiveState));
 
 		// Recuperation des donnees communiquees
 		this.dataCommunicated.clear();
@@ -101,8 +102,11 @@ public class EffectorAgent {
 		this.chosen.clear();
 		// Choix des exteroceptives
 		// TEST
-		for(String var: this.cav.getDataExteroceptiveInSituation()) {
+		/*for(String var: this.cav.getDataExteroceptiveInSituation()) {
 			this.chosen.add(var);
+		}*/
+		for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
+			this.chosen.add(this.dataPerceived.get(i));
 		}
 		// Decision des objectifs en fonction des donnees choisies
 		this.lastPlaning = this.myPlaning;
@@ -234,7 +238,7 @@ public class EffectorAgent {
 	}
 
 
-	public Set<String> getDataPerceived() {
+	public List<String> getDataPerceived() {
 		return dataPerceived;
 	}
 
