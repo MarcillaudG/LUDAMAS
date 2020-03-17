@@ -97,7 +97,7 @@ public class EffectorAgent {
 	public void decide() {
 		System.out.println("Decide");
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
-		this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived,this.dataCommunicated);
+		this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived);
 		this.dpercom.clear();
 		this.chosen.clear();
 		// Choix des exteroceptives
@@ -120,9 +120,11 @@ public class EffectorAgent {
 
 	private void planActions() {
 		// Use the CAV function to get the planing using 
+		System.out.println("CHOSEN :"+this.chosen);
 		Result res = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState).getLastRes();
 		int nbStep = res.getStep() - this.currentStep;
-		System.out.println("NBStep:"+nbStep);
+		System.out.println("NBStep1:"+res.getStep());
+		System.out.println("NBStep2:"+nbStep);
 		float valueRemaining = res.getValue() - this.cav.getValueOfState(this.myObjectiveState);
 
 		// Too complicated, TODO
@@ -211,6 +213,8 @@ public class EffectorAgent {
 		System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
 		this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
 		time++;
+		
+		
 	}
 
 	/**

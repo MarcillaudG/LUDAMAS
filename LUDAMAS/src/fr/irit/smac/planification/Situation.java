@@ -1,6 +1,7 @@
 package fr.irit.smac.planification;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -69,12 +70,15 @@ public class Situation {
 		Random rand = new Random();
 		float valueToAchieve = (float)cf.getOutput(1).getValue();
 		int slice = (int) (valueToAchieve / nbDecoupage);
+		System.out.println("SLICE:"+slice);
 		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
+		Collections.shuffle(informationTmp);
 		for(int i = 0; i < nbDecoupage;i++) {
 			for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
 				this.informationAvailable.put(informationTmp.get(rand.nextInt(informationTmp.size())), i*slice);
 			}
 		}
+		System.out.println("SITU :"+this.informationAvailable);
 	}
 
 	public List<String> getInformationAvailable(float value){

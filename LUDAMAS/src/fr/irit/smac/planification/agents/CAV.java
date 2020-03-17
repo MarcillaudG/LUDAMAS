@@ -47,6 +47,8 @@ public class CAV {
 	private List<String> internalData;
 
 	private List<String> exteroData;
+	
+	private Map<String, Integer> exteroDataCorrect;
 
 
 	private List<String> effectorData;
@@ -103,6 +105,7 @@ public class CAV {
 		this.internalData = new ArrayList<>();
 		this.effectorData = new ArrayList<>();
 		this.exteroData = new ArrayList<>();
+		this.exteroDataCorrect = new TreeMap<>();
 
 		int i = 0;
 		this.initComposedFunction();
@@ -124,6 +127,7 @@ public class CAV {
 		for(String s : this.exteroData) {
 			dataInSituation.add(this.environment.getCopyOfVar(s));
 		}
+		dataInSituation.addAll(this.exteroData);
 
 		for(int k = 0; k < this.nbSituation;k++) {
 			Situation s = new Situation(k, this.nbObjectiveStates, dataInSituation, this.composedFunction, 2);
@@ -144,6 +148,7 @@ public class CAV {
 		//List<String> variablesAvailable = new ArrayList<>(this.shield.getAllVariables());
 		List<String> variablesAvailable = new ArrayList<>(this.environment.getAllVariable());
 		List<String> input = new ArrayList<String>();
+		int ind = 0;
 		//Etat interne
 		for(int i = 0; i < 3; i++) {
 			if(i%2 == 0) {
@@ -153,14 +158,17 @@ public class CAV {
 				input.add("int");
 			}
 			this.internalData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
+			ind++;
 		}
 		// Etat effecteur
 		input.add("float");
 		for(int i =0; i < this.internalState.length;i++) {
 			this.effectorData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
 		}
+		ind++;
 		// nbstep
-		input.add("int");
+		//input.add("int");
+		//ind++;
 		// Donnees exteroceptive
 		for(int i = 0; i < NB_EXTEROCEPTIVES; i++) {
 			if(rand.nextInt()%2 == 0) {
@@ -171,9 +179,11 @@ public class CAV {
 			}
 			String var = variablesAvailable.remove(rand.nextInt(variablesAvailable.size()));
 			this.exteroData.add(var);
+			this.exteroDataCorrect.put(var, ind);
 
 			//this.shield.generateSimilarData(var, 2);
-			this.environment.generateSimilarData(var, 2);
+			this.environment.generateSimilarData(var, 3);
+			ind++;
 		}
 
 		List<String> outputs = new ArrayList<String>();
@@ -181,6 +191,7 @@ public class CAV {
 		outputs.add("float");
 		this.environment.generateComposedFunction(this.name+"ComposedFunction", input, outputs, 3, 3);
 		this.composedFunction = this.environment.getComposedFunctionWithName(this.name+"ComposedFunction");
+		System.out.println("END ICF");
 
 	}
 
@@ -189,14 +200,43 @@ public class CAV {
 		int idSituation = rand.nextInt(this.nbSituation);
 		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
+		
+		
+		int i = 0;
+		// ajout des donnees prioceptives
+		for(int j =0; j < this.internalData.size();j++) {
+			//this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
+			this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
+			i++;
+		}
+
+		// ajout de l'etat effecteur
+		//this.composedFunction.setInitInput(i, (float)this.environment.getValueOfVariableWithName(this.effectorData.get(effectorState)));
+		this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(this.effectorData.get(0)));
+		i++;
+
+		// ajout du step courant
+		//this.composedFunction.setInitInput(i, this.currentTime);
+		//this.currentSituation.setInitInputCF(i, this.currentTime);
+		//i++;
+
+
+		// ajout des donnees Exteroceptive
+		for(int j =0; j < this.exteroData.size();j++) {
+			//this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(chosen.get(j)));
+			this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(exteroData.get(j)));
+			i++;
+		}
+		this.currentSituation.compute();
+		this.currentSituation.startSituation();
 
 		this.internalState = this.currentSituation.getInternalState();
 		this.internalEffect = this.currentSituation.getInternalEffect();
 
-		for(int i =0; i < this.internalState.length;i++) {
+		/*for(int i =0; i < this.internalState.length;i++) {
 			System.out.println("STATE:"+this.internalState[i]);
 			System.out.println("EFFECT:"+this.internalEffect[i]);
-		}
+		}*/
 		for(EffectorAgent eff: this.effectors.values()) {
 			eff.initSituation();
 		}
@@ -216,7 +256,6 @@ public class CAV {
 		while(it.hasNext()) {
 			it.next().start(this.currentTime);
 		}
-		this.currentTime++;
 	}
 
 	/**
@@ -248,8 +287,8 @@ public class CAV {
 
 		// ajout du step courant
 		//this.composedFunction.setInitInput(i, this.currentTime);
-		this.currentSituation.setInitInputCF(i, this.currentTime);
-		i++;
+		//this.currentSituation.setInitInputCF(i, this.currentTime);
+		//i++;
 
 
 		// ajout des donnees Exteroceptive
@@ -260,7 +299,7 @@ public class CAV {
 		}
 		this.currentSituation.compute();
 
-		System.out.println("NBSTEP:"+this.currentSituation.getCf().getOutput(0).getValue());
+		System.out.println("NBSTEPI1:"+this.currentSituation.getCf().getOutput(0).getValue());
 		System.out.println("Value to achieve:"+this.currentSituation.getCf().getOutput(1).getValue());
 		plan.addRes(new Result((int) this.composedFunction.getOutput(0).getValue(),(float) this.composedFunction.getOutput(1).getValue()));
 
