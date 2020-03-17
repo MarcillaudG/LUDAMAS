@@ -141,8 +141,6 @@ public class CAV {
 		//this.shield = new ShieldUser();
 
 		// TODO changer generation variable
-		/*this.shield.initSetOfTypedVariableWithRange(15, 0, 200, "Type 1");
-		this.shield.generateAllFunctionsOfVariable();*/
 
 		//this.shield.initGeneratorOfComposedFunction();
 		//List<String> variablesAvailable = new ArrayList<>(this.shield.getAllVariables());

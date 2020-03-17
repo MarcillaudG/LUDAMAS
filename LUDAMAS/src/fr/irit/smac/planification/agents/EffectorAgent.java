@@ -102,12 +102,13 @@ public class EffectorAgent {
 		this.chosen.clear();
 		// Choix des exteroceptives
 		// TEST
-		/*for(String var: this.cav.getDataExteroceptiveInSituation()) {
-			this.chosen.add(var);
-		}*/
 		for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
 			this.chosen.add(this.dataPerceived.get(i));
 		}
+		
+		
+		
+		
 		// Decision des objectifs en fonction des donnees choisies
 		this.lastPlaning = this.myPlaning;
 
