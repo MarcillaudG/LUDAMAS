@@ -110,9 +110,20 @@ public class Situation {
 		System.out.println("SLICE:"+slice);
 		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
 		Collections.shuffle(informationTmp);
-		for(int i = 0; i < nbDecoupage;i++) {
+		List<String> goodData = new ArrayList<String>();
+		for(String s : this.informationAvailable.keySet()) {
+			if(!s.contains("copy")) {
+				goodData.add(s);
+			}
+		}
+		informationTmp.removeAll(goodData);
+		for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
+			this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), 0*slice);
+		}
+		informationTmp.addAll(goodData);
+		for(int i = 1; i < nbDecoupage;i++) {
 			for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
-				this.informationAvailable.put(informationTmp.get(rand.nextInt(informationTmp.size())), i*slice);
+				this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), i*slice);
 			}
 		}
 		System.out.println("SITU :"+this.informationAvailable);

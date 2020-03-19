@@ -114,7 +114,8 @@ public class EffectorAgent {
 		this.dataCommunicated.clear();
 		this.dataCommunicated.addAll(this.cav.getDataComInSituation());
 
-		this.lastPlaning = this.myPlaning;
+		this.lastPlaning = new Planing(myPlaning);
+		this.myPlaning= new Planing();
 
 	}
 
@@ -147,7 +148,6 @@ public class EffectorAgent {
 
 
 		// Decision des objectifs en fonction des donnees choisies
-		this.lastPlaning = this.myPlaning;
 
 
 		this.planActions();
@@ -162,7 +162,7 @@ public class EffectorAgent {
 		//Result res = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState).getLastRes();
 		for(int i=0; i < this.window;i++) {
 			Result res = new Result(this.currentStep+i, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep+i));
-			this.myPlaning.setResAtTime(this.currentStep+i, res);
+			this.myPlaning.addRes(res);
 		}
 
 		/*Result res = new Result(this.currentStep, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep));
@@ -185,9 +185,13 @@ public class EffectorAgent {
 			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
 		}*/
 		System.out.println(myPlaning);
+		System.out.println(this.lastPlaning);
+		this.myMatrix.updateMatrixFromSub(subMatrix);
 
 		if(!this.myPlaning.isIdenticalToLast(this.lastPlaning)) {
 			this.learn();
+			System.out.println("LEARN");
+			System.out.println(this.myMatrix);
 		}
 	}
 

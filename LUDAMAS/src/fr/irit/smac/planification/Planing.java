@@ -18,16 +18,28 @@ public class Planing {
 		this.nbRes = 0;
 	}
 	
+	public Planing(Planing other) {
+		this.plan = new ArrayList<>(other.plan);
+		this.nbRes = this.plan.size();
+		this.exteroChosen = new TreeMap<>();
+		for(String s : other.exteroChosen.keySet()) {
+			this.exteroChosen.put(s, other.exteroChosen.get(s));
+		}
+	}
+
 	public void addRes(Result res) {
 		this.plan.add(res);
 		this.nbRes++;
 	}
 	
 	public Result getResAtTime(Integer time) {
-		if(time < this.nbRes)
-			return this.plan.get(time);
-		else
-			return null;
+		Result ret = null;
+		for(Result res : this.plan) {
+			if(res.getStep()==time) {
+				ret = res;
+			}
+		}
+		return ret;
 	}
 	
 	public Result getNextResult(Integer time) {
@@ -94,7 +106,7 @@ public class Planing {
 
 	public boolean isIdenticalToLast(Planing other) {
 		boolean res = true;
-		for(int i =0; i < this.plan.size()-1;i++) {
+		for(int i =0; i < this.plan.size()-1 && i < other.size();i++) {
 			if(this.plan.get(i).getValue() != other.plan.get(i+1).getValue()) {
 				res = false;
 			}

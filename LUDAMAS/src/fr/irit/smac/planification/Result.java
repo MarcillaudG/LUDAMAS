@@ -34,8 +34,10 @@ public class Result {
 
 	@Override
 	public String toString() {
-		return "Result "+" value=" + value + "]";
+		return "Result [value=" + value + ", step=" + step + "]";
 	}
+
+
 	
 	
 }

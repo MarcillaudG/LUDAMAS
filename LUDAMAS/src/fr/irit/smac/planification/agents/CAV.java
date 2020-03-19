@@ -219,7 +219,7 @@ public class CAV {
 		int idSituation = rand.nextInt(this.nbSituation);
 		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
-		
+		this.currentSituation.startSituation2();
 		
 		/*int i = 0;
 		// ajout des donnees prioceptives

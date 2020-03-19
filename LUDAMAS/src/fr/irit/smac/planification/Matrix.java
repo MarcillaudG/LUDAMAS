@@ -83,7 +83,7 @@ public class Matrix {
 	}
 
 	public void updateMatrixFromSub(Matrix mat) {
-		for(Input in : this.matrix.keySet()) {
+		for(Input in : mat.matrix.keySet()) {
 			for(String s : mat.matrix.get(in).keySet()) {
 				if(!this.matrix.get(in).containsKey(s)) {
 					this.matrix.get(in).put(s, 0.5f);
