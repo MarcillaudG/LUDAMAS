@@ -93,6 +93,10 @@ public class Matrix {
 	}
 
 
+	public void setWeight(String in, String data,float weight) {
+		this.matrix.get(new Input(in, 0)).put(data, weight);
+	}
+	
 	/**
 	 * Add a copy of a row
 	 * @param dataName
@@ -133,6 +137,8 @@ public class Matrix {
 		System.out.println(mat);
 		Matrix sub = mat.constructSubmatrix(list2);
 		mat.updateMatrixFromSub(sub);
+		System.out.println(mat);
+		mat.setWeight("data0", "data'0", 5.0f);
 		System.out.println(mat);
 
 	}

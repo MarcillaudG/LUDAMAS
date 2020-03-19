@@ -61,15 +61,15 @@ public class EffectorAgent {
 	private float bestAction;
 
 	private int currentStep;
-	
+
 	private List<ComposedFunction> composedFunctions;
-	
+
 	private Map<Situation,DecisionProcess> decisionProcess;
-	
+
 	private Situation currentSituation;
-	
+
 	private List<String> effectorsBefore;
-	
+
 	private final int window = 5;
 
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
@@ -99,8 +99,8 @@ public class EffectorAgent {
 		this.lastPlaning = null;
 		this.cost = 0.0f;
 	}
-	
-	
+
+
 
 	public void perceive() {
 		// Recuperation des donnees percues
@@ -113,6 +113,9 @@ public class EffectorAgent {
 		// Recuperation des donnees communiquees
 		this.dataCommunicated.clear();
 		this.dataCommunicated.addAll(this.cav.getDataComInSituation());
+
+		this.lastPlaning = this.myPlaning;
+
 	}
 
 	public void decide() {
@@ -128,7 +131,7 @@ public class EffectorAgent {
 		/*for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
 			this.chosen.add(this.dataPerceived.get(i));
 		}*/
-		
+
 		for(Input in: this.subMatrix.getMatrix().keySet()) {
 			float max = 0.0f;
 			String data = "";
@@ -139,13 +142,14 @@ public class EffectorAgent {
 				}
 			}
 			this.chosen.add(data);
+			this.myPlaning.addExteroData(in.getData(), data);
 		}
-		
-		
+
+
 		// Decision des objectifs en fonction des donnees choisies
 		this.lastPlaning = this.myPlaning;
 
-		
+
 		this.planActions();
 
 
@@ -160,7 +164,7 @@ public class EffectorAgent {
 			Result res = new Result(this.currentStep+i, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep+i));
 			this.myPlaning.setResAtTime(this.currentStep+i, res);
 		}
-		
+
 		/*Result res = new Result(this.currentStep, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep));
 		int nbStep = res.getStep() - this.currentStep;
 		System.out.println("NBStep1:"+res.getStep());
@@ -181,6 +185,19 @@ public class EffectorAgent {
 			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
 		}*/
 		System.out.println(myPlaning);
+
+		if(!this.myPlaning.isIdenticalToLast(this.lastPlaning)) {
+			this.learn();
+		}
+	}
+
+
+	private void learn() {
+		for(String in: this.myPlaning.getExteroChosen().keySet()) {
+			if(!this.myPlaning.getExteroChosen().get(in).equals(this.lastPlaning.getExteroChosen().get(in))) {
+				this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 0.0f);
+			}
+		}
 	}
 
 
@@ -253,8 +270,8 @@ public class EffectorAgent {
 		System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
 		this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
 		time++;
-		
-		
+
+
 	}
 
 	/**

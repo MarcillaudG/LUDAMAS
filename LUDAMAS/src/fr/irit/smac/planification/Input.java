@@ -28,6 +28,8 @@ public class Input implements Comparable{
 		this.position = position;
 	}
 
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -65,5 +67,6 @@ public class Input implements Comparable{
 		return 0;
 	}
 
+	
 	
 }

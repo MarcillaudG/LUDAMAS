@@ -10,8 +10,11 @@ public class Planing {
 	List<Result> plan;
 	private Integer nbRes;
 	
+	private Map<String,String> exteroChosen;
+	
 	public Planing() {
 		plan = new ArrayList<Result>();
+		this.exteroChosen = new TreeMap<>();
 		this.nbRes = 0;
 	}
 	
@@ -71,6 +74,45 @@ public class Planing {
 
 	public Result getLastRes() {
 		return this.plan.get(this.plan.size()-1);
+	}
+	
+	public void addExteroData(String data, String extero) {
+		this.exteroChosen.put(data, extero);
+	}
+
+	public List<Result> getPlan() {
+		return plan;
+	}
+
+	public Integer getNbRes() {
+		return nbRes;
+	}
+
+	public Map<String, String> getExteroChosen() {
+		return exteroChosen;
+	}
+
+	public boolean isIdenticalToLast(Planing other) {
+		boolean res = true;
+		for(int i =0; i < this.plan.size()-1;i++) {
+			if(this.plan.get(i).getValue() != other.plan.get(i+1).getValue()) {
+				res = false;
+			}
+		}
+			
+		return res;
+	}
+	
+	public static void main(String args[]) {
+		Planing p1 = new Planing();
+		Planing p2 = new Planing();
+		for(int i =0; i < 5;i++) {
+			p1.addRes(new Result(i, (float)i));
+		}
+		for(int i =0; i < 5;i++) {
+			p2.addRes(new Result(i, (float)i+1));
+		}
+		System.out.println(p1.isIdenticalToLast(p2));
 	}
 
 }
