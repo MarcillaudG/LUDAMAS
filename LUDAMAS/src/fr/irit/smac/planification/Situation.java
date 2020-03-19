@@ -22,9 +22,13 @@ public class Situation {
 	private ComposedFunction cf;
 
 	private int nbDecoupage;
+	
+	private int nbStep;
 
 	private float[] internalState;
 	private float[] internalEffect;
+	
+	private float valueToAchieve;
 
 	private Map<String,Integer> informationAvailable;
 
@@ -61,6 +65,18 @@ public class Situation {
 		this.nbDecoupage = nbDecoupage;
 
 	}
+	
+	public Situation(int id, int nbStep, List<String> informationAvailable, int nbDecoupage) {
+		this.id = id;
+		this.informationAvailable = new TreeMap<>();
+		this.nbStep = nbStep;
+
+		for(String inf : informationAvailable) {
+			this.informationAvailable.put(inf, 0);
+		}
+		this.nbDecoupage = nbDecoupage;
+
+	}
 
 	/**
 	 * Initialise les slice dans lesquelles les inforamtions sont disponibles
@@ -68,8 +84,29 @@ public class Situation {
 	public void startSituation() {
 		// Decoupage des informations disponibles
 		Random rand = new Random();
-		float valueToAchieve = (float)cf.getOutput(1).getValue();
+		this.valueToAchieve = (float)cf.getOutput(1).getValue();
+		for(int i =0; i < this.internalState.length;i++) {
+			this.internalState[i] = (float)cf.getOutput(i+1).getValue();
+		}
 		int slice = (int) (valueToAchieve / nbDecoupage);
+		System.out.println("SLICE:"+slice);
+		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
+		Collections.shuffle(informationTmp);
+		for(int i = 0; i < nbDecoupage;i++) {
+			for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
+				this.informationAvailable.put(informationTmp.get(rand.nextInt(informationTmp.size())), i*slice);
+			}
+		}
+		System.out.println("SITU :"+this.informationAvailable);
+	}
+	
+	/**
+	 * Initialise les slice dans lesquelles les inforamtions sont disponibles
+	 */
+	public void startSituation2() {
+		// Decoupage des informations disponibles
+		Random rand = new Random();
+		int slice = (int) (this.nbStep / nbDecoupage);
 		System.out.println("SLICE:"+slice);
 		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
 		Collections.shuffle(informationTmp);
@@ -82,6 +119,16 @@ public class Situation {
 	}
 
 	public List<String> getInformationAvailable(float value){
+		List<String> res = new ArrayList<>();
+		for(String s: this.informationAvailable.keySet()) {
+			if(this.informationAvailable.get(s)<= value) {
+				res.add(s);
+			}
+		}
+		return res;
+	}
+	
+	public List<String> getInformationAvailable(int value){
 		List<String> res = new ArrayList<>();
 		for(String s: this.informationAvailable.keySet()) {
 			if(this.informationAvailable.get(s)<= value) {
@@ -125,6 +172,36 @@ public class Situation {
 
 	public ComposedFunction getCf() {
 		return this.cf;
+	}
+	
+	public float getValueToAchieve() {
+		return this.valueToAchieve;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Situation other = (Situation) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+	public Integer getTime() {
+		return this.nbStep;
 	}
 
 

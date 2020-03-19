@@ -13,7 +13,7 @@ public class Matrix {
 	private Map<Input,Map<String,Float>> matrix;
 
 	private Matrix subMatrix;
-	
+
 	private int nbInput;
 
 	public Matrix (List<String> dataExteroceptive) {
@@ -45,6 +45,25 @@ public class Matrix {
 	}
 
 
+	public Matrix(List<String> exteroData, List<String> exteroInSituation, Matrix mat) {
+		System.out.println(exteroData);
+		this.matrix = new TreeMap<Input,Map<String,Float>>();
+		for(Input in: mat.matrix.keySet()) {
+			if(exteroInSituation.contains(in.getData())) {
+				String s = in.getData();
+				this.matrix.put(in, new TreeMap<String,Float>());
+				for(String var: exteroData) {
+					if(mat.matrix.get(in).get(var) != null) {
+						this.matrix.get(in).put(var, mat.matrix.get(in).get(var));
+					}
+					else {
+						this.matrix.get(in).put(var, 0.5f);
+					}
+				}
+			}
+		}
+	}
+
 	public Matrix constructSubmatrix(List<String> exteroData) {
 		this.subMatrix = null;
 
@@ -53,7 +72,16 @@ public class Matrix {
 
 		return this.subMatrix;
 	}
-	
+
+	public Matrix constructSubmatrix(List<String> exteroData, List<String> exteroInSituation) {
+		this.subMatrix = null;
+
+		this.subMatrix = new Matrix(exteroData, exteroInSituation, this);
+
+
+		return this.subMatrix;
+	}
+
 	public void updateMatrixFromSub(Matrix mat) {
 		for(Input in : this.matrix.keySet()) {
 			for(String s : mat.matrix.get(in).keySet()) {
@@ -78,9 +106,9 @@ public class Matrix {
 		this.matrix.put(new Input(dataName, nbInput), rowTmp);
 		nbInput++;
 	}
-	
+
 	public String toString() {
-		String res = "";
+		String res = "MATRIX\n";
 		for(Input in: this.matrix.keySet()) {
 			res += "| "+in.getData()+" |";
 			for(String s : this.matrix.get(in).keySet()) {
@@ -91,7 +119,7 @@ public class Matrix {
 		return res;
 	}
 
-	
+
 	public static void main(String args[]) {
 		List<String> list = new ArrayList<>();
 		List<String> list2 = new ArrayList<>();
@@ -106,7 +134,17 @@ public class Matrix {
 		Matrix sub = mat.constructSubmatrix(list2);
 		mat.updateMatrixFromSub(sub);
 		System.out.println(mat);
-		
+
 	}
-	
+
+	public Map<Input, Map<String, Float>> getMatrix() {
+		return matrix;
+	}
+
+	public int getNbInput() {
+		return nbInput;
+	}
+
+
+
 }

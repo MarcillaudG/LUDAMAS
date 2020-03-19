@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.sun.scenario.effect.Effect;
+
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.generator.ShieldUser;
 import fr.irit.smac.planification.Objective;
@@ -78,9 +80,6 @@ public class CAV {
 		this.name = name;
 		this.currentTime = 0;
 
-		if(nbObjectiveStates >  nbEffectors) {
-			System.err.println("ERROR creation PlanificationFunction");
-		}
 
 		this.nbObjectiveStates = nbObjectiveStates;
 		this.nbEffectors = nbEffectors;
@@ -98,6 +97,7 @@ public class CAV {
 	}
 
 	private void init() {
+		System.out.println("Init");
 		this.effectors = new TreeMap<String,EffectorAgent>();
 		this.dataPerceivedInSituation = new ArrayList<String>();
 		this.dataCommunicatedInSituation = new ArrayList<String>();
@@ -106,8 +106,17 @@ public class CAV {
 		this.effectorData = new ArrayList<>();
 		this.exteroData = new ArrayList<>();
 		this.exteroDataCorrect = new TreeMap<>();
+		Random rand = new Random();
+		List<String> variablesAvailable = new ArrayList<>(this.environment.getAllVariable());
+		for(int i =0; i < 4;i++) {
+			this.internalData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
+		}
+		this.exteroData.addAll(variablesAvailable);
+		for(String s : this.exteroData) {
+			this.environment.generateSimilarData(s, 3);
+		}
 
-		int i = 0;
+		/*int i = 0;
 		this.initComposedFunction();
 		while(i < this.nbEffectors) {
 			int j = 0;
@@ -118,6 +127,11 @@ public class CAV {
 				j++;
 				i++;
 			}
+		}*/
+		
+		for(int i =0; i < this.nbObjectiveStates;i++) {
+			EffectorAgent eff = new EffectorAgent("Effector:"+i, this, i, 10.0f);
+			this.effectors.put(eff.getName(), eff);
 		}
 
 		for(int k = 0; k < this.nbObjectiveStates;k++) {
@@ -128,10 +142,16 @@ public class CAV {
 			dataInSituation.add(this.environment.getCopyOfVar(s));
 		}
 		dataInSituation.addAll(this.exteroData);
-
 		for(int k = 0; k < this.nbSituation;k++) {
-			Situation s = new Situation(k, this.nbObjectiveStates, dataInSituation, this.composedFunction, 2);
+			Situation s = new Situation(k, rand.nextInt(30)+5, dataInSituation, 2);
 			this.situations[k] = s;
+			for(EffectorAgent eff : this.effectors.values()) {
+				DecisionProcess dp = new DecisionProcess(s, eff, this.environment);
+				eff.addDP(dp,s);
+				Collections.shuffle(this.internalData);
+				Collections.shuffle(this.exteroData);
+				dp.initComposedFunction(this.internalData.subList(0, 2), this.exteroData.subList(0, 3), new ArrayList<String>());
+			}
 		}
 	}
 
@@ -195,12 +215,13 @@ public class CAV {
 
 	private void startSituation() {
 		Random rand = new Random();
+		this.currentTime =0;
 		int idSituation = rand.nextInt(this.nbSituation);
 		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
 		
 		
-		int i = 0;
+		/*int i = 0;
 		// ajout des donnees prioceptives
 		for(int j =0; j < this.internalData.size();j++) {
 			//this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
@@ -312,16 +333,17 @@ public class CAV {
 		this.startSituation();
 		this.currentTime = 0;
 		boolean over = false;
-		while(!over) {
+		while(this.currentTime < this.currentSituation.getTime()) {
 			this.senseData();
 			this.planificationEffectors();
 			this.currentTime++;
 			this.updateInternalState();
-			for(EffectorAgent eff: this.effectors.values()) {
+			/*for(EffectorAgent eff: this.effectors.values()) {
 				if((float)this.currentSituation.getCf().getOutput(1).getValue() == this.internalState[eff.getMyObjectiveState()]) {
 					over = true;
 				}
-			}
+			}*/
+			
 		}
 	}
 
@@ -409,5 +431,13 @@ public class CAV {
 
 	public Collection<? extends String> getInformationAvailable(int myObjectiveState) {
 		return this.currentSituation.getInformationAvailable(this.internalState[myObjectiveState]);
+	}
+
+	public Situation getCurrentSituation() {
+		return this.currentSituation;
+	}
+
+	public int getCurrentStep() {
+		return this.nbStep;
 	}
 }

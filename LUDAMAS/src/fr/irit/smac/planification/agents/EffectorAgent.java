@@ -1,15 +1,19 @@
 package fr.irit.smac.planification.agents;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import fr.irit.smac.complex.ComposedFunction;
+import fr.irit.smac.planification.Input;
 import fr.irit.smac.planification.Matrix;
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
+import fr.irit.smac.planification.Situation;
 
 public class EffectorAgent {
 
@@ -57,6 +61,16 @@ public class EffectorAgent {
 	private float bestAction;
 
 	private int currentStep;
+	
+	private List<ComposedFunction> composedFunctions;
+	
+	private Map<Situation,DecisionProcess> decisionProcess;
+	
+	private Situation currentSituation;
+	
+	private List<String> effectorsBefore;
+	
+	private final int window = 5;
 
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
@@ -75,6 +89,9 @@ public class EffectorAgent {
 		this.objectives = new TreeMap<Integer,Float>();
 		this.dpercom = new TreeMap<>();
 		this.chosen = new ArrayList<>();
+		this.composedFunctions = new ArrayList<>();
+		this.decisionProcess = new HashMap<>();
+		this.effectorsBefore = new ArrayList<>();
 	}
 
 	public void initSituation() {
@@ -82,12 +99,16 @@ public class EffectorAgent {
 		this.lastPlaning = null;
 		this.cost = 0.0f;
 	}
+	
+	
 
 	public void perceive() {
 		// Recuperation des donnees percues
 		this.dataPerceived.clear();
 		//this.dataPerceived.addAll(this.cav.getDataPerceivedInSituation());
-		this.dataPerceived.addAll(this.cav.getInformationAvailable(this.myObjectiveState));
+		//this.dataPerceived.addAll(this.cav.getInformationAvailable(this.myObjectiveState));
+		this.currentSituation = this.cav.getCurrentSituation();
+		this.dataPerceived.addAll(this.currentSituation.getInformationAvailable(this.currentStep));
 
 		// Recuperation des donnees communiquees
 		this.dataCommunicated.clear();
@@ -97,16 +118,28 @@ public class EffectorAgent {
 	public void decide() {
 		System.out.println("Decide");
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
-		this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived);
+		this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
+		System.out.println(this.decisionProcess.get(this.currentSituation).getExtero());
+		System.out.println(subMatrix);
 		this.dpercom.clear();
 		this.chosen.clear();
 		// Choix des exteroceptives
 		// TEST
-		for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
+		/*for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
 			this.chosen.add(this.dataPerceived.get(i));
+		}*/
+		
+		for(Input in: this.subMatrix.getMatrix().keySet()) {
+			float max = 0.0f;
+			String data = "";
+			for(String s : this.subMatrix.getMatrix().get(in).keySet()) {
+				if(this.subMatrix.getMatrix().get(in).get(s) > max) {
+					data = s;
+					max = this.subMatrix.getMatrix().get(in).get(s);
+				}
+			}
+			this.chosen.add(data);
 		}
-		
-		
 		
 		
 		// Decision des objectifs en fonction des donnees choisies
@@ -122,7 +155,13 @@ public class EffectorAgent {
 	private void planActions() {
 		// Use the CAV function to get the planing using 
 		System.out.println("CHOSEN :"+this.chosen);
-		Result res = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState).getLastRes();
+		//Result res = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState).getLastRes();
+		for(int i=0; i < this.window;i++) {
+			Result res = new Result(this.currentStep+i, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep+i));
+			this.myPlaning.setResAtTime(this.currentStep+i, res);
+		}
+		
+		/*Result res = new Result(this.currentStep, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep));
 		int nbStep = res.getStep() - this.currentStep;
 		System.out.println("NBStep1:"+res.getStep());
 		System.out.println("NBStep2:"+nbStep);
@@ -136,11 +175,11 @@ public class EffectorAgent {
 			planActionInf(valueRemaining,nbStep);
 		}*/
 
-		float action = valueRemaining / nbStep;
+		/*float action = valueRemaining / nbStep;
 		for(int i = 0; i < nbStep;i++) {
 			Result resTmp =new Result(this.currentStep+i, action);
 			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
-		}
+		}*/
 		System.out.println(myPlaning);
 	}
 
@@ -277,6 +316,11 @@ public class EffectorAgent {
 
 	public float getCostOfSituation() {
 		return this.cost;
+	}
+
+
+	public void addDP(DecisionProcess dp, Situation s) {
+		this.decisionProcess.put(s, dp);
 	}
 
 }
