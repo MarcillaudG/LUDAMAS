@@ -2,6 +2,7 @@ package fr.irit.smac.planification;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class Matrix {
 	private int nbInput;
 
 	public Matrix (List<String> dataExteroceptive) {
-		this.matrix = new TreeMap<Input,Map<String,Float>>();
+		this.matrix = new HashMap<Input,Map<String,Float>>();
 		this.nbInput =0;
 		for(int i =0; i < dataExteroceptive.size();i++) {
 			String s = dataExteroceptive.get(i);
@@ -29,7 +30,7 @@ public class Matrix {
 
 	private Matrix (List<String> exteroData, Matrix mat) {
 		System.out.println(exteroData);
-		this.matrix = new TreeMap<Input,Map<String,Float>>();
+		this.matrix = new HashMap<Input,Map<String,Float>>();
 		for(Input in: mat.matrix.keySet()) {
 			String s = in.getData();
 			this.matrix.put(in, new TreeMap<String,Float>());
@@ -47,7 +48,7 @@ public class Matrix {
 
 	public Matrix(List<String> exteroData, List<String> exteroInSituation, Matrix mat) {
 		System.out.println(exteroData);
-		this.matrix = new TreeMap<Input,Map<String,Float>>();
+		this.matrix = new HashMap<Input,Map<String,Float>>();
 		for(Input in: mat.matrix.keySet()) {
 			if(exteroInSituation.contains(in.getData())) {
 				String s = in.getData();
@@ -138,7 +139,7 @@ public class Matrix {
 		Matrix sub = mat.constructSubmatrix(list2);
 		mat.updateMatrixFromSub(sub);
 		System.out.println(mat);
-		mat.setWeight("data0", "data'0", 5.0f);
+		mat.setWeight("data2", "data'0", 5.0f);
 		System.out.println(mat);
 
 	}

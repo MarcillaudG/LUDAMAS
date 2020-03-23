@@ -1,5 +1,9 @@
 package fr.irit.smac.planification;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
 public class Input implements Comparable{
 
 	
@@ -67,6 +71,13 @@ public class Input implements Comparable{
 		return 0;
 	}
 
+	public static void main(String args[]) {
+		Map<Input,Integer> test = new TreeMap<>();
+		for(int i =0; i < 5; i++) {
+			test.put(new Input("data"+i, i), i*10);
+		}
+		System.out.println(test.get(new Input("data2",0)));
+	}
 	
 	
 }

@@ -137,7 +137,7 @@ public class EffectorAgent {
 			float max = 0.0f;
 			String data = "";
 			for(String s : this.subMatrix.getMatrix().get(in).keySet()) {
-				if(this.subMatrix.getMatrix().get(in).get(s) > max) {
+				if(this.subMatrix.getMatrix().get(in).get(s) > max && !this.chosen.contains(s)) {
 					data = s;
 					max = this.subMatrix.getMatrix().get(in).get(s);
 				}
