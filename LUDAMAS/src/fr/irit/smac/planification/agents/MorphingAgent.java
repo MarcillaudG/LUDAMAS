@@ -50,7 +50,9 @@ public class MorphingAgent {
 	public void perceive() {
 		this.value = null;
 		// voit sa valeur
+		this.value = this.superiorAgent.askValue(this.dataName);
 		// voit les inputs disponibles
+		this.superiorAgent.getInputsInScenario();
 
 	}
 
@@ -63,6 +65,18 @@ public class MorphingAgent {
 	public void act() {
 		// si lie
 		// alors envoyer valeur transformer
+		this.morphValue = this.dico();
+		float valueToSend = this.value * this.morphValue;
+		System.out.println(valueToSend);
+	}
+	
+	/**
+	 * Recherche dans l'historique la valeur la plus proche
+	 * et renvoi la valeur de transformation
+	 * @return morphedValue
+	 * 		la valeur de transformation
+	 */
+	private float dico() {
 		float morphedValue = 1.0f;
 		List<Float> toDico = new ArrayList<>(this.distribution.keySet());
 		Collections.sort(toDico);
@@ -102,10 +116,7 @@ public class MorphingAgent {
 		if(toDico.size() == 1) {
 			morphedValue = this.distribution.get(toDico.get(0));
 		}
-		float valueToSend = this.value * morphedValue;
-		//System.out.println(this.distribution.get(toDico.get(ind)));
-		System.out.println(morphedValue);
-		System.out.println(valueToSend);
+		return morphedValue;
 	}
 
 	/**
@@ -169,5 +180,13 @@ public class MorphingAgent {
 		System.out.println(morphling.distribution);
 		morphling.value = 35.f;
 		morphling.act();
+	}
+
+	public String getData() {
+		return this.dataName;
+	}
+	
+	public String getInput() {
+		return this.inputName;
 	}
 }

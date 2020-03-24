@@ -440,4 +440,8 @@ public class CAV {
 	public int getCurrentStep() {
 		return this.nbStep;
 	}
+
+	public Float getValueOfData(String dataName) {
+		return (float) this.environment.getValueOfVariableWithName(dataName);
+	}
 }

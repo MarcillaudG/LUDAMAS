@@ -9,6 +9,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import fr.irit.smac.planification.agents.EffectorAgent;
+import fr.irit.smac.planification.agents.MorphingAgent;
+
 public class Matrix {
 
 	private Map<Input,Map<String,Float>> matrix;
@@ -16,7 +19,9 @@ public class Matrix {
 	private Matrix subMatrix;
 
 	private int nbInput;
-
+	
+	private EffectorAgent effectorAgent;
+	
 	public Matrix (List<String> dataExteroceptive) {
 		this.matrix = new HashMap<Input,Map<String,Float>>();
 		this.nbInput =0;
@@ -24,6 +29,19 @@ public class Matrix {
 			String s = dataExteroceptive.get(i);
 			this.matrix.put(new Input(s,i),new TreeMap<String,Float>());
 			this.matrix.get(new Input(s,i)).put(s, 1.0f);
+			nbInput++;
+		}
+	}
+
+	public Matrix (List<String> dataExteroceptive, EffectorAgent eff) {
+		this.matrix = new HashMap<Input,Map<String,Float>>();
+		this.nbInput =0;
+		this.effectorAgent = eff;
+		for(int i =0; i < dataExteroceptive.size();i++) {
+			String s = dataExteroceptive.get(i);
+			this.matrix.put(new Input(s,i),new TreeMap<String,Float>());
+			this.matrix.get(new Input(s,i)).put(s, 1.0f);
+			this.effectorAgent.addMorphingAgent(new MorphingAgent(s, s, eff, this));
 			nbInput++;
 		}
 	}
@@ -88,6 +106,7 @@ public class Matrix {
 			for(String s : mat.matrix.get(in).keySet()) {
 				if(!this.matrix.get(in).containsKey(s)) {
 					this.matrix.get(in).put(s, 0.5f);
+					this.effectorAgent.addMorphingAgent(new MorphingAgent(s, in.getData(), this.effectorAgent, mat));
 				}
 			}
 		}

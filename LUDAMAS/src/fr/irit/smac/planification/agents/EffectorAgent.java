@@ -71,6 +71,8 @@ public class EffectorAgent {
 	private List<String> effectorsBefore;
 
 	private final int window = 5;
+	
+	private Map<String,MorphingAgent> morphlings;
 
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
@@ -92,6 +94,7 @@ public class EffectorAgent {
 		this.composedFunctions = new ArrayList<>();
 		this.decisionProcess = new HashMap<>();
 		this.effectorsBefore = new ArrayList<>();
+		this.morphlings = new TreeMap<>();
 	}
 
 	public void initSituation() {
@@ -342,6 +345,21 @@ public class EffectorAgent {
 
 	public void addDP(DecisionProcess dp, Situation s) {
 		this.decisionProcess.put(s, dp);
+	}
+	
+	public void addMorphingAgent(MorphingAgent morph) {
+		this.morphlings.put(morph.getData(), morph);
+	}
+
+
+	public Float askValue(String dataName) {
+		return this.cav.getValueOfData(dataName);
+	}
+
+
+	public List<String> getInputsInScenario() {
+		return this.decisionProcess.get(this.currentSituation).getExtero();
+		
 	}
 
 }
