@@ -353,7 +353,10 @@ public class EffectorAgent {
 
 
 	public Float askValue(String dataName) {
-		return this.cav.getValueOfData(dataName);
+		if(this.dataPerceived.contains(dataName))
+			return this.cav.getValueOfData(dataName);
+		else
+			return null;
 	}
 
 
