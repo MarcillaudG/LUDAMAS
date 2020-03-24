@@ -74,6 +74,24 @@ public class DecisionProcess {
 		return (float) this.function.getOutput(0).getValue();
 	}
 	
+	public float computeAgent(List<Float> extero,List<String> effectors, int nbStep) {
+		int i = 0;
+		for(; i < this.proprio.size();i++) {
+			this.function.setInitInput(i, (float) this.env.getValueOfVariableWithName(this.proprio.get(i)));
+		}
+		for(int j=0; j < this.extero.size();j++) {
+			this.function.setInitInput(i, extero.get(j));
+			i++;
+		}
+		for(int j =0; j< effectors.size();j++) {
+			this.function.setInitInput(i, (float) this.env.getValueOfVariableWithName(effectors.get(j)));
+			i++;
+		}
+		this.function.setInitInput(i, nbStep);
+		this.function.compute();
+		return (float) this.function.getOutput(0).getValue();
+	}
+	
 	public float getResultFunction() {
 		return (float) this.function.getOutput(0).getValue();
 	}

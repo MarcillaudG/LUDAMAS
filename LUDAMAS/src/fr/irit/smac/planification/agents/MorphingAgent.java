@@ -58,7 +58,10 @@ public class MorphingAgent {
 
 	public void decide() {
 		// si valeur != null
-		// chercher à se lier
+		if(this.value !=null) {
+			// chercher à se lier
+			
+		}
 
 	}
 
@@ -68,6 +71,10 @@ public class MorphingAgent {
 		this.morphValue = this.dico();
 		float valueToSend = this.value * this.morphValue;
 		System.out.println(valueToSend);
+	}
+	
+	public void sendFeedback(float correctValue) {
+		this.addMorph(this.value, correctValue);
 	}
 	
 	/**
