@@ -73,6 +73,7 @@ public class EffectorAgent {
 	private final int window = 5;
 	
 	private Map<String,MorphingAgent> morphlings;
+	List<MorphingAgent> morphActifs;
 
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
@@ -101,6 +102,9 @@ public class EffectorAgent {
 		this.myPlaning = new Planing();
 		this.lastPlaning = null;
 		this.cost = 0.0f;
+		this.morphActifs = new ArrayList<>();
+		
+		
 	}
 
 
@@ -108,6 +112,7 @@ public class EffectorAgent {
 	public void perceive() {
 		// Recuperation des donnees percues
 		this.dataPerceived.clear();
+		this.morphActifs.clear();
 		//this.dataPerceived.addAll(this.cav.getDataPerceivedInSituation());
 		//this.dataPerceived.addAll(this.cav.getInformationAvailable(this.myObjectiveState));
 		this.currentSituation = this.cav.getCurrentSituation();
@@ -119,7 +124,7 @@ public class EffectorAgent {
 
 		this.lastPlaning = new Planing(myPlaning);
 		this.myPlaning= new Planing();
-
+		
 	}
 
 	public void decide() {
@@ -130,12 +135,15 @@ public class EffectorAgent {
 		System.out.println(subMatrix);
 		this.dpercom.clear();
 		this.chosen.clear();
+		
+		
+		this.findMorphling();
+		
 		// Choix des exteroceptives
 		// TEST
 		/*for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
 			this.chosen.add(this.dataPerceived.get(i));
 		}*/
-
 		for(Input in: this.subMatrix.getMatrix().keySet()) {
 			float max = 0.0f;
 			String data = "";
@@ -156,6 +164,15 @@ public class EffectorAgent {
 		this.planActions();
 
 
+	}
+
+
+	private void findMorphling() {
+		for(MorphingAgent morph: this.morphlings.values()) {
+			if(this.dataPerceived.contains(morph.getData()) && this.decisionProcess.get(this.currentSituation).getExtero().contains(morph.getInput())) {
+				this.morphActifs.add(morph);
+			}
+		}
 	}
 
 
