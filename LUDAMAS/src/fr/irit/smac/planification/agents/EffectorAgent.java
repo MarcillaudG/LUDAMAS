@@ -106,6 +106,7 @@ public class EffectorAgent {
 		this.decisionProcess = new HashMap<>();
 		this.effectorsBefore = new ArrayList<>();
 		this.morphlings = new TreeMap<>();
+		this.dataConstraint = new TreeMap<>();
 	}
 
 	public void initSituation() {
