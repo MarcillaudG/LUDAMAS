@@ -196,4 +196,10 @@ public class MorphingAgent {
 	public String getInput() {
 		return this.inputName;
 	}
+
+	public void start(int currentStep) {
+		this.perceive();
+		this.decide();
+		this.act();
+	}
 }

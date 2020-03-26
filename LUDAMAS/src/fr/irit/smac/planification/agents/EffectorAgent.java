@@ -1,6 +1,7 @@
 package fr.irit.smac.planification.agents;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +75,21 @@ public class EffectorAgent {
 	
 	private Map<String,MorphingAgent> morphlings;
 	List<MorphingAgent> morphActifs;
+	
+	private Map<String,InputConstraint> inputsConstraints;
+	
+	private Map<String, DataUnicityConstraint> dataConstraint;
 
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
 		this.name = name;
 		this.myObjectiveState = objState;
 		this.myMatrix = new Matrix(pf.getExteroceptiveData());
+		this.inputsConstraints = new TreeMap<>();
+		for(String s : pf.getExteroceptiveData()) {
+			this.inputsConstraints.put(s, new InputConstraint(this, s));
+		}
+		
 		this.bestAction = actionOpt;
 		init();
 	}
@@ -129,6 +139,13 @@ public class EffectorAgent {
 
 	public void decide() {
 		System.out.println("Decide");
+		// CreationofDataConstraint
+		List<String> constraintToADD = new ArrayList<>(this.dataPerceived);
+		constraintToADD.removeAll(this.dataConstraint.keySet());
+		for(String data: constraintToADD) {
+			this.dataConstraint.put(data, new DataUnicityConstraint(this, data));
+		}
+		
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
 		this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
 		System.out.println(this.decisionProcess.get(this.currentSituation).getExtero());
@@ -140,10 +157,17 @@ public class EffectorAgent {
 		this.findMorphling();
 		
 		// Choix des exteroceptives
+		Collections.shuffle(this.morphActifs);
+		for(int i =0; i < this.morphActifs.size();i++) {
+			this.morphActifs.get(i).start(this.currentStep);
+		}
+		
+		
+		
 		// TEST
 		/*for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
 			this.chosen.add(this.dataPerceived.get(i));
-		}*/
+		}
 		for(Input in: this.subMatrix.getMatrix().keySet()) {
 			float max = 0.0f;
 			String data = "";
@@ -155,8 +179,7 @@ public class EffectorAgent {
 			}
 			this.chosen.add(data);
 			this.myPlaning.addExteroData(in.getData(), data);
-		}
-
+		}*/
 
 		// Decision des objectifs en fonction des donnees choisies
 
