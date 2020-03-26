@@ -453,5 +453,20 @@ public class EffectorAgent {
 	}
 
 
+	public DataUnicityConstraint getDataUnicityConstraint(String dataName) {
+		return this.dataConstraint.get(dataName);
+	}
+
+
+	public InputConstraint getInputConstraint(String inputName) {
+		return this.inputsConstraints.get(inputName);
+	}
+
+
+	public int getCurrentStep() {
+		return this.currentStep;
+	}
+
+
 
 }

@@ -49,6 +49,10 @@ public class Offer {
 	public void setCrit(float crit) {
 		this.crit = crit;
 	}
+
+	public boolean isBetter(Offer offer) {
+		return this.crit > offer.crit;
+	}
 	
 	
 }

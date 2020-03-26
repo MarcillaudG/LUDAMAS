@@ -2,32 +2,37 @@ package fr.irit.smac.planification.agents;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.planification.Situation;
 
 public class DecisionProcess {
 
-	
+
 	private Situation situation;
-	
+
 	private EffectorAgent effector;
-	
+
 	private ComposedFunction function;
-	
+
 	private Environment env;
-	
+
 	private List<String> proprio;
-	
+
 	private List<String> extero;
-	
+
+	private Map<String,Integer> valuesExtero;
+
 	public DecisionProcess(Situation situ, EffectorAgent eff, Environment env) {
 		this.situation = situ;
 		this.effector = eff;
 		this.env = env;
-		
+
 		this.proprio = new ArrayList<>();
 		this.extero = new ArrayList<>();
+		this.valuesExtero = new TreeMap<>();
 	}
 
 	public Situation getSituation() {
@@ -41,7 +46,7 @@ public class DecisionProcess {
 	public ComposedFunction getFunction() {
 		return function;
 	}
-	
+
 	public void initComposedFunction(List<String> proprioceptive, List<String> exteroceptive, List<String> effectors) {
 		List<String> input = new ArrayList<String>();
 		for(int i=0; i < proprioceptive.size()+exteroceptive.size()+effectors.size();i++) {
@@ -55,7 +60,7 @@ public class DecisionProcess {
 		this.proprio.addAll(proprioceptive);
 		this.extero.addAll(exteroceptive);
 	}
-	
+
 	public float compute(List<String> extero,List<String> effectors, int nbStep) {
 		int i = 0;
 		for(; i < this.proprio.size();i++) {
@@ -73,15 +78,11 @@ public class DecisionProcess {
 		this.function.compute();
 		return (float) this.function.getOutput(0).getValue();
 	}
-	
+
 	public float computeAgent(List<Float> extero,List<String> effectors, int nbStep) {
 		int i = 0;
 		for(; i < this.proprio.size();i++) {
 			this.function.setInitInput(i, (float) this.env.getValueOfVariableWithName(this.proprio.get(i)));
-		}
-		for(int j=0; j < this.extero.size();j++) {
-			this.function.setInitInput(i, extero.get(j));
-			i++;
 		}
 		for(int j =0; j< effectors.size();j++) {
 			this.function.setInitInput(i, (float) this.env.getValueOfVariableWithName(effectors.get(j)));
@@ -91,7 +92,26 @@ public class DecisionProcess {
 		this.function.compute();
 		return (float) this.function.getOutput(0).getValue();
 	}
-	
+
+	public float computeMorph(List<String> effectors, int nbStep) {
+		int i = 0;
+		for(; i < this.proprio.size();i++) {
+			this.function.setInitInput(i, (float) this.env.getValueOfVariableWithName(this.proprio.get(i)));
+		}
+		i+=this.extero.size();
+		for(int j =0; j< effectors.size();j++) {
+			this.function.setInitInput(i, (float) this.env.getValueOfVariableWithName(effectors.get(j)));
+			i++;
+		}
+		this.function.setInitInput(i, nbStep);
+		this.function.compute();
+		return (float) this.function.getOutput(0).getValue();
+	}
+
+	public void setValueOfInitInput(String input, Float value) {
+		this.function.setInitInput(this.valuesExtero.get(input), value);
+	}
+
 	public float getResultFunction() {
 		return (float) this.function.getOutput(0).getValue();
 	}
@@ -103,6 +123,6 @@ public class DecisionProcess {
 	public List<String> getExtero() {
 		return extero;
 	}
-	
-	
+
+
 }

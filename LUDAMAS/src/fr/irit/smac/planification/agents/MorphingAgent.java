@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import fr.irit.smac.planification.Input;
 import fr.irit.smac.planification.Matrix;
 
 public class MorphingAgent {
@@ -25,9 +26,15 @@ public class MorphingAgent {
 
 	private Float value;
 
+	private float usefulness;
+	
 	private Map<Integer, Pair<Float,Float>> historic;
 
 	private Map<Float,Float> distribution;
+	
+	private InputConstraint inputConstraint;
+	
+	private DataUnicityConstraint dataConstraint;
 
 	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat) {
 		this.dataName = dataName;
@@ -51,16 +58,23 @@ public class MorphingAgent {
 		this.value = null;
 		// voit sa valeur
 		this.value = this.superiorAgent.askValue(this.dataName);
-		// voit les inputs disponibles
-		this.superiorAgent.getInputsInScenario();
+		
+		// voit son utilite
+		this.usefulness = this.matrix.getMatrix().get(new Input(this.inputName,0)).get(this.dataName);
 
+		// Recupere les deux contraintes
+		this.dataConstraint = this.superiorAgent.getDataUnicityConstraint(this.dataName);
+		this.inputConstraint = this.superiorAgent.getInputConstraint(this.inputName);
 	}
 
 	public void decide() {
 		// si valeur != null
 		if(this.value !=null) {
-			// chercher à se lier
-			
+			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentStep(),this.usefulness);
+			if(this.dataConstraint.isOfferBetter(myOffer) || this.inputConstraint.isOfferBetter(myOffer)) {
+				this.dataConstraint.addOffer(myOffer);
+				this.inputConstraint.addOffer(myOffer);
+			}
 		}
 
 	}
@@ -206,6 +220,43 @@ public class MorphingAgent {
 	@Override
 	public String toString() {
 		return "MorphingAgent:"+this.inputName+":"+this.dataName;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((dataName == null) ? 0 : dataName.hashCode());
+		result = prime * result + ((inputName == null) ? 0 : inputName.hashCode());
+		result = prime * result + ((superiorAgent == null) ? 0 : superiorAgent.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MorphingAgent other = (MorphingAgent) obj;
+		if (dataName == null) {
+			if (other.dataName != null)
+				return false;
+		} else if (!dataName.equals(other.dataName))
+			return false;
+		if (inputName == null) {
+			if (other.inputName != null)
+				return false;
+		} else if (!inputName.equals(other.inputName))
+			return false;
+		if (superiorAgent == null) {
+			if (other.superiorAgent != null)
+				return false;
+		} else if (!superiorAgent.equals(other.superiorAgent))
+			return false;
+		return true;
 	}
 	
 	

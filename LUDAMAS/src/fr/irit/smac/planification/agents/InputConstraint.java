@@ -62,4 +62,14 @@ public class InputConstraint {
 		this.offers.clear();
 	}
 	
+	public boolean isOfferBetter(Offer offer) {
+		boolean better = true;
+		for(int i =0; i < this.offers.size() && !better;i++) {
+			if(this.offers.get(i).isBetter(offer)) {
+				better = false;
+			}
+		}
+		return better;
+	}
+	
 }
