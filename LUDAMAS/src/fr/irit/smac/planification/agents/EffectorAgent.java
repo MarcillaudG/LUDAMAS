@@ -72,24 +72,25 @@ public class EffectorAgent {
 	private List<String> effectorsBefore;
 
 	private final int window = 5;
-	
-	private Map<String,MorphingAgent> morphlings;
+
+	private Map<String,List<MorphingAgent>> morphlings;
 	List<MorphingAgent> morphActifs;
-	
+
 	private Map<String,InputConstraint> inputsConstraints;
-	
+
 	private Map<String, DataUnicityConstraint> dataConstraint;
 
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
 		this.name = name;
 		this.myObjectiveState = objState;
-		this.myMatrix = new Matrix(pf.getExteroceptiveData());
+		this.morphlings = new TreeMap<>();
+		this.myMatrix = new Matrix(pf.getExteroceptiveData(),this );
 		this.inputsConstraints = new TreeMap<>();
 		for(String s : pf.getExteroceptiveData()) {
 			this.inputsConstraints.put(s, new InputConstraint(this, s));
 		}
-		
+
 		this.bestAction = actionOpt;
 		init();
 	}
@@ -105,7 +106,6 @@ public class EffectorAgent {
 		this.composedFunctions = new ArrayList<>();
 		this.decisionProcess = new HashMap<>();
 		this.effectorsBefore = new ArrayList<>();
-		this.morphlings = new TreeMap<>();
 		this.dataConstraint = new TreeMap<>();
 	}
 
@@ -114,8 +114,8 @@ public class EffectorAgent {
 		this.lastPlaning = null;
 		this.cost = 0.0f;
 		this.morphActifs = new ArrayList<>();
-		
-		
+
+
 	}
 
 
@@ -135,7 +135,7 @@ public class EffectorAgent {
 
 		this.lastPlaning = new Planing(myPlaning);
 		this.myPlaning= new Planing();
-		
+
 	}
 
 	public void decide() {
@@ -145,26 +145,31 @@ public class EffectorAgent {
 		constraintToADD.removeAll(this.dataConstraint.keySet());
 		for(String data: constraintToADD) {
 			this.dataConstraint.put(data, new DataUnicityConstraint(this, data));
+			for(String input: this.inputsConstraints.keySet()) {
+				this.addMorphingAgent(new MorphingAgent(data, input, this, this.myMatrix));
+			}
+			this.myMatrix.addNewData(data);
 		}
-		
+
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
-		this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
+		//this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
 		System.out.println(this.decisionProcess.get(this.currentSituation).getExtero());
-		System.out.println(subMatrix);
+		//System.out.println(subMatrix);
 		this.dpercom.clear();
 		this.chosen.clear();
-		
-		
+
+
 		this.findMorphling();
-		
+		System.out.println(this.morphlings);
+		System.out.println(this.morphActifs);
 		// Choix des exteroceptives
 		Collections.shuffle(this.morphActifs);
 		for(int i =0; i < this.morphActifs.size();i++) {
 			this.morphActifs.get(i).start(this.currentStep);
 		}
-		
-		
-		
+
+
+
 		// TEST
 		/*for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
 			this.chosen.add(this.dataPerceived.get(i));
@@ -192,9 +197,11 @@ public class EffectorAgent {
 
 
 	private void findMorphling() {
-		for(MorphingAgent morph: this.morphlings.values()) {
-			if(this.dataPerceived.contains(morph.getData()) && this.decisionProcess.get(this.currentSituation).getExtero().contains(morph.getInput())) {
-				this.morphActifs.add(morph);
+		for(String in: this.decisionProcess.get(currentSituation).getExtero()) {
+			for(MorphingAgent morph: this.morphlings.get(in)) {
+				if(this.dataPerceived.contains(morph.getData()) ) {
+					this.morphActifs.add(morph);
+				}
 			}
 		}
 	}
@@ -387,9 +394,12 @@ public class EffectorAgent {
 	public void addDP(DecisionProcess dp, Situation s) {
 		this.decisionProcess.put(s, dp);
 	}
-	
+
 	public void addMorphingAgent(MorphingAgent morph) {
-		this.morphlings.put(morph.getData(), morph);
+		if(!this.morphlings.containsKey(morph.getInput())) {
+			this.morphlings.put(morph.getInput(), new ArrayList<>());
+		}
+		this.morphlings.get(morph.getInput()).add(morph);
 	}
 
 
@@ -403,7 +413,7 @@ public class EffectorAgent {
 
 	public List<String> getInputsInScenario() {
 		return this.decisionProcess.get(this.currentSituation).getExtero();
-		
+
 	}
 
 
@@ -441,7 +451,7 @@ public class EffectorAgent {
 			return false;
 		return true;
 	}
-	
-	
+
+
 
 }

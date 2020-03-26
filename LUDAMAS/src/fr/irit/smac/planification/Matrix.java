@@ -41,7 +41,6 @@ public class Matrix {
 			String s = dataExteroceptive.get(i);
 			this.matrix.put(new Input(s,i),new TreeMap<String,Float>());
 			this.matrix.get(new Input(s,i)).put(s, 1.0f);
-			this.effectorAgent.addMorphingAgent(new MorphingAgent(s, s, eff, this));
 			nbInput++;
 		}
 	}
@@ -106,7 +105,7 @@ public class Matrix {
 			for(String s : mat.matrix.get(in).keySet()) {
 				if(!this.matrix.get(in).containsKey(s)) {
 					this.matrix.get(in).put(s, 0.5f);
-					this.effectorAgent.addMorphingAgent(new MorphingAgent(s, in.getData(), this.effectorAgent, mat));
+					//this.effectorAgent.addMorphingAgent(new MorphingAgent(s, in.getData(), this.effectorAgent, mat));
 				}
 			}
 		}
@@ -169,6 +168,13 @@ public class Matrix {
 
 	public int getNbInput() {
 		return nbInput;
+	}
+
+	public void addNewData(String data) {
+		for(Input in: this.matrix.keySet()) {
+			this.matrix.get(in).put(data, 0.5f);
+		}
+		
 	}
 
 

@@ -202,4 +202,11 @@ public class MorphingAgent {
 		this.decide();
 		this.act();
 	}
+
+	@Override
+	public String toString() {
+		return "MorphingAgent:"+this.inputName+":"+this.dataName;
+	}
+	
+	
 }
