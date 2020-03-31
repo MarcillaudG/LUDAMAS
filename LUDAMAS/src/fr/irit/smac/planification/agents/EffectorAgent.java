@@ -153,7 +153,6 @@ public class EffectorAgent {
 
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
 		//this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
-		System.out.println(this.decisionProcess.get(this.currentSituation).getExtero());
 		//System.out.println(subMatrix);
 		this.dpercom.clear();
 		this.chosen.clear();
@@ -164,28 +163,13 @@ public class EffectorAgent {
 		System.out.println(this.morphActifs);
 		// Choix des exteroceptives
 		Collections.shuffle(this.morphActifs);
-		for(int i =0; i < this.morphActifs.size();i++) {
-			this.morphActifs.get(i).start(this.currentStep);
-		}
-
-
-
-		// TEST
-		/*for(int i = 0; i < this.cav.NB_EXTEROCEPTIVES;i++) {
-			this.chosen.add(this.dataPerceived.get(i));
-		}
-		for(Input in: this.subMatrix.getMatrix().keySet()) {
-			float max = 0.0f;
-			String data = "";
-			for(String s : this.subMatrix.getMatrix().get(in).keySet()) {
-				if(this.subMatrix.getMatrix().get(in).get(s) > max && !this.chosen.contains(s)) {
-					data = s;
-					max = this.subMatrix.getMatrix().get(in).get(s);
-				}
+		while(this.allConstraintNotSatisfied()) {
+			for(int i =0; i < this.morphActifs.size();i++) {
+				this.morphActifs.get(i).start(this.currentStep);
 			}
-			this.chosen.add(data);
-			this.myPlaning.addExteroData(in.getData(), data);
-		}*/
+			System.out.print("");
+		}
+
 
 		// Decision des objectifs en fonction des donnees choisies
 
@@ -193,6 +177,24 @@ public class EffectorAgent {
 		this.planActions();
 
 
+	}
+
+
+	private boolean allConstraintNotSatisfied() {
+		boolean satisfied = false;
+		for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
+			if(!this.inputsConstraints.get(input).isSatisfied()) {
+				System.out.println("IN NOT S:"+this.inputsConstraints.get(input)+"--"+this.inputsConstraints.get(input).getOffers());
+				return true;
+			}
+		}
+		for(String dataCom: this.dataPerceived) {
+			if(!this.dataConstraint.get(dataCom).isSatisfied()) {
+				System.out.println("DATA NOT S:"+this.dataConstraint.get(dataCom)+"--"+this.dataConstraint.get(dataCom).getOffers());
+				return true;
+			}
+		}
+		return satisfied;
 	}
 
 
@@ -209,40 +211,19 @@ public class EffectorAgent {
 
 	private void planActions() {
 		// Use the CAV function to get the planing using 
-		System.out.println("CHOSEN :"+this.chosen);
 		//Result res = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState).getLastRes();
 		for(int i=0; i < this.window;i++) {
-			Result res = new Result(this.currentStep+i, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep+i));
+			Result res = new Result(this.currentStep+i, this.decisionProcess.get(this.currentSituation).computeMorph(effectorsBefore, this.currentStep+i));
 			this.myPlaning.addRes(res);
 		}
 
-		/*Result res = new Result(this.currentStep, this.decisionProcess.get(this.currentSituation).compute(chosen, effectorsBefore, this.currentStep));
-		int nbStep = res.getStep() - this.currentStep;
-		System.out.println("NBStep1:"+res.getStep());
-		System.out.println("NBStep2:"+nbStep);
-		float valueRemaining = res.getValue() - this.cav.getValueOfState(this.myObjectiveState);
-
-		// Too complicated, TODO
-		/*if(valueRemaining > 0) {
-			planActionSup(valueRemaining, nbStep);
-		}
-		else {
-			planActionInf(valueRemaining,nbStep);
-		}*/
-
-		/*float action = valueRemaining / nbStep;
-		for(int i = 0; i < nbStep;i++) {
-			Result resTmp =new Result(this.currentStep+i, action);
-			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
-		}*/
 		System.out.println(myPlaning);
 		System.out.println(this.lastPlaning);
-		this.myMatrix.updateMatrixFromSub(subMatrix);
+		//this.myMatrix.updateMatrixFromSub(subMatrix);
 
 		if(!this.myPlaning.isIdenticalToLast(this.lastPlaning)) {
 			this.learn();
 			System.out.println("LEARN");
-			System.out.println(this.myMatrix);
 		}
 	}
 
@@ -404,10 +385,13 @@ public class EffectorAgent {
 
 
 	public Float askValue(String dataName) {
-		if(this.dataPerceived.contains(dataName))
+
+		if(this.dataPerceived.contains(dataName)) {
 			return this.cav.getValueOfData(dataName);
-		else
+		}
+		else {
 			return null;
+		}
 	}
 
 
@@ -465,6 +449,16 @@ public class EffectorAgent {
 
 	public int getCurrentStep() {
 		return this.currentStep;
+	}
+
+
+	public void sendValueToDecisionProcess(String inputName, float valueToSend) {
+		this.decisionProcess.get(this.currentSituation).setValueOfInitInput(inputName, valueToSend);
+	}
+
+
+	public List<MorphingAgent> getMorphlingActive() {
+		return this.morphActifs;
 	}
 
 

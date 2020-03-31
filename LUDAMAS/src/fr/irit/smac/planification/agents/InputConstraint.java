@@ -5,13 +5,13 @@ import java.util.List;
 
 public class InputConstraint {
 
-	
+
 	private EffectorAgent eff;
-	
+
 	private String input;
-	
+
 	private List<Offer> offers;
-	
+
 	public InputConstraint(EffectorAgent eff, String input) {
 		this.eff = eff;
 		this.input = input;
@@ -48,12 +48,12 @@ public class InputConstraint {
 			return false;
 		return true;
 	}
-	
-	
+
+
 	public boolean isSatisfied() {
 		return this.offers.size() == 1;
 	}
-	
+
 	public void addOffer(Offer offer) {
 		this.offers.add(offer);
 	}
@@ -61,15 +61,45 @@ public class InputConstraint {
 	public void startCycle() {
 		this.offers.clear();
 	}
-	
+
 	public boolean isOfferBetter(Offer offer) {
 		boolean better = true;
-		for(int i =0; i < this.offers.size() && !better;i++) {
-			if(this.offers.get(i).isBetter(offer)) {
+		for(int i =0; i < this.offers.size() && better;i++) {
+			if(this.offers.get(i).isBetterOrEquals(offer)) {
 				better = false;
 			}
 		}
-		return better;
+		return false;
 	}
-	
+
+	public boolean hasMyOffer(MorphingAgent morph) {
+		boolean found = false;
+		for(Offer off : this.offers) {
+			if(off.getMorph().equals(morph)) {
+				found = true;
+			}
+		}
+		return found;
+	}
+
+	public void removeOffer(Offer myOffer) {
+		System.out.print("");
+		this.offers.remove(myOffer);
+	}
+
+	public int getNbOffer() {
+		return this.offers.size();
+	}
+
+	@Override
+	public String toString() {
+		return "InputConstraint [eff=" + eff + ", input=" + input + "]";
+	}
+
+	public List<Offer> getOffers() {
+		return this.offers;
+	}
+
+
+
 }

@@ -59,6 +59,10 @@ public class DecisionProcess {
 		//this.function = new ComposedFunction(this.effector.getName()+":"+this.situation.getId(), proprioceptive.size()+exteroceptive.size()+1, 1, 3, 3);
 		this.proprio.addAll(proprioceptive);
 		this.extero.addAll(exteroceptive);
+		
+		for(int i = this.proprio.size(); i< this.extero.size()+this.proprio.size();i++) {
+			this.valuesExtero.put(this.extero.get(i-this.proprio.size()), i);
+		}
 	}
 
 	public float compute(List<String> extero,List<String> effectors, int nbStep) {

@@ -46,7 +46,6 @@ public class Matrix {
 	}
 
 	private Matrix (List<String> exteroData, Matrix mat) {
-		System.out.println(exteroData);
 		this.matrix = new HashMap<Input,Map<String,Float>>();
 		for(Input in: mat.matrix.keySet()) {
 			String s = in.getData();
@@ -64,7 +63,6 @@ public class Matrix {
 
 
 	public Matrix(List<String> exteroData, List<String> exteroInSituation, Matrix mat) {
-		System.out.println(exteroData);
 		this.matrix = new HashMap<Input,Map<String,Float>>();
 		for(Input in: mat.matrix.keySet()) {
 			if(exteroInSituation.contains(in.getData())) {

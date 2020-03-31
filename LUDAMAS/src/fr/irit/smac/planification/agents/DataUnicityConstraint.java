@@ -70,12 +70,41 @@ public class DataUnicityConstraint {
 	
 	public boolean isOfferBetter(Offer offer) {
 		boolean better = true;
-		for(int i =0; i < this.offers.size() && !better;i++) {
-			if(this.offers.get(i).isBetter(offer)) {
+		for(int i =0; i < this.offers.size() && better;i++) {
+			if(this.offers.get(i).isBetterOrEquals(offer)) {
 				better = false;
 			}
 		}
 		return better;
+	}
+
+	public boolean hasMyOffer(MorphingAgent morph) {
+		boolean found = false;
+		for(Offer off : this.offers) {
+			if(off.getMorph().equals(morph)) {
+				found = true;
+			}
+		}
+		return found;
+	}
+
+	public void removeOffer(Offer myOffer) {
+		System.out.print("");
+		this.offers.remove(myOffer);
+	}
+	public int getNbOffer() {
+		System.out.println(this.offers);
+		return this.offers.size();
+	}
+
+	@Override
+	public String toString() {
+		return "DataUnicityConstraint [eff=" + eff + ", data=" + data + "]";
+	}
+	
+
+	public List<Offer> getOffers() {
+		return this.offers;
 	}
 	
 }

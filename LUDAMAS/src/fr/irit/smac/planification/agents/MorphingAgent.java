@@ -27,14 +27,16 @@ public class MorphingAgent {
 	private Float value;
 
 	private float usefulness;
-	
+
 	private Map<Integer, Pair<Float,Float>> historic;
 
 	private Map<Float,Float> distribution;
-	
+
 	private InputConstraint inputConstraint;
-	
+
 	private DataUnicityConstraint dataConstraint;
+
+	private List<MorphingAgent> neighbours;
 
 	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat) {
 		this.dataName = dataName;
@@ -44,6 +46,7 @@ public class MorphingAgent {
 		this.morphValue = 1.0f;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
+		this.neighbours = new ArrayList<>();
 	}
 
 	public MorphingAgent(String dataName, String inputName) {
@@ -58,22 +61,64 @@ public class MorphingAgent {
 		this.value = null;
 		// voit sa valeur
 		this.value = this.superiorAgent.askValue(this.dataName);
-		
+
 		// voit son utilite
 		this.usefulness = this.matrix.getMatrix().get(new Input(this.inputName,0)).get(this.dataName);
 
 		// Recupere les deux contraintes
 		this.dataConstraint = this.superiorAgent.getDataUnicityConstraint(this.dataName);
 		this.inputConstraint = this.superiorAgent.getInputConstraint(this.inputName);
+
+		List<MorphingAgent> others = new ArrayList<>(this.superiorAgent.getMorphlingActive());
+		others.remove(this);
+
+		this.neighbours.clear();
+		this.neighbours.addAll(others);
 	}
 
 	public void decide() {
 		// si valeur != null
 		if(this.value !=null) {
 			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentStep(),this.usefulness);
-			if(this.dataConstraint.isOfferBetter(myOffer) || this.inputConstraint.isOfferBetter(myOffer)) {
-				this.dataConstraint.addOffer(myOffer);
-				this.inputConstraint.addOffer(myOffer);
+			if(!this.dataConstraint.hasMyOffer(this) && !this.inputConstraint.hasMyOffer(this)) {
+				if(this.dataConstraint.isOfferBetter(myOffer) || this.inputConstraint.isOfferBetter(myOffer)) {
+					this.dataConstraint.addOffer(myOffer);
+					this.inputConstraint.addOffer(myOffer);
+				}
+			}
+			else {
+				// Cas remove
+				if(!this.inputConstraint.isSatisfied()) {
+					if(!this.dataConstraint.isOfferBetter(myOffer) || !this.inputConstraint.isOfferBetter(myOffer)) {
+						this.dataConstraint.removeOffer(myOffer);
+						this.inputConstraint.removeOffer(myOffer);
+					}
+					else {
+						System.out.println("MERDEs");
+					}
+				}
+				if(!this.dataConstraint.isSatisfied()) {
+					if(!this.inputConstraint.isSatisfied()) {
+						this.dataConstraint.removeOffer(myOffer);
+						this.inputConstraint.removeOffer(myOffer);
+					}
+					else {
+						// SOLVE SNC
+						MorphingAgent oth = null;
+						for(MorphingAgent morph: this.neighbours) {
+							if(morph.inputName.equals(this.inputName) && morph.dataConstraint.isSatisfied()) {
+								if(oth == null || morph.usefulness > oth.usefulness) {
+									oth = morph;
+								}
+							}
+						}
+						if(oth != null) {
+							this.dataConstraint.removeOffer(myOffer);
+							this.inputConstraint.removeOffer(myOffer);
+							oth.decide();
+						}
+					}
+				}
 			}
 		}
 
@@ -81,16 +126,20 @@ public class MorphingAgent {
 
 	public void act() {
 		// si lie
-		// alors envoyer valeur transformer
-		this.morphValue = this.dico();
-		float valueToSend = this.value * this.morphValue;
-		System.out.println(valueToSend);
+		// alors envoyer valeur transformee
+		if(this.inputConstraint.hasMyOffer(this) && this.dataConstraint.isSatisfied() && this.inputConstraint.isSatisfied()) {
+			System.out.println("MOI:"+this);
+			this.morphValue = this.dico();
+			float valueToSend = this.value * this.morphValue;
+			this.superiorAgent.sendValueToDecisionProcess(this.inputName,valueToSend);
+		}
+		//System.out.println(valueToSend);
 	}
-	
+
 	public void sendFeedback(float correctValue) {
 		this.addMorph(this.value, correctValue);
 	}
-	
+
 	/**
 	 * Recherche dans l'historique la valeur la plus proche
 	 * et renvoi la valeur de transformation
@@ -101,7 +150,7 @@ public class MorphingAgent {
 		float morphedValue = 1.0f;
 		List<Float> toDico = new ArrayList<>(this.distribution.keySet());
 		Collections.sort(toDico);
-		System.out.println(toDico);
+		//System.out.println(toDico);
 		boolean found = false;
 		int ind =toDico.size() /2;
 		int borneSup = toDico.size()-1;
@@ -198,7 +247,6 @@ public class MorphingAgent {
 		for(int i =0; i < 1; i++) {
 			morphling.addMorph(10.f*(i+1), 15.f*(i+1)+i*10);
 		}
-		System.out.println(morphling.distribution);
 		morphling.value = 35.f;
 		morphling.act();
 	}
@@ -206,7 +254,7 @@ public class MorphingAgent {
 	public String getData() {
 		return this.dataName;
 	}
-	
+
 	public String getInput() {
 		return this.inputName;
 	}
@@ -258,6 +306,6 @@ public class MorphingAgent {
 			return false;
 		return true;
 	}
-	
-	
+
+
 }
