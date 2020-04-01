@@ -10,6 +10,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fr.irit.smac.complex.ComposedFunction;
+import fr.irit.smac.core.Links;
+import fr.irit.smac.model.Entity;
+import fr.irit.smac.model.Relation;
+import fr.irit.smac.model.Snapshot;
 import fr.irit.smac.planification.Input;
 import fr.irit.smac.planification.Matrix;
 import fr.irit.smac.planification.Planing;
@@ -80,6 +84,13 @@ public class EffectorAgent {
 
 	private Map<String, DataUnicityConstraint> dataConstraint;
 
+	// Links
+	private Links links;
+
+	private Snapshot currentSnapshot;
+
+	private int nbCycle;
+
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
 		this.name = name;
@@ -107,6 +118,9 @@ public class EffectorAgent {
 		this.decisionProcess = new HashMap<>();
 		this.effectorsBefore = new ArrayList<>();
 		this.dataConstraint = new TreeMap<>();
+		
+		//Create a new experiment
+		this.links = new Links(this.name,false);
 	}
 
 	public void initSituation() {
@@ -117,8 +131,6 @@ public class EffectorAgent {
 
 
 	}
-
-
 
 	public void perceive() {
 		// Recuperation des donnees percues
@@ -135,7 +147,10 @@ public class EffectorAgent {
 
 		this.lastPlaning = new Planing(myPlaning);
 		this.myPlaning= new Planing();
-
+		this.currentSnapshot = new Snapshot();
+		this.nbCycle = 1;
+		//this.experiment.addSnapshot(currentSnapshot);
+		this.links.addSnapshot(this.currentSnapshot);
 	}
 
 	public void decide() {
@@ -151,6 +166,7 @@ public class EffectorAgent {
 			this.myMatrix.addNewData(data);
 		}
 
+
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
 		//this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
 		//System.out.println(subMatrix);
@@ -161,13 +177,36 @@ public class EffectorAgent {
 		this.findMorphling();
 		System.out.println(this.morphlings);
 		System.out.println(this.morphActifs);
+
 		// Choix des exteroceptives
-		Collections.shuffle(this.morphActifs);
+		int counter = 0;
 		while(this.allConstraintNotSatisfied()) {
+			this.currentSnapshot = new Snapshot();
+			Collections.shuffle(this.morphActifs);
+
+			// Links
+			for(MorphingAgent morph : this.morphActifs) {
+				Entity ent = this.currentSnapshot.addEntity(morph.getInput()+":"+morph.getData(), "Morph");
+				//this.currentSnapshot.addEntity(ent);
+			}
+			for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
+				Entity ent = this.currentSnapshot.addEntity(input, "Input");
+				//this.currentSnapshot.addEntity(ent);
+			}
+			for(String data : this.dataPerceived) {
+				Entity ent = this.currentSnapshot.addEntity(data, "Data");
+				//this.currentSnapshot.addEntity(ent);
+			}
 			for(int i =0; i < this.morphActifs.size();i++) {
 				this.morphActifs.get(i).start(this.currentStep);
 			}
 			System.out.print("");
+			this.currentSnapshot.addEntity("Counter:"+counter, "COUNT");
+			//this.currentSnapshot.setSnapshotNumber(this.nbCycle);
+			this.nbCycle++;
+			this.links.addSnapshot(this.currentSnapshot);
+			
+			counter++;
 		}
 
 
@@ -307,7 +346,8 @@ public class EffectorAgent {
 		this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
 		time++;
 
-
+		Snapshot snap = new Snapshot();
+		this.links.addSnapshot(snap);
 	}
 
 	/**
@@ -372,10 +412,19 @@ public class EffectorAgent {
 	}
 
 
+	/**
+	 * Add the decision process with the situation
+	 * @param dp
+	 * @param s
+	 */
 	public void addDP(DecisionProcess dp, Situation s) {
 		this.decisionProcess.put(s, dp);
 	}
 
+	/**
+	 * 
+	 * @param morph
+	 */
 	public void addMorphingAgent(MorphingAgent morph) {
 		if(!this.morphlings.containsKey(morph.getInput())) {
 			this.morphlings.put(morph.getInput(), new ArrayList<>());
@@ -383,7 +432,11 @@ public class EffectorAgent {
 		this.morphlings.get(morph.getInput()).add(morph);
 	}
 
-
+	/**
+	 * 
+	 * @param dataName
+	 * @return
+	 */
 	public Float askValue(String dataName) {
 
 		if(this.dataPerceived.contains(dataName)) {
@@ -453,12 +506,38 @@ public class EffectorAgent {
 
 
 	public void sendValueToDecisionProcess(String inputName, float valueToSend) {
+
 		this.decisionProcess.get(this.currentSituation).setValueOfInitInput(inputName, valueToSend);
+	}
+
+	public void sendValueToDecisionProcessLinks(MorphingAgent morph, float valueToSend) {
+		//this.currentSnapshot.addRelation
+		Relation r = this.currentSnapshot.addRelation(morph.getName(),morph.getInput(),morph.getName()+"To Input:"+morph.getInput(),  true, "applyToInput");
+		
+		Relation r2 = this.currentSnapshot.addRelation(morph.getName(),morph.getData(),morph.getName()+"To Data:"+morph.getData(),  true, "applyToData");
+		
+		//this.currentSnapshot.addRelation(r);
+		//this.currentSnapshot.addRelation(r2);
+		this.decisionProcess.get(this.currentSituation).setValueOfInitInput(morph.getInput(), valueToSend);
 	}
 
 
 	public List<MorphingAgent> getMorphlingActive() {
 		return this.morphActifs;
+	}
+
+
+	public void saveExperiment() {
+		/*
+		//Helper to get connection with default parameters
+		LinksConnection connection = LocalLinksConnection.getLocalConnexion();
+		if(connection.experimentExist(this.name)) {
+			connection.removeExperiment(this.name);
+		}
+		//Save the experiment 
+		Link2DriverMarshaler.marshalling(connection, this.experiment, MarshallingMode.OVERRIDE_EXP_IF_EXISTING);
+		//Don't forget to close the DB connection
+		connection.close();*/
 	}
 
 

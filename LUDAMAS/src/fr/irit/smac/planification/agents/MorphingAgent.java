@@ -20,6 +20,8 @@ public class MorphingAgent {
 
 	private float morphValue;
 
+	private String name;
+	
 	private EffectorAgent superiorAgent;
 
 	private Matrix matrix;
@@ -44,6 +46,8 @@ public class MorphingAgent {
 		this.superiorAgent = eff;
 		this.matrix = mat;
 		this.morphValue = 1.0f;
+		
+		this.name = inputName+":"+dataName;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
 		this.neighbours = new ArrayList<>();
@@ -131,7 +135,7 @@ public class MorphingAgent {
 			System.out.println("MOI:"+this);
 			this.morphValue = this.dico();
 			float valueToSend = this.value * this.morphValue;
-			this.superiorAgent.sendValueToDecisionProcess(this.inputName,valueToSend);
+			this.superiorAgent.sendValueToDecisionProcessLinks(this,valueToSend);
 		}
 		//System.out.println(valueToSend);
 	}
@@ -305,6 +309,10 @@ public class MorphingAgent {
 		} else if (!superiorAgent.equals(other.superiorAgent))
 			return false;
 		return true;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 

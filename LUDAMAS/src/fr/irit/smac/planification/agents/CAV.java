@@ -76,12 +76,12 @@ public class CAV {
 
 	private int nbStep = 5;
 
-	public CAV(String name, int nbObjectiveStates, int nbEffectors, int nbSituation) {
+	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
 		this.currentTime = 0;
 
 
-		this.nbObjectiveStates = nbObjectiveStates;
+		this.nbObjectiveStates = nbEffectors;
 		this.nbEffectors = nbEffectors;
 		this.nbSituation = nbSituation;
 		this.internalState = new float[this.nbObjectiveStates];
@@ -113,7 +113,7 @@ public class CAV {
 		}
 		this.exteroData.addAll(variablesAvailable);
 		for(String s : this.exteroData) {
-			this.environment.generateSimilarData(s, 3);
+			this.environment.generateSimilarData(s, 2);
 		}
 
 		/*int i = 0;
@@ -345,6 +345,9 @@ public class CAV {
 			}*/
 			
 		}
+		for(EffectorAgent eff : this.effectors.values()) {
+			eff.saveExperiment();
+		}
 	}
 
 
@@ -406,7 +409,7 @@ public class CAV {
 
 
 	public static void main(String args[]) {
-		CAV cav = new CAV("CAV1", 2, 1, 3);
+		CAV cav = new CAV("CAV1", 1, 3);
 		/*cav.startSituation();
 		cav.senseData();
 		cav.planificationEffectors();*/

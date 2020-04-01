@@ -1,0 +1,22 @@
+
+node {
+	size: 10px, 15px;
+	shape: circle;
+	fill-color: black;
+	stroke-mode: plain;
+	text-alignment:under;
+}
+
+node.Input{
+	fill-color:red;
+	shape: box;
+}
+
+node.Data{
+	fill-color:blue;
+}
+
+node.COUNTER{
+	fill-color:green;
+	shape:triangle;
+}
