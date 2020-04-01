@@ -85,9 +85,10 @@ public class MorphingAgent {
 		if(this.value !=null) {
 			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentStep(),this.usefulness);
 			if(!this.dataConstraint.hasMyOffer(this) && !this.inputConstraint.hasMyOffer(this)) {
-				if(this.dataConstraint.isOfferBetter(myOffer) || this.inputConstraint.isOfferBetter(myOffer)) {
+				if(this.dataConstraint.isOfferBetter(myOffer) && this.inputConstraint.isOfferBetter(myOffer)) {
 					this.dataConstraint.addOffer(myOffer);
 					this.inputConstraint.addOffer(myOffer);
+					this.superiorAgent.sendDecisionLinks(this);
 				}
 			}
 			else {

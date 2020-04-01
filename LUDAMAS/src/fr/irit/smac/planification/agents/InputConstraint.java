@@ -69,7 +69,7 @@ public class InputConstraint {
 				better = false;
 			}
 		}
-		return false;
+		return better;
 	}
 
 	public boolean hasMyOffer(MorphingAgent morph) {

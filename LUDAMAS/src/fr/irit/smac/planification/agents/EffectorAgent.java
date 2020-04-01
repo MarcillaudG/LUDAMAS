@@ -511,10 +511,6 @@ public class EffectorAgent {
 	}
 
 	public void sendValueToDecisionProcessLinks(MorphingAgent morph, float valueToSend) {
-		//this.currentSnapshot.addRelation
-		Relation r = this.currentSnapshot.addRelation(morph.getName(),morph.getInput(),morph.getName()+"To Input:"+morph.getInput(),  true, "applyToInput");
-		
-		Relation r2 = this.currentSnapshot.addRelation(morph.getName(),morph.getData(),morph.getName()+"To Data:"+morph.getData(),  true, "applyToData");
 		
 		//this.currentSnapshot.addRelation(r);
 		//this.currentSnapshot.addRelation(r2);
@@ -538,6 +534,14 @@ public class EffectorAgent {
 		Link2DriverMarshaler.marshalling(connection, this.experiment, MarshallingMode.OVERRIDE_EXP_IF_EXISTING);
 		//Don't forget to close the DB connection
 		connection.close();*/
+	}
+
+
+	public void sendDecisionLinks(MorphingAgent morph) {
+		//this.currentSnapshot.addRelation
+		Relation r = this.currentSnapshot.addRelation(morph.getName(),morph.getInput(),morph.getName()+"To Input:"+morph.getInput(),  true, "applyToInput");
+		
+		Relation r2 = this.currentSnapshot.addRelation(morph.getName(),morph.getData(),morph.getName()+"To Data:"+morph.getData(),  true, "applyToData");
 	}
 
 

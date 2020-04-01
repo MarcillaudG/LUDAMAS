@@ -14,9 +14,9 @@ node.Input{
 
 node.Data{
 	fill-color:blue;
+	shape:triangle;
 }
 
-node.COUNTER{
+node.COUNT{
 	fill-color:green;
-	shape:triangle;
 }
