@@ -113,7 +113,7 @@ public class CAV {
 		}
 		this.exteroData.addAll(variablesAvailable);
 		for(String s : this.exteroData) {
-			this.environment.generateSimilarData(s, 2);
+			this.environment.generateSimilarData(s, 1);
 		}
 
 		/*int i = 0;

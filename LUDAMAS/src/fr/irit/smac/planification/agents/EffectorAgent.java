@@ -14,11 +14,13 @@ import fr.irit.smac.core.Links;
 import fr.irit.smac.model.Entity;
 import fr.irit.smac.model.Relation;
 import fr.irit.smac.model.Snapshot;
-import fr.irit.smac.planification.Input;
-import fr.irit.smac.planification.Matrix;
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.Situation;
+import fr.irit.smac.planification.matrix.DataUnicityConstraint;
+import fr.irit.smac.planification.matrix.Input;
+import fr.irit.smac.planification.matrix.InputConstraint;
+import fr.irit.smac.planification.matrix.Matrix;
 
 public class EffectorAgent {
 
@@ -31,6 +33,8 @@ public class EffectorAgent {
 
 	// Data gathered by sensors
 	private List<String> dataPerceived;
+
+	private List<String> dataPerceivedLastCycle;
 
 	// Data gathered by communication
 	private Set<String> dataCommunicated;
@@ -110,6 +114,7 @@ public class EffectorAgent {
 	private void init() {
 		this.dataCommunicated = new TreeSet<String>();
 		this.dataPerceived = new ArrayList<String>();
+		this.dataPerceivedLastCycle = new ArrayList<>();
 		this.dataUsed = new TreeSet<String>();
 		this.objectives = new TreeMap<Integer,Float>();
 		this.dpercom = new TreeMap<>();
@@ -118,7 +123,7 @@ public class EffectorAgent {
 		this.decisionProcess = new HashMap<>();
 		this.effectorsBefore = new ArrayList<>();
 		this.dataConstraint = new TreeMap<>();
-		
+
 		//Create a new experiment
 		this.links = new Links(this.name,false);
 	}
@@ -128,11 +133,14 @@ public class EffectorAgent {
 		this.lastPlaning = null;
 		this.cost = 0.0f;
 		this.morphActifs = new ArrayList<>();
-
+		this.links.addSnapshot(new Snapshot());
 
 	}
 
 	public void perceive() {
+
+		this.dataPerceivedLastCycle.clear();
+		this.dataPerceivedLastCycle.addAll(this.dataPerceived);
 		// Recuperation des donnees percues
 		this.dataPerceived.clear();
 		this.morphActifs.clear();
@@ -141,6 +149,10 @@ public class EffectorAgent {
 		this.currentSituation = this.cav.getCurrentSituation();
 		this.dataPerceived.addAll(this.currentSituation.getInformationAvailable(this.currentStep));
 
+
+		System.out.println("LAST:"+this.dataPerceivedLastCycle);
+		System.out.println("CURRENT:"+this.dataPerceived);
+		
 		// Recuperation des donnees communiquees
 		this.dataCommunicated.clear();
 		this.dataCommunicated.addAll(this.cav.getDataComInSituation());
@@ -150,7 +162,6 @@ public class EffectorAgent {
 		this.currentSnapshot = new Snapshot();
 		this.nbCycle = 1;
 		//this.experiment.addSnapshot(currentSnapshot);
-		this.links.addSnapshot(this.currentSnapshot);
 	}
 
 	public void decide() {
@@ -165,7 +176,9 @@ public class EffectorAgent {
 			}
 			this.myMatrix.addNewData(data);
 		}
-
+		//System.out.println(this.myMatrix);
+		
+		this.myMatrix.updateUI();
 
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
 		//this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
@@ -175,38 +188,41 @@ public class EffectorAgent {
 
 
 		this.findMorphling();
-		System.out.println(this.morphlings);
-		System.out.println(this.morphActifs);
 
 		// Choix des exteroceptives
-		int counter = 0;
-		while(this.allConstraintNotSatisfied()) {
-			this.currentSnapshot = new Snapshot();
-			Collections.shuffle(this.morphActifs);
+		if(this.dataPerceivedLastCycle.isEmpty() || !this.dataPerceivedLastCycle.containsAll(this.dataPerceived)) {
+			do{
+				Snapshot s = new Snapshot();
+				Collections.shuffle(this.morphActifs);
 
-			// Links
-			for(MorphingAgent morph : this.morphActifs) {
-				Entity ent = this.currentSnapshot.addEntity(morph.getInput()+":"+morph.getData(), "Morph");
-				//this.currentSnapshot.addEntity(ent);
-			}
-			for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
-				Entity ent = this.currentSnapshot.addEntity(input, "Input");
-				//this.currentSnapshot.addEntity(ent);
-			}
-			for(String data : this.dataPerceived) {
-				Entity ent = this.currentSnapshot.addEntity(data, "Data");
-				//this.currentSnapshot.addEntity(ent);
-			}
-			for(int i =0; i < this.morphActifs.size();i++) {
-				this.morphActifs.get(i).start(this.currentStep);
-			}
-			System.out.print("");
-			this.currentSnapshot.addEntity("Counter:"+counter, "COUNT");
-			//this.currentSnapshot.setSnapshotNumber(this.nbCycle);
-			this.nbCycle++;
-			this.links.addSnapshot(this.currentSnapshot);
-			
-			counter++;
+				// Links
+				for(MorphingAgent morph : this.morphActifs) {
+					Entity ent = s.addEntity(morph.getInput()+":"+morph.getData(), "Morph");
+					double value = this.myMatrix.getValueOfMorph(morph.getInput(),morph.getData());
+					s.getEntity(morph.getInput()+":"+morph.getData()).addOneAttribute("Usefulness","usefulness", value);
+					//this.currentSnapshot.addEntity(ent);
+				}
+				for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
+					Entity ent = s.addEntity("IN:"+input, "Input");
+					//this.currentSnapshot.addEntity(ent);
+				}
+				for(String data : this.dataPerceived) {
+					Entity ent = s.addEntity("Data:"+data, "Data");
+					//this.currentSnapshot.addEntity(ent);
+				}
+				for(int i =0; i < this.morphActifs.size();i++) {
+					this.morphActifs.get(i).start(this.currentStep);
+				}
+				System.out.print("");
+				s.addEntity("Counter:"+this.currentStep, "COUNT");
+				//this.currentSnapshot.setSnapshotNumber(this.nbCycle);
+				this.nbCycle++;
+
+				this.sendOfferToLinks(s);
+
+				this.links.addSnapshot(s);
+
+			}while(this.allConstraintNotSatisfied());
 		}
 
 
@@ -219,17 +235,17 @@ public class EffectorAgent {
 	}
 
 
+
+
 	private boolean allConstraintNotSatisfied() {
 		boolean satisfied = false;
 		for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
 			if(!this.inputsConstraints.get(input).isSatisfied()) {
-				System.out.println("IN NOT S:"+this.inputsConstraints.get(input)+"--"+this.inputsConstraints.get(input).getOffers());
 				return true;
 			}
 		}
 		for(String dataCom: this.dataPerceived) {
 			if(!this.dataConstraint.get(dataCom).isSatisfied()) {
-				System.out.println("DATA NOT S:"+this.dataConstraint.get(dataCom)+"--"+this.dataConstraint.get(dataCom).getOffers());
 				return true;
 			}
 		}
@@ -345,9 +361,8 @@ public class EffectorAgent {
 		System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
 		this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
 		time++;
+		
 
-		Snapshot snap = new Snapshot();
-		this.links.addSnapshot(snap);
 	}
 
 	/**
@@ -511,7 +526,7 @@ public class EffectorAgent {
 	}
 
 	public void sendValueToDecisionProcessLinks(MorphingAgent morph, float valueToSend) {
-		
+
 		//this.currentSnapshot.addRelation(r);
 		//this.currentSnapshot.addRelation(r2);
 		this.decisionProcess.get(this.currentSituation).setValueOfInitInput(morph.getInput(), valueToSend);
@@ -537,13 +552,20 @@ public class EffectorAgent {
 	}
 
 
-	public void sendDecisionLinks(MorphingAgent morph) {
-		//this.currentSnapshot.addRelation
-		Relation r = this.currentSnapshot.addRelation(morph.getName(),morph.getInput(),morph.getName()+"To Input:"+morph.getInput(),  true, "applyToInput");
-		
-		Relation r2 = this.currentSnapshot.addRelation(morph.getName(),morph.getData(),morph.getName()+"To Data:"+morph.getData(),  true, "applyToData");
-	}
 
+	private void sendOfferToLinks(Snapshot s) {
+		for(String data : this.dataPerceived) {
+			for(Offer off : this.dataConstraint.get(data).getOffers()) {
+				Relation r2 = s.addRelation(off.getMorph().getName(),"Data:"+off.getMorph().getData(),off.getMorph().getName()+"To Data:"+off.getMorph().getData(),  true, "applyToData");
+			}
+		}
+		
+		for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
+			for(Offer off: this.inputsConstraints.get(input).getOffers()) {
+				Relation r = s.addRelation(off.getMorph().getName(),"IN:"+off.getMorph().getInput(),off.getMorph().getName()+"To Input:"+off.getMorph().getInput(),  true, "applyToInput");
+			}
+		}
+	}
 
 
 }

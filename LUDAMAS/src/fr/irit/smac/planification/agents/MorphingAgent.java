@@ -8,8 +8,10 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import fr.irit.smac.planification.Input;
-import fr.irit.smac.planification.Matrix;
+import fr.irit.smac.planification.matrix.DataUnicityConstraint;
+import fr.irit.smac.planification.matrix.Input;
+import fr.irit.smac.planification.matrix.InputConstraint;
+import fr.irit.smac.planification.matrix.Matrix;
 
 public class MorphingAgent {
 
@@ -88,7 +90,6 @@ public class MorphingAgent {
 				if(this.dataConstraint.isOfferBetter(myOffer) && this.inputConstraint.isOfferBetter(myOffer)) {
 					this.dataConstraint.addOffer(myOffer);
 					this.inputConstraint.addOffer(myOffer);
-					this.superiorAgent.sendDecisionLinks(this);
 				}
 			}
 			else {
@@ -133,7 +134,6 @@ public class MorphingAgent {
 		// si lie
 		// alors envoyer valeur transformee
 		if(this.inputConstraint.hasMyOffer(this) && this.dataConstraint.isSatisfied() && this.inputConstraint.isSatisfied()) {
-			System.out.println("MOI:"+this);
 			this.morphValue = this.dico();
 			float valueToSend = this.value * this.morphValue;
 			this.superiorAgent.sendValueToDecisionProcessLinks(this,valueToSend);

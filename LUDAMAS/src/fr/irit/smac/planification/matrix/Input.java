@@ -1,4 +1,4 @@
-package fr.irit.smac.planification;
+package fr.irit.smac.planification.matrix;
 
 import java.util.HashMap;
 import java.util.Map;

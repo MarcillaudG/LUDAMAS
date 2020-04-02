@@ -1,5 +1,7 @@
 package fr.irit.smac.planification.agents;
 
+import fr.irit.smac.planification.matrix.InputConstraint;
+
 public class Offer {
 
 	
