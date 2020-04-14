@@ -48,6 +48,8 @@ public class MorphingAgent {
 		this.superiorAgent = eff;
 		this.matrix = mat;
 		this.morphValue = 1.0f;
+		this.usefulness = 0.5f;
+		
 		
 		this.name = inputName+":"+dataName;
 		this.historic = new TreeMap<>();
@@ -59,8 +61,24 @@ public class MorphingAgent {
 		this.dataName = dataName;
 		this.inputName = inputName;
 		this.morphValue = 1.0f;
+		this.usefulness = 0.5f;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
+	}
+
+	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat, float value) {
+		this.dataName = dataName;
+		this.inputName = inputName;
+		this.superiorAgent = eff;
+		this.matrix = mat;
+		this.morphValue = 1.0f;
+		this.usefulness = value;
+		
+		
+		this.name = inputName+":"+dataName;
+		this.historic = new TreeMap<>();
+		this.distribution = new TreeMap<>();
+		this.neighbours = new ArrayList<>();
 	}
 
 	public void perceive() {
@@ -69,7 +87,7 @@ public class MorphingAgent {
 		this.value = this.superiorAgent.askValue(this.dataName);
 
 		// voit son utilite
-		this.usefulness = this.matrix.getMatrix().get(new Input(this.inputName,0)).get(this.dataName);
+		//this.usefulness = this.matrix.getMatrix().get(new Input(this.inputName,0)).get(this.dataName);
 
 		// Recupere les deux contraintes
 		this.dataConstraint = this.superiorAgent.getDataUnicityConstraint(this.dataName);
@@ -143,6 +161,13 @@ public class MorphingAgent {
 
 	public void sendFeedback(float correctValue) {
 		this.addMorph(this.value, correctValue);
+		if(correctValue == this.value * this.morphValue) {
+			this.usefulness = Math.min(1.0f, this.usefulness+0.1f);
+		}
+		else {
+			this.usefulness = Math.max(.0f, this.usefulness-0.1f);
+		}
+		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
 	}
 
 	/**

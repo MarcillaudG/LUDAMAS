@@ -182,7 +182,11 @@ public class EffectorAgent {
 		for(String data: constraintToADD) {
 			this.dataConstraint.put(data, new DataUnicityConstraint(this, data));
 			for(String input: this.inputsConstraints.keySet()) {
-				this.addMorphingAgent(new MorphingAgent(data, input, this, this.myMatrix));
+				float value = 0.5f;
+				if(data.equals(input)) {
+					value = 1.0f;
+				}
+				this.addMorphingAgent(new MorphingAgent(data, input, this, this.myMatrix, value));
 			}
 			this.myMatrix.addNewData(data);
 		}
@@ -303,12 +307,17 @@ public class EffectorAgent {
 					float valueNew = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
 					float valueOld = this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in));
 				//if(this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in)) != this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in))){
-				if(valueNew != valueOld) {
+				/*if(valueNew != valueOld) {
 					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 0.0f);
 				}
 				else {
 					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 1.0f);
-				}
+				}*/
+					for(MorphingAgent morph : this.morphlings.get(in)) {
+						if(morph.getData().equals(this.lastPlaning.getExteroChosen().get(in))) {
+							morph.sendFeedback(this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in)));
+						}
+					}
 			}
 		}
 	}
@@ -587,6 +596,11 @@ public class EffectorAgent {
 				Relation r = s.addRelation(off.getMorph().getName(),"IN:"+off.getMorph().getInput(),off.getMorph().getName()+"To Input:"+off.getMorph().getInput(),  true, "applyToInput");
 			}
 		}
+	}
+
+
+	public void updateMatrix(String inputName, String dataName, float usefulness) {
+		this.myMatrix.setWeight(inputName, dataName, usefulness);
 	}
 
 
