@@ -104,6 +104,10 @@ public class InputConstraint {
 		return this.offers;
 	}
 
+	public void restart() {
+		this.offers.clear();
+	}
+
 
 
 }

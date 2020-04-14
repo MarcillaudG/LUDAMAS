@@ -110,5 +110,9 @@ public class DataUnicityConstraint {
 	public List<Offer> getOffers() {
 		return this.offers;
 	}
+
+	public void restart() {
+		this.offers.clear();
+	}
 	
 }

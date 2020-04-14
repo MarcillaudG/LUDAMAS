@@ -134,7 +134,17 @@ public class EffectorAgent {
 		this.cost = 0.0f;
 		this.morphActifs = new ArrayList<>();
 		this.links.addSnapshot(new Snapshot());
-
+		
+		for(DataUnicityConstraint data: this.dataConstraint.values()) {
+			data.restart();
+		}
+		
+		for(InputConstraint input: this.inputsConstraints.values()) {
+			input.restart();
+		}
+		
+		this.dataPerceivedLastCycle.clear();
+		this.dataPerceived.clear();
 	}
 
 	public void perceive() {
@@ -178,7 +188,6 @@ public class EffectorAgent {
 		}
 		//System.out.println(this.myMatrix);
 		
-		this.myMatrix.updateUI();
 
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
 		//this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
@@ -224,6 +233,12 @@ public class EffectorAgent {
 
 			}while(this.allConstraintNotSatisfied());
 		}
+		for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
+			if(this.inputsConstraints.get(input).getOffers().isEmpty()) {
+				System.out.println(input);
+			}
+			this.myPlaning.setExteroChosen(input, this.inputsConstraints.get(input).getOffers().get(0).getMorph().getData());
+		}
 
 
 		// Decision des objectifs en fonction des donnees choisies
@@ -233,9 +248,6 @@ public class EffectorAgent {
 
 
 	}
-
-
-
 
 	private boolean allConstraintNotSatisfied() {
 		boolean satisfied = false;
@@ -280,13 +292,23 @@ public class EffectorAgent {
 			this.learn();
 			System.out.println("LEARN");
 		}
+
+		this.myMatrix.updateUI();
 	}
 
 
 	private void learn() {
 		for(String in: this.myPlaning.getExteroChosen().keySet()) {
 			if(!this.myPlaning.getExteroChosen().get(in).equals(this.lastPlaning.getExteroChosen().get(in))) {
-				this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 0.0f);
+					float valueNew = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
+					float valueOld = this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in));
+				//if(this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in)) != this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in))){
+				if(valueNew != valueOld) {
+					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 0.0f);
+				}
+				else {
+					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 1.0f);
+				}
 			}
 		}
 	}

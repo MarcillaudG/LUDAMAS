@@ -1,23 +1,25 @@
 package fr.irit.smac.planification.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
-import fr.irit.smac.learningdata.ui.Matrix.StatusColumnCellRenderer;
 import fr.irit.smac.planification.matrix.Input;
 import fr.irit.smac.planification.matrix.Matrix;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.WindowConstants;
 
 public class MatrixUI extends JFrame {
 
@@ -25,7 +27,7 @@ public class MatrixUI extends JFrame {
 	private JTable table;
 	private Matrix mat;
 	private DefaultTableModel tableModel ;
-	
+
 	private List<String> inputs;
 	private List<String> datas;
 	/**
@@ -63,19 +65,19 @@ public class MatrixUI extends JFrame {
 		setContentPane(contentPane);
 		tableModel = new DefaultTableModel();
 		//table = new JTable(this.mat.getNbInput(),3);
-		JTable table = new JTable(tableModel);
+		this.table = new JTable(tableModel);
 		contentPane.add(table, BorderLayout.CENTER);
 		String [] data = {""};
 		this.tableModel.addRow(data);
 		this.tableModel.addColumn("inputs");
-        /*this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		/*this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setTitle("Matrix");
         this.setContentPane(table);
         this.pack();
         this.setVisible(true);*/
 		this.update();
 	}
-	
+
 	public void update() {
 		//this.table = new JTable(this.mat.getInput().size()+1, this.mat.getNbData()+1);
 		//contentPane.add(table, BorderLayout.CENTER);
@@ -95,10 +97,14 @@ public class MatrixUI extends JFrame {
 		}
 		List<String> dataTmp = new ArrayList<>(this.mat.getData());
 		dataTmp.removeAll(this.datas);
-		
+
 		for(String data : dataTmp) {
 			this.tableModel.addColumn(data);
 			this.datas.add(data);
+		}
+
+		for(int i =0; i < this.tableModel.getColumnCount();i++) {
+			this.table.getColumnModel().getColumn(i).setCellRenderer(new StatusColumnCellRenderer());
 		}
 		// look after columns
 		for(String data : this.mat.getData()) {
@@ -117,7 +123,7 @@ public class MatrixUI extends JFrame {
 		}
 		System.out.println("ROW:"+this.tableModel.getRowCount());
 		System.out.println("Column:"+this.tableModel.getColumnCount());
-		
+
 		// update the values
 		for(Input input :this.mat.getInput()) {
 			//this.table.setValueAt(input.getData(), row, 0);
@@ -128,42 +134,70 @@ public class MatrixUI extends JFrame {
 			}
 			row++;
 		}
-		
+
 	}
 
 	public class ScrollableJTable extends JPanel {
-	   
+
 		private JTable table;
 		public ScrollableJTable(int row, int col) {
-	        initializeUI(row,col);
-	    }
+			initializeUI(row,col);
+		}
 
-	    private void initializeUI(int row, int col) {
-	        setLayout(new BorderLayout());
-	        setPreferredSize(new Dimension(500, 200));
+		private void initializeUI(int row, int col) {
+			setLayout(new BorderLayout());
+			setPreferredSize(new Dimension(500, 200));
 
-	       table = new JTable(row, col);
+			table = new JTable(row, col);
 
-	        // Turn off JTable's auto resize so that JScrollPane will show a
-	        // horizontal scroll bar.
-	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			// Turn off JTable's auto resize so that JScrollPane will show a
+			// horizontal scroll bar.
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-	        JScrollPane pane = new JScrollPane(table);
-	        add(pane, BorderLayout.CENTER);
-	        this.setOpaque(true);
+			JScrollPane pane = new JScrollPane(table);
+			add(pane, BorderLayout.CENTER);
+			this.setOpaque(true);
 
-	        
-	    }
-	    
-	    public void setTable(JTable table) {
-	    	this.table = table;
-	        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-	        JScrollPane pane = new JScrollPane(table);
-	        add(pane, BorderLayout.CENTER);
-	        this.setOpaque(true);
-	        
-	    }
+
+		}
+
+		public void setTable(JTable table) {
+			this.table = table;
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			JScrollPane pane = new JScrollPane(table);
+			add(pane, BorderLayout.CENTER);
+			this.setOpaque(true);
+
+		}
 
 	}
-	
+
+	public class StatusColumnCellRenderer extends DefaultTableCellRenderer {
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+
+			//Cells are by default rendered as a JLabel.
+			JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+
+			//Get the status for the current row.
+			TableModel tableModel = (TableModel) table.getModel();
+			if(value != null) {
+				if (value.equals(1.0f)) {
+					l.setBackground(Color.GREEN);
+				}
+				else {
+					if(value instanceof Float &&  (float)value > 0.0f){
+						l.setBackground(Color.ORANGE);
+					}
+					else {
+						l.setBackground(Color.WHITE);
+					}
+				}
+			}
+			//Return the JLabel which renders the cell.
+			return l;
+
+		}
+	}
+
 }

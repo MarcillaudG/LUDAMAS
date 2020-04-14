@@ -49,7 +49,7 @@ public class CAV {
 	private List<String> internalData;
 
 	private List<String> exteroData;
-	
+
 	private Map<String, Integer> exteroDataCorrect;
 
 
@@ -128,7 +128,7 @@ public class CAV {
 				i++;
 			}
 		}*/
-		
+
 		for(int i =0; i < this.nbObjectiveStates;i++) {
 			EffectorAgent eff = new EffectorAgent("Effector:"+i, this, i, 10.0f);
 			this.effectors.put(eff.getName(), eff);
@@ -213,6 +213,9 @@ public class CAV {
 
 	}
 
+	/**
+	 * Choose randomly a situation and init it
+	 */
 	private void startSituation() {
 		Random rand = new Random();
 		this.currentTime =0;
@@ -220,7 +223,7 @@ public class CAV {
 		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
 		this.currentSituation.startSituation2();
-		
+
 		/*int i = 0;
 		// ajout des donnees prioceptives
 		for(int j =0; j < this.internalData.size();j++) {
@@ -343,7 +346,7 @@ public class CAV {
 					over = true;
 				}
 			}*/
-			
+
 		}
 		for(EffectorAgent eff : this.effectors.values()) {
 			eff.saveExperiment();
@@ -352,7 +355,7 @@ public class CAV {
 
 
 	private void updateInternalState() {
-		
+
 	}
 
 	/**
@@ -404,16 +407,20 @@ public class CAV {
 	public void effect(int myObjectiveState, Result resAtTime) {
 		this.internalEffect[myObjectiveState] = resAtTime.getValue();
 		this.internalState[myObjectiveState] += this.internalEffect[myObjectiveState];
-		
+
 	}
 
 
 	public static void main(String args[]) {
-		CAV cav = new CAV("CAV1", 1, 3);
+		CAV cav = new CAV("CAV1", 1, 1);
 		/*cav.startSituation();
 		cav.senseData();
 		cav.planificationEffectors();*/
-		cav.manageSituation();
+		int i =0;
+		while(i < 10) {
+			cav.manageSituation();
+			i++;
+		}
 	}
 
 	public String getDataEffector(int myObjectiveState) {
@@ -472,6 +479,6 @@ public class CAV {
 			return false;
 		return true;
 	}
-	
-	
+
+
 }

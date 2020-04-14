@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import fr.irit.smac.planification.agents.Offer;
+
 public class Planing {
 
 	List<Result> plan;
@@ -125,6 +127,10 @@ public class Planing {
 			p2.addRes(new Result(i, (float)i+1));
 		}
 		System.out.println(p1.isIdenticalToLast(p2));
+	}
+
+	public void setExteroChosen(String input, String data) {
+		this.exteroChosen.put(input, data);
 	}
 
 }
