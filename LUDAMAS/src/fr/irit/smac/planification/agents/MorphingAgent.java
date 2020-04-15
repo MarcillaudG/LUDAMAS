@@ -12,6 +12,7 @@ import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.Input;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
+import fr.irit.smac.planification.tools.LinearRegression;
 
 public class MorphingAgent {
 
@@ -23,7 +24,7 @@ public class MorphingAgent {
 	private float morphValue;
 
 	private String name;
-	
+
 	private EffectorAgent superiorAgent;
 
 	private Matrix matrix;
@@ -49,8 +50,8 @@ public class MorphingAgent {
 		this.matrix = mat;
 		this.morphValue = 1.0f;
 		this.usefulness = 0.5f;
-		
-		
+
+
 		this.name = inputName+":"+dataName;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
@@ -73,8 +74,8 @@ public class MorphingAgent {
 		this.matrix = mat;
 		this.morphValue = 1.0f;
 		this.usefulness = value;
-		
-		
+
+
 		this.name = inputName+":"+dataName;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
@@ -150,6 +151,7 @@ public class MorphingAgent {
 
 	public void act() {
 		// si lie
+		this.morphValue = this.linearRegression();
 		// alors envoyer valeur transformee
 		if(this.inputConstraint.hasMyOffer(this) && this.dataConstraint.isSatisfied() && this.inputConstraint.isSatisfied()) {
 			this.morphValue = this.dico();
@@ -168,6 +170,7 @@ public class MorphingAgent {
 			this.usefulness = Math.max(.0f, this.usefulness-0.1f);
 		}
 		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
+
 	}
 
 	/**
@@ -216,6 +219,31 @@ public class MorphingAgent {
 		if(toDico.size() == 1) {
 			morphedValue = this.distribution.get(toDico.get(0));
 		}
+		return morphedValue;
+	}
+
+	private float linearRegression() {
+		double x [] = new double[this.historic.keySet().size()];
+		double y [] = new double[this.historic.keySet().size()];
+
+		float morphedValue = 1.0f;
+
+		int i =0;
+		for(Integer cycle : this.historic.keySet()) {
+			x[i] = this.historic.get(cycle).getLeft();
+			y[i] = this.historic.get(cycle).getRight();
+			i++;
+		}
+
+		if(x.length > 1) {
+			LinearRegression lr = new LinearRegression(x, y);
+
+			morphedValue = (float) lr.predict(this.value);
+		}
+		else {
+			morphedValue = 1.0f;
+		}
+
 		return morphedValue;
 	}
 
@@ -270,6 +298,8 @@ public class MorphingAgent {
 			this.distribution.put(myValue, myValue/otherValue);
 		else
 			this.distribution.put(myValue, 0.f);
+
+		this.historic.put(this.historic.keySet().size(), Pair.of(this.value, otherValue));
 	}
 
 	public static void main(String args[]) {

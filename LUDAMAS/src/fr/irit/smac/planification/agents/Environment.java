@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.generator.ShieldUser;
 import fr.irit.smac.shield.c2av.SyntheticFunction;
+import fr.irit.smac.shield.model.Variable;
 
 public class Environment {
 
@@ -143,6 +144,15 @@ public class Environment {
 
 	public String getCopyOfVar(String var) {
 		return this.shieldUser.getCopyOfVar(var);
+	}
+
+	public void generateSimilarDataDifferent(String var, int i) {
+		this.shieldUser.generateSimilarDataDifferent(var, i);
+		
+	}
+
+	public Variable getVariableWithName(String s) {
+		return this.shieldUser.getVariableWithName(s);
 	}
 	
 }

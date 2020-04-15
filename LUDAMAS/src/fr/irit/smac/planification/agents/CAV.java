@@ -114,8 +114,8 @@ public class CAV {
 		this.exteroData.addAll(variablesAvailable);
 		for(String s : this.exteroData) {
 			this.environment.generateSimilarData(s, 1);
+			//this.environment.generateSimilarDataDifferent(s,3);
 		}
-
 		/*int i = 0;
 		this.initComposedFunction();
 		while(i < this.nbEffectors) {

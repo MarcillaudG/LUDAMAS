@@ -9,6 +9,7 @@ import fr.irit.smac.shield.c2av.GeneratorOfFunction;
 import fr.irit.smac.shield.c2av.GeneratorOfTypedVariable;
 import fr.irit.smac.shield.c2av.SyntheticFunction;
 import fr.irit.smac.shield.model.Generator;
+import fr.irit.smac.shield.model.Variable;
 
 public class ShieldUser {
 
@@ -32,9 +33,31 @@ public class ShieldUser {
 		this.generator.initSetOfTypedVariable(nbVar, min, max, type);
 	}
 	
+	/**
+	 * Generate nbSimilar data with the same value as dataName
+	 * 
+	 * @param dataName
+	 * 		The name of the variable to copy
+	 * @param nbSimilar
+	 * 		The number of copy needed
+	 */
 	public void generateSimilarData(String dataName, int nbSimilar) {
 		for(int i =0; i < nbSimilar; i++) {
-			this.generator.generateSimilarData(dataName,nbSimilar);
+			this.generator.generateSimilarData(dataName,i);
+		}
+	}
+	
+	/**
+	 * Generate nbSimilar data with a different value than dataName
+	 * 
+	 * @param dataName
+	 * 		The name of the variable to copy
+	 * @param nbSimilar
+	 * 		The number of copy needed
+	 */
+	public void generateSimilarDataDifferent(String dataName, int nbSimilar) {
+		for(int i =0; i < nbSimilar; i++) {
+			this.generator.generateSimilarDataDifferent(dataName,i);
 		}
 	}
 	
@@ -127,4 +150,11 @@ public class ShieldUser {
 	public String getCopyOfVar(String s) {
 		return this.generator.getCopyOfVar(s);
 	}
+
+
+	public Variable getVariableWithName(String s) {
+		return this.generator.getVariableWithName(s);
+	}
+
+
 }
