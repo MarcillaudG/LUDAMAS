@@ -43,6 +43,8 @@ public class MorphingAgent {
 
 	private List<MorphingAgent> neighbours;
 
+	private LinearRegression lr;
+
 	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat) {
 		this.dataName = dataName;
 		this.inputName = inputName;
@@ -154,7 +156,7 @@ public class MorphingAgent {
 		this.morphValue = this.linearRegression();
 		// alors envoyer valeur transformee
 		if(this.inputConstraint.hasMyOffer(this) && this.dataConstraint.isSatisfied() && this.inputConstraint.isSatisfied()) {
-			this.morphValue = this.dico();
+			//this.morphValue = this.dico();
 			float valueToSend = this.value * this.morphValue;
 			this.superiorAgent.sendValueToDecisionProcessLinks(this,valueToSend);
 		}
@@ -163,11 +165,24 @@ public class MorphingAgent {
 
 	public void sendFeedback(float correctValue) {
 		this.addMorph(this.value, correctValue);
-		if(correctValue == this.value * this.morphValue) {
+		if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value))) {
 			this.usefulness = Math.min(1.0f, this.usefulness+0.1f);
 		}
 		else {
 			this.usefulness = Math.max(.0f, this.usefulness-0.1f);
+			if(lr != null && this.dataName.contains(this.inputName)) {
+				System.out.println("--------------"+inputName + "-> "+ dataName);
+				System.out.println("CORRECT :"+correctValue);
+				System.out.println("MINE :"+this.value);
+				System.out.println("MORPHED :"+this.lr.predict(this.value));
+				System.out.println(this.historic);
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
 
@@ -229,6 +244,7 @@ public class MorphingAgent {
 		float morphedValue = 1.0f;
 
 		int i =0;
+		//System.out.println(this.historic);
 		for(Integer cycle : this.historic.keySet()) {
 			x[i] = this.historic.get(cycle).getLeft();
 			y[i] = this.historic.get(cycle).getRight();
@@ -236,9 +252,14 @@ public class MorphingAgent {
 		}
 
 		if(x.length > 1) {
-			LinearRegression lr = new LinearRegression(x, y);
+			this.lr = new LinearRegression(x, y);
 
 			morphedValue = (float) lr.predict(this.value);
+			/*System.out.println(lr.slope());
+			System.out.println(lr.R2());
+			System.out.println(lr.intercept());
+			System.out.println(this.value);
+			System.out.println(lr.predict(this.value));*/
 		}
 		else {
 			morphedValue = 1.0f;
@@ -299,16 +320,18 @@ public class MorphingAgent {
 		else
 			this.distribution.put(myValue, 0.f);
 
-		this.historic.put(this.historic.keySet().size(), Pair.of(this.value, otherValue));
+		this.historic.put(this.historic.keySet().size(), Pair.of(myValue, otherValue));
 	}
 
 	public static void main(String args[]) {
 		MorphingAgent morphling = new MorphingAgent("Data", "Input");
-		for(int i =0; i < 1; i++) {
+		for(int i =0; i < 10; i++) {
 			morphling.addMorph(10.f*(i+1), 15.f*(i+1)+i*10);
 		}
 		morphling.value = 35.f;
-		morphling.act();
+		//morphling.act();
+		morphling.linearRegression();
+		//System.out.println(morphling.morphValue);
 	}
 
 	public String getData() {
@@ -371,5 +394,14 @@ public class MorphingAgent {
 		return name;
 	}
 
+	public Float getMorphValue() {
+		return this.morphValue;
+	}
 
+	public String getMorphLRFormula() {
+		if(this.lr != null) {
+			return this.lr.slope() +" * x + "+this.lr.intercept();
+		}
+		return "1.0";
+	}
 }

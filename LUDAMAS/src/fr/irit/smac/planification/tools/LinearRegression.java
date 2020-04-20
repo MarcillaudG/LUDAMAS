@@ -16,9 +16,9 @@ package fr.irit.smac.planification.tools;
  *  @author Kevin Wayne
  */
 public class LinearRegression {
-    private final double intercept, slope;
-    private final double r2;
-    private final double svar0, svar1;
+    private final float intercept, slope;
+    private final float r2;
+    private final float svar0, svar1;
 
    /**
      * Performs a linear regression on the data points {@code (y[i], x[i])}.
@@ -34,17 +34,17 @@ public class LinearRegression {
         int n = x.length;
 
         // first pass
-        double sumx = 0.0, sumy = 0.0, sumx2 = 0.0;
+        float sumx = 0.0f, sumy = 0.0f, sumx2 = 0.0f;
         for (int i = 0; i < n; i++) {
             sumx  += x[i];
             sumx2 += x[i]*x[i];
             sumy  += y[i];
         }
-        double xbar = sumx / n;
-        double ybar = sumy / n;
+        float xbar = sumx / n;
+        float ybar = sumy / n;
 
         // second pass: compute summary statistics
-        double xxbar = 0.0, yybar = 0.0, xybar = 0.0;
+        float xxbar = 0.0f, yybar = 0.0f, xybar = 0.0f;
         for (int i = 0; i < n; i++) {
             xxbar += (x[i] - xbar) * (x[i] - xbar);
             yybar += (y[i] - ybar) * (y[i] - ybar);
@@ -54,8 +54,8 @@ public class LinearRegression {
         intercept = ybar - slope * xbar;
 
         // more statistical analysis
-        double rss = 0.0;      // residual sum of squares
-        double ssr = 0.0;      // regression sum of squares
+        float rss = 0.0f;      // residual sum of squares
+        float ssr = 0.0f;      // regression sum of squares
         for (int i = 0; i < n; i++) {
             double fit = slope*x[i] + intercept;
             rss += (fit - y[i]) * (fit - y[i]);
@@ -64,7 +64,7 @@ public class LinearRegression {
 
         int degreesOfFreedom = n-2;
         r2    = ssr / yybar;
-        double svar  = rss / degreesOfFreedom;
+        float svar  = rss / degreesOfFreedom;
         svar1 = svar / xxbar;
         svar0 = svar/n + xbar*xbar*svar1;
     }
@@ -74,7 +74,7 @@ public class LinearRegression {
      *
      * @return the <em>y</em>-intercept &alpha; of the best-fit line <em>y = &alpha; + &beta; x</em>
      */
-    public double intercept() {
+    public float intercept() {
         return intercept;
     }
 
@@ -83,7 +83,7 @@ public class LinearRegression {
      *
      * @return the slope &beta; of the best-fit line <em>y</em> = &alpha; + &beta; <em>x</em>
      */
-    public double slope() {
+    public float slope() {
         return slope;
     }
 
@@ -93,7 +93,7 @@ public class LinearRegression {
      * @return the coefficient of determination <em>R</em><sup>2</sup>,
      *         which is a real number between 0 and 1
      */
-    public double R2() {
+    public float R2() {
         return r2;
     }
 
@@ -102,8 +102,8 @@ public class LinearRegression {
      *
      * @return the standard error of the estimate for the intercept
      */
-    public double interceptStdErr() {
-        return Math.sqrt(svar0);
+    public float interceptStdErr() {
+        return (float) Math.sqrt(svar0);
     }
 
    /**
@@ -111,8 +111,8 @@ public class LinearRegression {
      *
      * @return the standard error of the estimate for the slope
      */
-    public double slopeStdErr() {
-        return Math.sqrt(svar1);
+    public float slopeStdErr() {
+        return (float) Math.sqrt(svar1);
     }
 
    /**
@@ -123,7 +123,7 @@ public class LinearRegression {
      * @return the expected response {@code y} given the value of the predictor
      *         variable {@code x}
      */
-    public double predict(double x) {
+    public float predict(float x) {
         return slope*x + intercept;
     }
 
@@ -151,7 +151,7 @@ public class LinearRegression {
     	System.out.println("INTERCEPT:"+lr.intercept);
     	System.out.println("R2:"+lr.r2);
     	System.out.println(lr);
-    	System.out.println(lr.predict(7.5));
+    	System.out.println(lr.predict(7.5f));
     }
 
 }

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,14 @@ public class MatrixUI extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table;
+	
+	private JTable tableMorph;
+	
 	private Matrix mat;
 	private DefaultTableModel tableModel ;
+	
+
+	private DefaultTableModel tableMorphModel ;
 
 	private List<String> inputs;
 	private List<String> datas;
@@ -61,15 +68,23 @@ public class MatrixUI extends JFrame {
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
+		contentPane.setLayout(new GridLayout(2, 1));
 		setContentPane(contentPane);
 		tableModel = new DefaultTableModel();
+		this.tableMorphModel = new DefaultTableModel();
 		//table = new JTable(this.mat.getNbInput(),3);
 		this.table = new JTable(tableModel);
-		contentPane.add(table, BorderLayout.CENTER);
+		
+		this.tableMorph = new JTable(this.tableMorphModel);
+		contentPane.add(table, 0);
+		
+		contentPane.add(this.tableMorph,1);
 		String [] data = {""};
 		this.tableModel.addRow(data);
 		this.tableModel.addColumn("inputs");
+		
+		this.tableMorphModel.addRow(data);
+		this.tableMorphModel.addColumn("inputs");
 		/*this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setTitle("Matrix");
         this.setContentPane(table);
@@ -85,13 +100,14 @@ public class MatrixUI extends JFrame {
 		int column = 1;
 		int nbRow = 1;
 
-		System.out.println("NBINPUT:"+this.mat.getNbInput());
-		System.out.println("NBData:"+this.mat.getNbData());
+		//System.out.println("NBINPUT:"+this.mat.getNbInput());
+		//System.out.println("NBData:"+this.mat.getNbData());
 		// look after rows
 		for(Input input :this.mat.getInput()) {
 			if(nbRow >= this.tableModel.getRowCount()) {
 				String [] data = {input.getData()};
 				this.tableModel.addRow(data);
+				this.tableMorphModel.addRow(data);
 			}
 			nbRow++;
 		}
@@ -100,11 +116,13 @@ public class MatrixUI extends JFrame {
 
 		for(String data : dataTmp) {
 			this.tableModel.addColumn(data);
+			this.tableMorphModel.addColumn(data);
 			this.datas.add(data);
 		}
 
 		for(int i =0; i < this.tableModel.getColumnCount();i++) {
 			this.table.getColumnModel().getColumn(i).setCellRenderer(new StatusColumnCellRenderer());
+			this.tableMorph.getColumnModel().getColumn(i).setCellRenderer(new MorphColumnCellRenderer());
 		}
 		// look after columns
 		for(String data : this.mat.getData()) {
@@ -119,10 +137,11 @@ public class MatrixUI extends JFrame {
 				this.tableModel.addColumn(data);
 			}*/
 			this.tableModel.setValueAt(data, 0, column);
+			this.tableMorphModel.setValueAt(data, 0, column);
 			column++;
 		}
-		System.out.println("ROW:"+this.tableModel.getRowCount());
-		System.out.println("Column:"+this.tableModel.getColumnCount());
+		//System.out.println("ROW:"+this.tableModel.getRowCount());
+		//System.out.println("Column:"+this.tableModel.getColumnCount());
 
 		// update the values
 		for(Input input :this.mat.getInput()) {
@@ -130,6 +149,7 @@ public class MatrixUI extends JFrame {
 			column = 1;
 			for(String data : this.mat.getData()) {
 				this.tableModel.setValueAt(this.mat.getMatrix().get(input).get(data), row, column);
+				this.tableMorphModel.setValueAt(this.mat.getMorphValue(input.getData(),data), row, column);
 				column++;
 			}
 			row++;
@@ -173,6 +193,34 @@ public class MatrixUI extends JFrame {
 	}
 
 	public class StatusColumnCellRenderer extends DefaultTableCellRenderer {
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+
+			//Cells are by default rendered as a JLabel.
+			JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+
+			//Get the status for the current row.
+			TableModel tableModel = (TableModel) table.getModel();
+			if(value != null) {
+				if (value.equals(1.0f)) {
+					l.setBackground(Color.GREEN);
+				}
+				else {
+					if(value instanceof Float &&  (float)value > 0.0f){
+						l.setBackground(Color.ORANGE);
+					}
+					else {
+						l.setBackground(Color.WHITE);
+					}
+				}
+			}
+			//Return the JLabel which renders the cell.
+			return l;
+
+		}
+	}
+	
+	public class MorphColumnCellRenderer extends DefaultTableCellRenderer {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 

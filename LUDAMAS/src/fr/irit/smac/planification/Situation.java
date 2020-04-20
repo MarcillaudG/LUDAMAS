@@ -89,7 +89,7 @@ public class Situation {
 			this.internalState[i] = (float)cf.getOutput(i+1).getValue();
 		}
 		int slice = (int) (valueToAchieve / nbDecoupage);
-		System.out.println("SLICE:"+slice);
+		//System.out.println("SLICE:"+slice);
 		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
 		Collections.shuffle(informationTmp);
 		for(int i = 0; i < nbDecoupage;i++) {
@@ -97,7 +97,7 @@ public class Situation {
 				this.informationAvailable.put(informationTmp.get(rand.nextInt(informationTmp.size())), i*slice);
 			}
 		}
-		System.out.println("SITU :"+this.informationAvailable);
+		//System.out.println("SITU :"+this.informationAvailable);
 	}
 	
 	/**
@@ -107,7 +107,7 @@ public class Situation {
 		// Decoupage des informations disponibles
 		Random rand = new Random();
 		int slice = (int) (this.nbStep / nbDecoupage);
-		System.out.println("SLICE:"+slice);
+		//System.out.println("SLICE:"+slice);
 		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
 		Collections.shuffle(informationTmp);
 		List<String> goodData = new ArrayList<String>();
@@ -126,7 +126,7 @@ public class Situation {
 				this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), i*slice);
 			}
 		}
-		System.out.println("SITU :"+this.informationAvailable);
+		//System.out.println("SITU :"+this.informationAvailable);
 	}
 
 	public List<String> getInformationAvailable(float value){

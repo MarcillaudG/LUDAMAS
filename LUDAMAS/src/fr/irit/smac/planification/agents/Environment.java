@@ -53,7 +53,7 @@ public class Environment {
 
 		this.shieldUser = new ShieldUser();
 		
-		this.shieldUser.initSetOfTypedVariableWithRange(15, 0, 10, "Type 1");
+		this.shieldUser.initSetOfTypedVariableWithRange(10, 0, 10, "Type 1");
 		this.shieldUser.generateAllFunctionsOfVariable();
 		
 		this.shieldUser.initGeneratorOfFunction();

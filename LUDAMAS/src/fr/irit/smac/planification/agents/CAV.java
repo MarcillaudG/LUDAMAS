@@ -88,7 +88,7 @@ public class CAV {
 		this.internalEffect = new float[this.nbObjectiveStates];
 		this.situations = new Situation[this.nbSituation];
 
-		this.environment = new Environment(10, 0, 200, 1);
+		this.environment = new Environment(3, 0, 200, 1);
 		this.dataPerceived = new TreeSet<String>();
 		//this.environment.getSubsetOfVariables(4);
 
@@ -113,8 +113,8 @@ public class CAV {
 		}
 		this.exteroData.addAll(variablesAvailable);
 		for(String s : this.exteroData) {
-			this.environment.generateSimilarData(s, 1);
-			//this.environment.generateSimilarDataDifferent(s,3);
+			//this.environment.generateSimilarData(s, 1);
+			this.environment.generateSimilarDataDifferent(s,1);
 		}
 		/*int i = 0;
 		this.initComposedFunction();
@@ -209,7 +209,7 @@ public class CAV {
 		outputs.add("float");
 		this.environment.generateComposedFunction(this.name+"ComposedFunction", input, outputs, 3, 3);
 		this.composedFunction = this.environment.getComposedFunctionWithName(this.name+"ComposedFunction");
-		System.out.println("END ICF");
+		//System.out.println("END ICF");
 
 	}
 
@@ -321,8 +321,8 @@ public class CAV {
 		}
 		this.currentSituation.compute();
 
-		System.out.println("NBSTEPI1:"+this.currentSituation.getCf().getOutput(0).getValue());
-		System.out.println("Value to achieve:"+this.currentSituation.getCf().getOutput(1).getValue());
+		//System.out.println("NBSTEPI1:"+this.currentSituation.getCf().getOutput(0).getValue());
+		//System.out.println("Value to achieve:"+this.currentSituation.getCf().getOutput(1).getValue());
 		plan.addRes(new Result((int) this.composedFunction.getOutput(0).getValue(),(float) this.composedFunction.getOutput(1).getValue()));
 
 		return plan;
@@ -417,9 +417,18 @@ public class CAV {
 		cav.senseData();
 		cav.planificationEffectors();*/
 		int i =0;
-		while(i < 10) {
+		while(i < 1000) {
 			cav.manageSituation();
 			i++;
+			if(i!=0 && i % 50 == 0) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			cav.environment.generateNewValues(i);
 		}
 	}
 

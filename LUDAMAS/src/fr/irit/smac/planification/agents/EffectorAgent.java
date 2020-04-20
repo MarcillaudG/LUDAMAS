@@ -160,8 +160,8 @@ public class EffectorAgent {
 		this.dataPerceived.addAll(this.currentSituation.getInformationAvailable(this.currentStep));
 
 
-		System.out.println("LAST:"+this.dataPerceivedLastCycle);
-		System.out.println("CURRENT:"+this.dataPerceived);
+		//System.out.println("LAST:"+this.dataPerceivedLastCycle);
+		//System.out.println("CURRENT:"+this.dataPerceived);
 		
 		// Recuperation des donnees communiquees
 		this.dataCommunicated.clear();
@@ -175,7 +175,7 @@ public class EffectorAgent {
 	}
 
 	public void decide() {
-		System.out.println("Decide");
+		//System.out.println("Decide");
 		// CreationofDataConstraint
 		List<String> constraintToADD = new ArrayList<>(this.dataPerceived);
 		constraintToADD.removeAll(this.dataConstraint.keySet());
@@ -226,7 +226,7 @@ public class EffectorAgent {
 				for(int i =0; i < this.morphActifs.size();i++) {
 					this.morphActifs.get(i).start(this.currentStep);
 				}
-				System.out.print("");
+				//System.out.print("");
 				s.addEntity("Counter:"+this.currentStep, "COUNT");
 				//this.currentSnapshot.setSnapshotNumber(this.nbCycle);
 				this.nbCycle++;
@@ -239,7 +239,7 @@ public class EffectorAgent {
 		}
 		for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
 			if(this.inputsConstraints.get(input).getOffers().isEmpty()) {
-				System.out.println(input);
+				//System.out.println(input);
 			}
 			this.myPlaning.setExteroChosen(input, this.inputsConstraints.get(input).getOffers().get(0).getMorph().getData());
 		}
@@ -288,13 +288,13 @@ public class EffectorAgent {
 			this.myPlaning.addRes(res);
 		}
 
-		System.out.println(myPlaning);
-		System.out.println(this.lastPlaning);
+		//System.out.println(myPlaning);
+		//System.out.println(this.lastPlaning);
 		//this.myMatrix.updateMatrixFromSub(subMatrix);
 
 		if(!this.myPlaning.isIdenticalToLast(this.lastPlaning)) {
 			this.learn();
-			System.out.println("LEARN");
+			//System.out.println("LEARN");
 		}
 
 		this.myMatrix.updateUI();
@@ -385,11 +385,11 @@ public class EffectorAgent {
 
 
 	public void act(Integer time) {
-		System.out.println("Act");
+		//System.out.println("Act");
 		// Faire l'action suivante
 		// TEST
 		this.cav.effect(this.myObjectiveState,this.myPlaning.getResAtTime(time));
-		System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
+		//System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
 		this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
 		time++;
 		
@@ -601,6 +601,16 @@ public class EffectorAgent {
 
 	public void updateMatrix(String inputName, String dataName, float usefulness) {
 		this.myMatrix.setWeight(inputName, dataName, usefulness);
+	}
+
+
+	public String getMorphValue(String input, String data) {
+		for(MorphingAgent morph : this.morphlings.get(input)) {
+			if(morph.getData().equals(data)) {
+				return morph.getMorphLRFormula();
+			}
+		}
+		return "MORPH NOT FOUND";
 	}
 
 

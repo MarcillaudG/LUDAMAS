@@ -155,12 +155,12 @@ public class Matrix {
 			list2.add("data'"+i);
 		}
 		Matrix mat = new Matrix(list);
-		System.out.println(mat);
+		//System.out.println(mat);
 		Matrix sub = mat.constructSubmatrix(list2);
 		mat.updateMatrixFromSub(sub);
-		System.out.println(mat);
+		//System.out.println(mat);
 		mat.setWeight("data2", "data'0", 5.0f);
-		System.out.println(mat);
+		//System.out.println(mat);
 
 	}
 
@@ -225,6 +225,10 @@ public class Matrix {
 
 	public Float getValueOfMorph(String input, String data) {
 		return this.matrix.get(new Input(input,0)).get(data);
+	}
+
+	public String getMorphValue(String input, String data) {
+		return this.effectorAgent.getMorphValue(input,data);
 	}
 
 
