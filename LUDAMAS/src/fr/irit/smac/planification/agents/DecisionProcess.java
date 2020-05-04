@@ -17,15 +17,17 @@ public class DecisionProcess {
 
 	private ComposedFunction function;
 
-	private Environment env;
+	//private Environment env;
 
+	private EnvironmentRandom env;
+	
 	private List<String> proprio;
 
 	private List<String> extero;
 
 	private Map<String,Integer> valuesExtero;
 
-	public DecisionProcess(Situation situ, EffectorAgent eff, Environment env) {
+	public DecisionProcess(Situation situ, EffectorAgent eff, EnvironmentRandom env) {
 		this.situation = situ;
 		this.effector = eff;
 		this.env = env;

@@ -142,10 +142,10 @@ public class LinearRegression {
     }
     
     public static void main(String args[]) {
-    	//double x[] = {6.2,6.5,5.48,6.54,7.18,7.19 };
-    	//double y[] = {26.3,26.65,25.03,26.01,27.9,30.47};
-    	double x[] = {5.0, 2.0};
-    	double y[] = {5.0,2.0};
+    	double x[] = {6.2,6.5,5.48,6.54,7.18,7.19 };
+    	double y[] = {26.3,26.65,25.03,26.01,27.9,30.47};
+    	//double x[] = {5.0, 2.0};
+    	//double y[] = {5.0,2.0};
     	LinearRegression lr = new LinearRegression(x, y);
     	System.out.println("SLOPE:"+lr.slope);
     	System.out.println("INTERCEPT:"+lr.intercept);

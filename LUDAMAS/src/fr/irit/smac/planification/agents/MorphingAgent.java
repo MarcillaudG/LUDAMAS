@@ -45,6 +45,10 @@ public class MorphingAgent {
 
 	private LinearRegression lr;
 
+	private final float sensibility = 10.f;
+
+	private float etendu;
+
 	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat) {
 		this.dataName = dataName;
 		this.inputName = inputName;
@@ -52,6 +56,7 @@ public class MorphingAgent {
 		this.matrix = mat;
 		this.morphValue = 1.0f;
 		this.usefulness = 0.5f;
+		this.etendu = 1.0f;
 
 
 		this.name = inputName+":"+dataName;
@@ -65,6 +70,7 @@ public class MorphingAgent {
 		this.inputName = inputName;
 		this.morphValue = 1.0f;
 		this.usefulness = 0.5f;
+		this.etendu = 1.0f;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
 	}
@@ -76,7 +82,7 @@ public class MorphingAgent {
 		this.matrix = mat;
 		this.morphValue = 1.0f;
 		this.usefulness = value;
-
+		this.etendu = 1.0f;
 
 		this.name = inputName+":"+dataName;
 		this.historic = new TreeMap<>();
@@ -157,7 +163,11 @@ public class MorphingAgent {
 		// alors envoyer valeur transformee
 		if(this.inputConstraint.hasMyOffer(this) && this.dataConstraint.isSatisfied() && this.inputConstraint.isSatisfied()) {
 			//this.morphValue = this.dico();
-			float valueToSend = this.value * this.morphValue;
+			//float valueToSend = this.value * this.morphValue;
+			float valueToSend = this.value;
+			if(this.lr != null) {
+				valueToSend = this.morphValue;
+			}
 			this.superiorAgent.sendValueToDecisionProcessLinks(this,valueToSend);
 		}
 		//System.out.println(valueToSend);
@@ -171,17 +181,60 @@ public class MorphingAgent {
 		else {
 			this.usefulness = Math.max(.0f, this.usefulness-0.1f);
 			if(lr != null && this.dataName.contains(this.inputName)) {
-				System.out.println("--------------"+inputName + "-> "+ dataName);
+				/*System.out.println("--------------"+inputName + "-> "+ dataName);
 				System.out.println("CORRECT :"+correctValue);
 				System.out.println("MINE :"+this.value);
 				System.out.println("MORPHED :"+this.lr.predict(this.value));
-				System.out.println(this.historic);
-				try {
+				System.out.println(this.historic);*/
+				/*try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}*/
+			}
+		}
+		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
+
+	}
+
+
+	public void sendFeedback(Float correctValue, boolean tolerant) {
+		this.addMorph(this.value, correctValue);
+		float diffPourcent = this.sensibility+1;
+
+		if(lr != null) {
+			diffPourcent = Math.abs(((correctValue - this.lr.predict(this.value))/this.lr.predict(this.value)*100));
+			if(lr != null && this.dataName.contains(this.inputName)) {
+				System.out.println(this.name);
+				System.out.println("DIFF:"+diffPourcent);
+				System.out.println("VALUE:"+this.value);
+				System.out.println("CORRECT:"+correctValue);
+				System.out.println("predict:"+this.lr.predict(this.value));
+				System.out.println("ETENDU:"+this.etendu);
+				if(diffPourcent < this.sensibility*this.etendu/100) {
+					System.out.println("UP");
 				}
+			}
+		}
+		if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value)) 
+				||  diffPourcent < this.sensibility*this.etendu/100) {
+			this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
+		}
+		else {
+			this.usefulness = Math.max(.0f, this.usefulness-0.05f);
+			if(lr != null && this.dataName.contains(this.inputName)) {
+				/*System.out.println("--------------"+inputName + "-> "+ dataName);
+				System.out.println("CORRECT :"+correctValue);
+				System.out.println("MINE :"+this.value);
+				System.out.println("MORPHED :"+this.lr.predict(this.value));
+				System.out.println(this.historic);*/
+				/*try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}*/
 			}
 		}
 		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
@@ -321,6 +374,22 @@ public class MorphingAgent {
 			this.distribution.put(myValue, 0.f);
 
 		this.historic.put(this.historic.keySet().size(), Pair.of(myValue, otherValue));
+
+		Float max = null;
+		Float min = null;
+		if(this.historic.keySet().size()>1) {
+			for(Pair<Float,Float> p : this.historic.values()) {
+				if(max == null || p.getRight() > max) {
+					max = p.getRight();
+				}
+				if(min == null || p.getRight() < min) {
+					min = p.getRight();
+				}
+			}
+		}
+		if(min != null && max != null) {
+			this.etendu = max -min;
+		}
 	}
 
 	public static void main(String args[]) {
@@ -404,4 +473,22 @@ public class MorphingAgent {
 		}
 		return "1.0";
 	}
+
+	public float getPredict() {
+		if(lr != null) {
+			return this.lr.predict(this.value);
+		}
+		else {
+			return this.value;
+		}
+	}
+
+	public void increaseUsefull() {
+		this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
+	}
+	
+	public void decreaseUsefull() {
+		this.usefulness = Math.max(.0f, this.usefulness-0.05f);
+	}
+
 }

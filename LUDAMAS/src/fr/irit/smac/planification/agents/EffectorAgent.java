@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.core.Links;
+import fr.irit.smac.lxplot.LxPlot;
 import fr.irit.smac.model.Entity;
 import fr.irit.smac.model.Relation;
 import fr.irit.smac.model.Snapshot;
@@ -95,6 +96,8 @@ public class EffectorAgent {
 
 	private int nbCycle;
 
+	private int nbFeed;
+
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
 		this.name = name;
@@ -126,6 +129,7 @@ public class EffectorAgent {
 
 		//Create a new experiment
 		this.links = new Links(this.name,false);
+		this.nbFeed = 0;
 	}
 
 	public void initSituation() {
@@ -134,15 +138,15 @@ public class EffectorAgent {
 		this.cost = 0.0f;
 		this.morphActifs = new ArrayList<>();
 		this.links.addSnapshot(new Snapshot());
-		
+
 		for(DataUnicityConstraint data: this.dataConstraint.values()) {
 			data.restart();
 		}
-		
+
 		for(InputConstraint input: this.inputsConstraints.values()) {
 			input.restart();
 		}
-		
+
 		this.dataPerceivedLastCycle.clear();
 		this.dataPerceived.clear();
 	}
@@ -162,7 +166,7 @@ public class EffectorAgent {
 
 		//System.out.println("LAST:"+this.dataPerceivedLastCycle);
 		//System.out.println("CURRENT:"+this.dataPerceived);
-		
+
 		// Recuperation des donnees communiquees
 		this.dataCommunicated.clear();
 		this.dataCommunicated.addAll(this.cav.getDataComInSituation());
@@ -191,7 +195,7 @@ public class EffectorAgent {
 			this.myMatrix.addNewData(data);
 		}
 		//System.out.println(this.myMatrix);
-		
+
 
 		// Creation of the matrix DataUsed minus dataPerceived / dataCommunicated
 		//this.subMatrix = this.myMatrix.constructSubmatrix(this.dataPerceived, this.decisionProcess.get(this.currentSituation).getExtero());
@@ -291,10 +295,17 @@ public class EffectorAgent {
 		//System.out.println(myPlaning);
 		//System.out.println(this.lastPlaning);
 		//this.myMatrix.updateMatrixFromSub(subMatrix);
-
+		//float feed = this.myPlaning.isAlmostIdenticalToLast(this.lastPlaning);
 		if(!this.myPlaning.isIdenticalToLast(this.lastPlaning)) {
 			this.learn();
+
+			/*System.out.println("///////////////////////////////////////////////////////////////");
+			System.out.println(this.lastPlaning);
+			System.out.println(this.myPlaning);
+			System.out.println("///////////////////////////////////////////////////////////////");*/
+			//LxPlot.getChart(this.name).add(this.nbFeed, feed);
 			//System.out.println("LEARN");
+			this.nbFeed++;
 		}
 
 		this.myMatrix.updateUI();
@@ -303,9 +314,9 @@ public class EffectorAgent {
 
 	private void learn() {
 		for(String in: this.myPlaning.getExteroChosen().keySet()) {
-			if(!this.myPlaning.getExteroChosen().get(in).equals(this.lastPlaning.getExteroChosen().get(in))) {
-					float valueNew = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
-					float valueOld = this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in));
+			if(!this.myPlaning.getExteroChosen().get(in).equals(this.lastPlaning.getExteroChosen().get(in)) && this.myPlaning.isUnderstandedInput(in)) {
+				float valueNew = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
+				float valueOld = this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in));
 				//if(this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in)) != this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in))){
 				/*if(valueNew != valueOld) {
 					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 0.0f);
@@ -313,75 +324,40 @@ public class EffectorAgent {
 				else {
 					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 1.0f);
 				}*/
-					for(MorphingAgent morph : this.morphlings.get(in)) {
-						if(morph.getData().equals(this.lastPlaning.getExteroChosen().get(in))) {
-							morph.sendFeedback(this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in)));
+				MorphingAgent worst = null;
+				MorphingAgent best = null;
+				Float worstValue = null;
+				Float bestValue = null;
+				float correctValue = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
+				for(MorphingAgent morph : this.morphlings.get(in)) {
+					if(morph.getData().equals(this.lastPlaning.getExteroChosen().get(in))) {
+						morph.sendFeedback(correctValue, this.myPlaning.isTolerant(this.lastPlaning));
+					}
+					if(this.morphActifs.contains(morph)) {
+						float valueMorph = morph.getPredict();
+						if(bestValue == null || Math.abs(valueMorph-correctValue) < Math.abs(bestValue - correctValue)) {
+							bestValue = valueMorph;
+							best = morph;
+						}
+						if(!best.equals(morph) && (worstValue == null || Math.abs(valueMorph-correctValue) > Math.abs(worstValue - correctValue))) {
+							worstValue = valueMorph;
+							worst = morph;
 						}
 					}
+				}
+				/*if(best != null) {
+					System.out.println("BEST:"+best+" for "+in);
+					System.out.println();
+					best.increaseUsefull();
+				}
+				if(worst != null) {
+					System.out.println("WORST:"+worst+" for "+in);
+					worst.decreaseUsefull();
+				}*/
 			}
 		}
 	}
 
-
-	private void planActionInf(float valueRemaining, int nbStep) {
-		float factor = valueRemaining >0 ? -1.f:1.0f;
-		System.out.println("valueRemaining:"+valueRemaining);
-		float center = valueRemaining / nbStep;
-		System.out.println("center:"+center);
-		float decoupage = nbStep % 2 ==1 ?  (nbStep-1)/2 : (nbStep-2)/2;
-		System.out.println("decoupage:"+decoupage);
-		float distanceToZero = center / decoupage;
-		System.out.println("distanceToZero:"+distanceToZero);
-		float optimAction = (this.cav.getValueOfEffect(this.myObjectiveState)-center)/decoupage;
-		System.out.println("optimAction:"+optimAction);
-		float firstValue = center + decoupage * distanceToZero;
-		System.out.println("firstValue:"+firstValue);
-		float firstAction = this.cav.getValueOfEffect(this.myObjectiveState) - firstValue;
-		System.out.println("firstAction:"+firstAction);
-		this.myPlaning.setResAtTime(this.currentStep, new Result(currentStep, firstAction*factor));
-		for(int i = 1; i < nbStep;i++) {
-			Result resTmp =null;
-			if(nbStep % 2 ==0 && i == nbStep /2) {
-				resTmp = new Result(this.currentStep+i, 0.0f);
-			}
-			else {
-				resTmp = new Result(this.currentStep+i, optimAction*factor);
-			}
-			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
-		}
-		System.out.println(myPlaning);
-
-	}
-
-
-	private void planActionSup(float valueRemaining, int nbStep) {
-		float factor = valueRemaining >0 ? -1.f:1.0f;
-		System.out.println("valueRemaining:"+valueRemaining);
-		float center = valueRemaining / nbStep;
-		System.out.println("center:"+center);
-		float decoupage = nbStep % 2 ==1 ?  (nbStep-1)/2 : (nbStep-2)/2;
-		System.out.println("decoupage:"+decoupage);
-		float distanceToZero = center / decoupage;
-		System.out.println("distanceToZero:"+distanceToZero);
-		float optimAction = (this.cav.getValueOfEffect(this.myObjectiveState)-center)/decoupage;
-		System.out.println("optimAction:"+optimAction);
-		float firstValue = center + decoupage * distanceToZero;
-		System.out.println("firstValue:"+firstValue);
-		float firstAction = this.cav.getValueOfEffect(this.myObjectiveState) - firstValue;
-		System.out.println("firstAction:"+firstAction);
-		this.myPlaning.setResAtTime(this.currentStep, new Result(currentStep, firstAction*factor));
-		for(int i = 1; i < nbStep;i++) {
-			Result resTmp =null;
-			if(nbStep % 2 ==0 && i == nbStep /2) {
-				resTmp = new Result(this.currentStep+i, 0.0f);
-			}
-			else {
-				resTmp = new Result(this.currentStep+i, optimAction*factor);
-			}
-			this.myPlaning.setResAtTime(this.currentStep+i, resTmp);
-		}
-		System.out.println(myPlaning);
-	}
 
 
 	public void act(Integer time) {
@@ -392,7 +368,7 @@ public class EffectorAgent {
 		//System.out.println("Avancement:"+time+"::"+this.cav.getValueOfState(myObjectiveState));
 		this.cost += this.evaluateAction(this.myPlaning.getResAtTime(time));
 		time++;
-		
+
 
 	}
 
@@ -590,7 +566,7 @@ public class EffectorAgent {
 				Relation r2 = s.addRelation(off.getMorph().getName(),"Data:"+off.getMorph().getData(),off.getMorph().getName()+"To Data:"+off.getMorph().getData(),  true, "applyToData");
 			}
 		}
-		
+
 		for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
 			for(Offer off: this.inputsConstraints.get(input).getOffers()) {
 				Relation r = s.addRelation(off.getMorph().getName(),"IN:"+off.getMorph().getInput(),off.getMorph().getName()+"To Input:"+off.getMorph().getInput(),  true, "applyToInput");

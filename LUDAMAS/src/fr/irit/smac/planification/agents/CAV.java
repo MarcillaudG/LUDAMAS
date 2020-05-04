@@ -59,7 +59,9 @@ public class CAV {
 
 	private Situation currentSituation;
 
-	private Environment environment;
+	//private Environment environment;
+	
+	private EnvironmentRandom environment;
 
 	// TODO
 	private Set<String> dataPerceived;
@@ -88,15 +90,15 @@ public class CAV {
 		this.internalEffect = new float[this.nbObjectiveStates];
 		this.situations = new Situation[this.nbSituation];
 
-		this.environment = new Environment(3, 0, 200, 1);
+		this.environment = new EnvironmentRandom(3, 0, 200, 1);
 		this.dataPerceived = new TreeSet<String>();
 		//this.environment.getSubsetOfVariables(4);
 
-		init();
+		initDataset();
 
 	}
 
-	private void init() {
+	private void initShield() {
 		System.out.println("Init");
 		this.effectors = new TreeMap<String,EffectorAgent>();
 		this.dataPerceivedInSituation = new ArrayList<String>();
@@ -153,6 +155,73 @@ public class CAV {
 				dp.initComposedFunction(this.internalData.subList(0, 2), this.exteroData.subList(0, 3), new ArrayList<String>());
 			}
 		}
+	}
+	
+	private void initDataset() {
+		System.out.println("Init");
+		this.effectors = new TreeMap<String,EffectorAgent>();
+		this.dataPerceivedInSituation = new ArrayList<String>();
+		this.dataCommunicatedInSituation = new ArrayList<String>();
+		this.objectives = new ArrayList<Objective>();
+		this.internalData = new ArrayList<>();
+		this.effectorData = new ArrayList<>();
+		this.exteroData = new ArrayList<>();
+		this.exteroDataCorrect = new TreeMap<>();
+		Random rand = new Random();
+		List<String> variablesAvailable = new ArrayList<>(this.environment.getAllVariable());
+		for(String s : this.environment.getAllVariable()) {
+			if(s.contains("copy")) {
+				variablesAvailable.remove(s);
+			}
+		}
+		for(int i =0; i < 4;i++) {
+			this.internalData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
+		}
+		this.exteroData.addAll(variablesAvailable);
+		System.out.println(this.exteroData);
+		/*for(String s : this.exteroData) {
+			//this.environment.generateSimilarData(s, 1);
+			this.environment.generateSimilarDataDifferent(s,1);
+		}*/
+		/*int i = 0;
+		this.initComposedFunction();
+		while(i < this.nbEffectors) {
+			int j = 0;
+			while(j < this.nbObjectiveStates && i < this.nbEffectors) {
+				String ne = "EffAgent:"+j+(i/this.nbObjectiveStates);
+				EffectorAgent eff = new EffectorAgent(ne,this, j,-2.0f);
+				this.effectors.put(ne, eff);
+				j++;
+				i++;
+			}
+		}*/
+
+		for(int i =0; i < this.nbObjectiveStates;i++) {
+			EffectorAgent eff = new EffectorAgent("Effector:"+i, this, i, 10.0f);
+			this.effectors.put(eff.getName(), eff);
+		}
+
+		for(int k = 0; k < this.nbObjectiveStates;k++) {
+			this.internalState[k] = 0.0f;
+		}
+		List<String> dataInSituation = new ArrayList<String>();
+		for(String s : this.exteroData) {
+			dataInSituation.add(this.environment.getCopyOfVar(s));
+		}
+		System.out.println(dataInSituation);
+		dataInSituation.addAll(this.exteroData);
+		for(int k = 0; k < this.nbSituation;k++) {
+			Situation s = new Situation(k, rand.nextInt(30)+5, dataInSituation, 2);
+			this.situations[k] = s;
+			for(EffectorAgent eff : this.effectors.values()) {
+				DecisionProcess dp = new DecisionProcess(s, eff, this.environment);
+				eff.addDP(dp,s);
+				Collections.shuffle(this.internalData);
+				Collections.shuffle(this.exteroData);
+				dp.initComposedFunction(this.internalData.subList(0, 2), this.exteroData.subList(0, 3), new ArrayList<String>());
+			}
+		}
+		System.out.println("END");
 	}
 
 	private void initComposedFunction() {
