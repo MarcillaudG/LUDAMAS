@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.agents.MorphingAgent;
 import fr.irit.smac.planification.ui.MatrixUI;
+import fr.irit.smac.planification.ui.MatrixUITable;
 
 public class Matrix {
 
@@ -21,11 +22,11 @@ public class Matrix {
 	private Matrix subMatrix;
 
 	private int nbInput;
-	
+
 	private EffectorAgent effectorAgent;
-	
-	private MatrixUI myUI;
-	
+
+	private MatrixUITable myUI;
+
 	public Matrix (List<String> dataExteroceptive) {
 		this.matrix = new HashMap<Input,Map<String,Float>>();
 		this.nbInput =0;
@@ -117,7 +118,7 @@ public class Matrix {
 	public void setWeight(String in, String data,float weight) {
 		this.matrix.get(new Input(in, 0)).put(data, weight);
 	}
-	
+
 	/**
 	 * Add a copy of a row
 	 * @param dataName
@@ -181,7 +182,7 @@ public class Matrix {
 				this.matrix.get(in).put(data, 0.5f);
 			}
 		}
-		
+
 	}
 
 	public List<Input> getInput() {
@@ -216,11 +217,13 @@ public class Matrix {
 
 	public void updateUI() {
 		if(this.myUI == null) {
-			this.myUI = new MatrixUI(this);
-			this.myUI.setVisible(true);
+			this.myUI = new MatrixUITable(this);
+			if(this.effectorAgent.sendUI(this.myUI) != 0) {
+				this.myUI.setVisible(true);
+			}
 		}
 		this.myUI.update();
-		
+
 	}
 
 	public Float getValueOfMorph(String input, String data) {
@@ -229,6 +232,10 @@ public class Matrix {
 
 	public String getMorphValue(String input, String data) {
 		return this.effectorAgent.getMorphValue(input,data);
+	}
+
+	public String getname() {
+		return this.effectorAgent.getName();
 	}
 
 

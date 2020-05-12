@@ -10,11 +10,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fr.irit.smac.complex.ComposedFunction;
-import fr.irit.smac.core.Links;
-import fr.irit.smac.lxplot.LxPlot;
-import fr.irit.smac.model.Entity;
-import fr.irit.smac.model.Relation;
-import fr.irit.smac.model.Snapshot;
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.Situation;
@@ -22,6 +17,8 @@ import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.Input;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
+import fr.irit.smac.planification.ui.MatrixUI;
+import fr.irit.smac.planification.ui.MatrixUITable;
 
 public class EffectorAgent {
 
@@ -90,9 +87,7 @@ public class EffectorAgent {
 	private Map<String, DataUnicityConstraint> dataConstraint;
 
 	// Links
-	private Links links;
 
-	private Snapshot currentSnapshot;
 
 	private int nbCycle;
 
@@ -128,7 +123,6 @@ public class EffectorAgent {
 		this.dataConstraint = new TreeMap<>();
 
 		//Create a new experiment
-		this.links = new Links(this.name,false);
 		this.nbFeed = 0;
 	}
 
@@ -137,7 +131,6 @@ public class EffectorAgent {
 		this.lastPlaning = null;
 		this.cost = 0.0f;
 		this.morphActifs = new ArrayList<>();
-		this.links.addSnapshot(new Snapshot());
 
 		for(DataUnicityConstraint data: this.dataConstraint.values()) {
 			data.restart();
@@ -173,7 +166,7 @@ public class EffectorAgent {
 
 		this.lastPlaning = new Planing(myPlaning);
 		this.myPlaning= new Planing();
-		this.currentSnapshot = new Snapshot();
+		//this.currentSnapshot = new Snapshot();
 		this.nbCycle = 1;
 		//this.experiment.addSnapshot(currentSnapshot);
 	}
@@ -209,35 +202,35 @@ public class EffectorAgent {
 		// Choix des exteroceptives
 		if(this.dataPerceivedLastCycle.isEmpty() || !this.dataPerceivedLastCycle.containsAll(this.dataPerceived)) {
 			do{
-				Snapshot s = new Snapshot();
+				//Snapshot s = new Snapshot();
 				Collections.shuffle(this.morphActifs);
 
 				// Links
 				for(MorphingAgent morph : this.morphActifs) {
-					Entity ent = s.addEntity(morph.getInput()+":"+morph.getData(), "Morph");
+					//Entity ent = s.addEntity(morph.getInput()+":"+morph.getData(), "Morph");
 					double value = this.myMatrix.getValueOfMorph(morph.getInput(),morph.getData());
-					s.getEntity(morph.getInput()+":"+morph.getData()).addOneAttribute("Usefulness","usefulness", value);
+					//s.getEntity(morph.getInput()+":"+morph.getData()).addOneAttribute("Usefulness","usefulness", value);
 					//this.currentSnapshot.addEntity(ent);
 				}
 				for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
-					Entity ent = s.addEntity("IN:"+input, "Input");
+					//Entity ent = s.addEntity("IN:"+input, "Input");
 					//this.currentSnapshot.addEntity(ent);
 				}
 				for(String data : this.dataPerceived) {
-					Entity ent = s.addEntity("Data:"+data, "Data");
+					//Entity ent = s.addEntity("Data:"+data, "Data");
 					//this.currentSnapshot.addEntity(ent);
 				}
 				for(int i =0; i < this.morphActifs.size();i++) {
 					this.morphActifs.get(i).start(this.currentStep);
 				}
 				//System.out.print("");
-				s.addEntity("Counter:"+this.currentStep, "COUNT");
+				//s.addEntity("Counter:"+this.currentStep, "COUNT");
 				//this.currentSnapshot.setSnapshotNumber(this.nbCycle);
 				this.nbCycle++;
 
-				this.sendOfferToLinks(s);
+				//this.sendOfferToLinks(s);
 
-				this.links.addSnapshot(s);
+				//this.links.addSnapshot(s);
 
 			}while(this.allConstraintNotSatisfied());
 		}
@@ -284,6 +277,10 @@ public class EffectorAgent {
 	}
 
 
+	/**
+	 * Create the planning according to the data chosen
+	 * if the new planning is different, morphingAgent will learn
+	 */
 	private void planActions() {
 		// Use the CAV function to get the planing using 
 		//Result res = this.cav.computeDecision(this.chosen,this.dpercom, this.myObjectiveState).getLastRes();
@@ -299,12 +296,6 @@ public class EffectorAgent {
 		if(!this.myPlaning.isIdenticalToLast(this.lastPlaning)) {
 			this.learn();
 
-			/*System.out.println("///////////////////////////////////////////////////////////////");
-			System.out.println(this.lastPlaning);
-			System.out.println(this.myPlaning);
-			System.out.println("///////////////////////////////////////////////////////////////");*/
-			//LxPlot.getChart(this.name).add(this.nbFeed, feed);
-			//System.out.println("LEARN");
 			this.nbFeed++;
 		}
 
@@ -560,7 +551,7 @@ public class EffectorAgent {
 
 
 
-	private void sendOfferToLinks(Snapshot s) {
+	/*private void sendOfferToLinks(Snapshot s) {
 		for(String data : this.dataPerceived) {
 			for(Offer off : this.dataConstraint.get(data).getOffers()) {
 				Relation r2 = s.addRelation(off.getMorph().getName(),"Data:"+off.getMorph().getData(),off.getMorph().getName()+"To Data:"+off.getMorph().getData(),  true, "applyToData");
@@ -572,7 +563,7 @@ public class EffectorAgent {
 				Relation r = s.addRelation(off.getMorph().getName(),"IN:"+off.getMorph().getInput(),off.getMorph().getName()+"To Input:"+off.getMorph().getInput(),  true, "applyToInput");
 			}
 		}
-	}
+	}*/
 
 
 	public void updateMatrix(String inputName, String dataName, float usefulness) {
@@ -587,6 +578,11 @@ public class EffectorAgent {
 			}
 		}
 		return "MORPH NOT FOUND";
+	}
+
+
+	public int sendUI(MatrixUITable myUI) {
+		return this.cav.sendUI(myUI) ;
 	}
 
 

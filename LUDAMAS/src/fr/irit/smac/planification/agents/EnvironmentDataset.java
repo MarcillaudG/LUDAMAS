@@ -16,16 +16,18 @@ import fr.irit.smac.generator.ShieldUser;
 import fr.irit.smac.shield.c2av.SyntheticFunction;
 import fr.irit.smac.shield.model.Variable;
 
-public class EnvironmentRandom {
+public class EnvironmentDataset extends EnvironmentGeneral{
 
 	
-	private Map<Integer,Map<String,Double>> historic;
-	private Map<String, Float> data;
-	private ShieldUser shieldUser;
 	
 	private Scanner reader;
 	
-	public EnvironmentRandom() {
+	private File dataset;
+	
+	public EnvironmentDataset(String fileName) {
+		this.shieldUser = new ShieldUser();
+		System.out.println(fileName);
+		this.dataset = new File(fileName);
 		init();
 	}
 	
@@ -37,7 +39,7 @@ public class EnvironmentRandom {
 	 * @param max
 	 * @param nbtype
 	 */
-	public EnvironmentRandom(int nbVar, double min, double max, int nbtype) {
+	public EnvironmentDataset(int nbVar, double min, double max, int nbtype) {
 		this.shieldUser = new ShieldUser();
 		
 
@@ -68,7 +70,8 @@ public class EnvironmentRandom {
 
 		this.data = new TreeMap<String,Float>();
 		try {
-			this.reader = new Scanner(new File("C:\\\\Users\\\\gmarcill\\\\Desktop\\\\dataset_mock_enhanced.csv"));
+			//this.reader = new Scanner(new File("C:\\\\Users\\\\gmarcill\\\\Desktop\\\\dataset_mock_enhanced.csv"));
+			this.reader = new Scanner(this.dataset);
 			String line = this.reader.nextLine();
 			String lineSplit[] = line.split(";");
 			for(int i = 0; i < lineSplit.length; i++) {
@@ -80,6 +83,7 @@ public class EnvironmentRandom {
 		}
 	}
 	
+	@Override
 	public void newCycle() {
 		String line = this.reader.nextLine();
 		String lineSplit[] = line.split(";");
@@ -91,20 +95,17 @@ public class EnvironmentRandom {
 		
 	}
 	
-	public SyntheticFunction generateFunction(String name, int nbVar) {
-		this.shieldUser.generateSyntheticFunction(name,nbVar);
-		
-		return this.shieldUser.getSyntheticFunctionWithName(name);
-	}
 	
 	public double getValueOfVariableWithName(String name) {
 		return this.data.get(name);
 	}
 
+	@Override
 	public Set<String> getAllVariable() {
 		return this.data.keySet();
 	}
 
+	@Override
 	public void generateNewValues(int cycle) {
 		this.historic.put(cycle-1, new TreeMap<String,Double>());
 		for(String s : this.shieldUser.getAllVariables()) {
@@ -191,7 +192,7 @@ public class EnvironmentRandom {
 	}
 	
 	public static void main(String args[]) {
-		EnvironmentRandom env = new EnvironmentRandom();
+		EnvironmentDataset env = new EnvironmentDataset("C:\\\\Users\\\\gmarcill\\\\Desktop\\\\dataset_mock_enhanced.csv");
 		env.newCycle();
 	}
 }

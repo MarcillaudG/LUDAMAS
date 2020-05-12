@@ -19,6 +19,9 @@ import fr.irit.smac.planification.Objective;
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.Situation;
+import fr.irit.smac.planification.ui.MatrixUI;
+import fr.irit.smac.planification.ui.MatrixUITable;
+import fr.irit.smac.planification.ui.VisuEffector;
 import fr.irit.smac.shield.model.Variable;
 
 public class CAV {
@@ -61,7 +64,7 @@ public class CAV {
 
 	//private Environment environment;
 	
-	private EnvironmentRandom environment;
+	private EnvironmentGeneral environment;
 
 	// TODO
 	private Set<String> dataPerceived;
@@ -78,6 +81,8 @@ public class CAV {
 
 	private int nbStep = 5;
 
+	private VisuEffector mainWindow;
+
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
 		this.currentTime = 0;
@@ -90,7 +95,7 @@ public class CAV {
 		this.internalEffect = new float[this.nbObjectiveStates];
 		this.situations = new Situation[this.nbSituation];
 
-		this.environment = new EnvironmentRandom(3, 0, 200, 1);
+		this.environment = new EnvironmentDataset("C:\\\\Users\\\\gmarcill\\\\Desktop\\\\dataset_mock_enhanced.csv");
 		this.dataPerceived = new TreeSet<String>();
 		//this.environment.getSubsetOfVariables(4);
 
@@ -98,6 +103,64 @@ public class CAV {
 
 	}
 
+	/**
+	 * Constructor using a dataset
+	 * 
+	 * @param name
+	 * @param nbEffectors
+	 * @param nbSituation
+	 * @param nbVarEff
+	 * @param nbCopy
+	 * @param filePath
+	 */
+	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, String filePath) {
+
+		this.name = name;
+		this.currentTime = 0;
+
+
+		this.nbObjectiveStates = nbEffectors;
+		this.nbEffectors = nbEffectors;
+		this.nbSituation = nbSituation;
+		this.internalState = new float[this.nbObjectiveStates];
+		this.internalEffect = new float[this.nbObjectiveStates];
+		this.situations = new Situation[this.nbSituation];
+
+		this.environment = new EnvironmentDataset(filePath);
+		this.dataPerceived = new TreeSet<String>();
+		//this.environment.getSubsetOfVariables(4);
+
+		initDataset();
+	}
+
+	/**
+	 * Constructor using shield
+	 * @param name
+	 * @param nbEffectors
+	 * @param nbSituation
+	 * @param nbVarEff
+	 * @param nbCopy
+	 * @param value5
+	 */
+	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, Integer nbVar) {
+		this.name = name;
+		this.currentTime = 0;
+
+
+		this.nbObjectiveStates = nbEffectors;
+		this.nbEffectors = nbEffectors;
+		this.nbSituation = nbSituation;
+		this.internalState = new float[this.nbObjectiveStates];
+		this.internalEffect = new float[this.nbObjectiveStates];
+		this.situations = new Situation[this.nbSituation];
+		this.dataPerceived = new TreeSet<String>();
+		
+		
+	}
+
+	/**
+	 * Method that use the shield generator variables
+	 */
 	private void initShield() {
 		System.out.println("Init");
 		this.effectors = new TreeMap<String,EffectorAgent>();
@@ -157,8 +220,13 @@ public class CAV {
 		}
 	}
 	
+	/**
+	 * Methode that use a dataset store in a file
+	 */
 	private void initDataset() {
 		System.out.println("Init");
+		
+		// Init the collections
 		this.effectors = new TreeMap<String,EffectorAgent>();
 		this.dataPerceivedInSituation = new ArrayList<String>();
 		this.dataCommunicatedInSituation = new ArrayList<String>();
@@ -167,6 +235,8 @@ public class CAV {
 		this.effectorData = new ArrayList<>();
 		this.exteroData = new ArrayList<>();
 		this.exteroDataCorrect = new TreeMap<>();
+		
+		
 		Random rand = new Random();
 		List<String> variablesAvailable = new ArrayList<>(this.environment.getAllVariable());
 		for(String s : this.environment.getAllVariable()) {
@@ -174,42 +244,32 @@ public class CAV {
 				variablesAvailable.remove(s);
 			}
 		}
-		for(int i =0; i < 4;i++) {
+		
+		// set the internal data of the CAV
+		for(int i =0; i < 2;i++) {
 			this.internalData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
 		}
 		this.exteroData.addAll(variablesAvailable);
-		System.out.println(this.exteroData);
-		/*for(String s : this.exteroData) {
-			//this.environment.generateSimilarData(s, 1);
-			this.environment.generateSimilarDataDifferent(s,1);
-		}*/
-		/*int i = 0;
-		this.initComposedFunction();
-		while(i < this.nbEffectors) {
-			int j = 0;
-			while(j < this.nbObjectiveStates && i < this.nbEffectors) {
-				String ne = "EffAgent:"+j+(i/this.nbObjectiveStates);
-				EffectorAgent eff = new EffectorAgent(ne,this, j,-2.0f);
-				this.effectors.put(ne, eff);
-				j++;
-				i++;
-			}
-		}*/
 
+		// Create a number of effector equal to the number of state of the CAV
 		for(int i =0; i < this.nbObjectiveStates;i++) {
 			EffectorAgent eff = new EffectorAgent("Effector:"+i, this, i, 10.0f);
 			this.effectors.put(eff.getName(), eff);
 		}
 
+		// I think it is useless
 		for(int k = 0; k < this.nbObjectiveStates;k++) {
 			this.internalState[k] = 0.0f;
 		}
+		
+		// TODO Rework with more situation
 		List<String> dataInSituation = new ArrayList<String>();
 		for(String s : this.exteroData) {
 			dataInSituation.add(this.environment.getCopyOfVar(s));
 		}
-		System.out.println(dataInSituation);
 		dataInSituation.addAll(this.exteroData);
+		
+		// Create a number of different situation
 		for(int k = 0; k < this.nbSituation;k++) {
 			Situation s = new Situation(k, rand.nextInt(30)+5, dataInSituation, 2);
 			this.situations[k] = s;
@@ -292,42 +352,7 @@ public class CAV {
 		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
 		this.currentSituation.startSituation2();
-
-		/*int i = 0;
-		// ajout des donnees prioceptives
-		for(int j =0; j < this.internalData.size();j++) {
-			//this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
-			this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(this.internalData.get(j)));
-			i++;
-		}
-
-		// ajout de l'etat effecteur
-		//this.composedFunction.setInitInput(i, (float)this.environment.getValueOfVariableWithName(this.effectorData.get(effectorState)));
-		this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(this.effectorData.get(0)));
-		i++;
-
-		// ajout du step courant
-		//this.composedFunction.setInitInput(i, this.currentTime);
-		//this.currentSituation.setInitInputCF(i, this.currentTime);
-		//i++;
-
-
-		// ajout des donnees Exteroceptive
-		for(int j =0; j < this.exteroData.size();j++) {
-			//this.composedFunction.setInitInput(i,(float)this.environment.getValueOfVariableWithName(chosen.get(j)));
-			this.currentSituation.setInitInputCF(i,(float)this.environment.getValueOfVariableWithName(exteroData.get(j)));
-			i++;
-		}
-		this.currentSituation.compute();
-		this.currentSituation.startSituation();
-
-		this.internalState = this.currentSituation.getInternalState();
-		this.internalEffect = this.currentSituation.getInternalEffect();
-
-		/*for(int i =0; i < this.internalState.length;i++) {
-			System.out.println("STATE:"+this.internalState[i]);
-			System.out.println("EFFECT:"+this.internalEffect[i]);
-		}*/
+		
 		for(EffectorAgent eff: this.effectors.values()) {
 			eff.initSituation();
 		}
@@ -397,6 +422,9 @@ public class CAV {
 		return plan;
 	}
 
+	/**
+	 * The global method use to pass a situation
+	 */
 	public void manageSituation() {
 		this.senseData();
 		this.communication();
@@ -409,12 +437,6 @@ public class CAV {
 			this.senseData();
 			this.planificationEffectors();
 			this.currentTime++;
-			this.updateInternalState();
-			/*for(EffectorAgent eff: this.effectors.values()) {
-				if((float)this.currentSituation.getCf().getOutput(1).getValue() == this.internalState[eff.getMyObjectiveState()]) {
-					over = true;
-				}
-			}*/
 
 		}
 		for(EffectorAgent eff : this.effectors.values()) {
@@ -423,22 +445,13 @@ public class CAV {
 	}
 
 
-	private void updateInternalState() {
 
-	}
 
 	/**
 	 * Put all data that can be sense by the sensors in dataPerceivedInSituation
 	 */
 	private void senseData() {
 		this.dataPerceivedInSituation.clear();
-		/*for(String s : this.internalData) {
-			this.dataPerceivedInSituation.add(s);
-		}*/
-		Random rand = new Random();
-		/*List<String> dpShuf = new ArrayList<String>(this.dataPerceived);
-		Collections.shuffle(dpShuf);
-		this.dataPerceivedInSituation.addAll(dpShuf.subList(0, dpShuf.size()-1-rand.nextInt(MAX_DATA_MISSING)));*/
 		for(String s : this.exteroData) {
 			this.dataPerceivedInSituation.add(this.environment.getCopyOfVar(s));
 		}
@@ -479,27 +492,6 @@ public class CAV {
 
 	}
 
-
-	public static void main(String args[]) {
-		CAV cav = new CAV("CAV1", 1, 1);
-		/*cav.startSituation();
-		cav.senseData();
-		cav.planificationEffectors();*/
-		int i =0;
-		while(i < 1000) {
-			cav.manageSituation();
-			i++;
-			if(i!=0 && i % 50 == 0) {
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			cav.environment.generateNewValues(i);
-		}
-	}
 
 	public String getDataEffector(int myObjectiveState) {
 		return this.effectorData.get(myObjectiveState);
@@ -559,4 +551,42 @@ public class CAV {
 	}
 
 
+
+	public static void main(String args[]) {
+		CAV cav = new CAV("CAV1", 1, 2);
+		/*cav.startSituation();
+		cav.senseData();
+		cav.planificationEffectors();*/
+		int i =0;
+		while(i < 1000) {
+			cav.manageSituation();
+			i++;
+			if(i!=0 && i % 50 == 0) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			cav.environment.generateNewValues(i);
+		}
+	}
+
+	public void generateNewValues(int i) {
+		this.environment.generateNewValues(i);
+	}
+
+	public void setMainWindow(VisuEffector visuEffector) {
+		this.mainWindow = visuEffector;
+		
+	}
+
+	public int sendUI(MatrixUITable myUI) {
+		if(this.mainWindow != null) {
+			this.mainWindow.addEff(myUI);
+			return 1;
+		}
+		return 0;
+	}
 }

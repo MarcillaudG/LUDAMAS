@@ -24,6 +24,8 @@ public class Situation {
 	private int nbDecoupage;
 	
 	private int nbStep;
+	
+	private int nbGoodDataNotPerceived;
 
 	private float[] internalState;
 	private float[] internalEffect;
@@ -31,6 +33,8 @@ public class Situation {
 	private float valueToAchieve;
 
 	private Map<String,Integer> informationAvailable;
+	
+	
 
 	public Situation(int id, int nbState) {
 		this.id = id;
@@ -44,6 +48,19 @@ public class Situation {
 			this.internalState[i] = 0.0f;
 			this.internalEffect[i] = 10.0f;
 		}
+	}
+	
+
+	public Situation(int id, int nbStep, List<String> informationAvailable, int nbDecoupage) {
+		this.id = id;
+		this.informationAvailable = new TreeMap<>();
+		this.nbStep = nbStep;
+
+		for(String inf : informationAvailable) {
+			this.informationAvailable.put(inf, 0);
+		}
+		this.nbDecoupage = nbDecoupage;
+
 	}
 
 	public Situation(int id, int nbState, List<String> informationAvailable, ComposedFunction cf, int nbDecoupage) {
@@ -65,18 +82,8 @@ public class Situation {
 		this.nbDecoupage = nbDecoupage;
 
 	}
+
 	
-	public Situation(int id, int nbStep, List<String> informationAvailable, int nbDecoupage) {
-		this.id = id;
-		this.informationAvailable = new TreeMap<>();
-		this.nbStep = nbStep;
-
-		for(String inf : informationAvailable) {
-			this.informationAvailable.put(inf, 0);
-		}
-		this.nbDecoupage = nbDecoupage;
-
-	}
 
 	/**
 	 * Initialise les slice dans lesquelles les inforamtions sont disponibles
@@ -128,6 +135,46 @@ public class Situation {
 		}
 		//System.out.println("SITU :"+this.informationAvailable);
 	}
+	
+	/**
+	 * Initialise les slice dans lesquelles les inforamtions sont disponibles
+	 * 
+	 * @param nbNotPerceivedInit
+	 * 		The number of internalData that the CAV is not able to perceived at step 0
+	 */
+	public void startSituation2(int nbNotPerceivedInit) {
+		// Decoupage des informations disponibles
+		Random rand = new Random();
+		int slice = (int) (this.nbStep / nbDecoupage);
+		//System.out.println("SLICE:"+slice);
+		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
+		Collections.shuffle(informationTmp);
+		List<String> goodData = new ArrayList<String>();
+		for(String s : this.informationAvailable.keySet()) {
+			if(!s.contains("copy")) {
+				goodData.add(s);
+			}
+		}
+		Collections.shuffle(goodData);
+		for(int i =0; i < nbNotPerceivedInit; i++) {
+			informationTmp.remove(goodData.get(i));
+		}
+		
+		goodData.removeAll(informationTmp);
+		
+		for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
+			this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), 0*slice);
+		}
+		informationTmp.addAll(goodData);
+		for(int i = 1; i < nbDecoupage;i++) {
+			for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
+				this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), i*slice);
+			}
+		}
+		//System.out.println("SITU :"+this.informationAvailable);
+	}
+	
+	
 
 	public List<String> getInformationAvailable(float value){
 		List<String> res = new ArrayList<>();

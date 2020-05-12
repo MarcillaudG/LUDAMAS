@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -20,19 +21,16 @@ import javax.swing.table.TableModel;
 
 import fr.irit.smac.planification.matrix.Input;
 import fr.irit.smac.planification.matrix.Matrix;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import fr.irit.smac.planification.ui.MatrixUI.MorphColumnCellRenderer;
+import fr.irit.smac.planification.ui.MatrixUI.StatusColumnCellRenderer;
 
-public class MatrixUI extends JInternalFrame {
+public class MatrixUITable extends JTable{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3288886392659183775L;
-	private JPanel contentPane;
-	private JTable table;
-	
-	private JTable tableMorph;
+	private static final long serialVersionUID = -8872734280555285585L;
+private JTable tableMorph;
 	
 	private Matrix mat;
 	private DefaultTableModel tableModel ;
@@ -65,26 +63,19 @@ public class MatrixUI extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public MatrixUI(Matrix mat) {
+	public MatrixUITable(Matrix mat) {
 		this.mat = mat;
 		setName(mat.getname());
 		this.datas = new ArrayList<>();
 		this.inputs = new ArrayList<>();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new GridLayout(2, 1));
-		setContentPane(contentPane);
 		tableModel = new DefaultTableModel();
 		this.tableMorphModel = new DefaultTableModel();
 		//table = new JTable(this.mat.getNbInput(),3);
-		this.table = new JTable(tableModel);
+		this.setModel(tableModel);
 		
 		this.tableMorph = new JTable(this.tableMorphModel);
-		contentPane.add(table, 0);
 		
-		contentPane.add(this.tableMorph,1);
 		String [] data = {""};
 		this.tableModel.addRow(data);
 		this.tableModel.addColumn("inputs");
@@ -96,6 +87,7 @@ public class MatrixUI extends JInternalFrame {
         this.setContentPane(table);
         this.pack();
         this.setVisible(true);*/
+		this.setVisible(true);
 		this.update();
 	}
 
@@ -127,7 +119,7 @@ public class MatrixUI extends JInternalFrame {
 		}
 
 		for(int i =0; i < this.tableModel.getColumnCount();i++) {
-			this.table.getColumnModel().getColumn(i).setCellRenderer(new StatusColumnCellRenderer());
+			this.getColumnModel().getColumn(i).setCellRenderer(new StatusColumnCellRenderer());
 			this.tableMorph.getColumnModel().getColumn(i).setCellRenderer(new MorphColumnCellRenderer());
 		}
 		// look after columns
@@ -160,8 +152,6 @@ public class MatrixUI extends JInternalFrame {
 			}
 			row++;
 		}
-		pack();
-
 	}
 
 	public class ScrollableJTable extends JPanel {

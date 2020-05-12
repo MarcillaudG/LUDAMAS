@@ -6,11 +6,23 @@ import fr.irit.smac.model.Snapshot;
 public class Main {
 
 	public static void main(String[] args) {
-		//CAV pf = new CAV("Peugeot", 3, 5, 1);
-		//pf.manageSituation();
-
-		Links links = new Links();
-
-
+		CAV cav = new CAV("CAV1", 1, 2);
+		/*cav.startSituation();
+		cav.senseData();
+		cav.planificationEffectors();*/
+		int i =0;
+		while(i < 1000) {
+			cav.manageSituation();
+			i++;
+			if(i!=0 && i % 50 == 0) {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			cav.generateNewValues(i);
+		}
 	}
 }

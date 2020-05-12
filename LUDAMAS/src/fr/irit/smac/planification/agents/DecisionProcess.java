@@ -19,7 +19,7 @@ public class DecisionProcess {
 
 	//private Environment env;
 
-	private EnvironmentRandom env;
+	private EnvironmentGeneral env;
 	
 	private List<String> proprio;
 
@@ -27,7 +27,7 @@ public class DecisionProcess {
 
 	private Map<String,Integer> valuesExtero;
 
-	public DecisionProcess(Situation situ, EffectorAgent eff, EnvironmentRandom env) {
+	public DecisionProcess(Situation situ, EffectorAgent eff, EnvironmentGeneral env) {
 		this.situation = situ;
 		this.effector = eff;
 		this.env = env;
