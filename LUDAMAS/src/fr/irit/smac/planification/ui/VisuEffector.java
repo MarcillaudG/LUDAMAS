@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import fr.irit.smac.planification.agents.CAV;
+import fr.irit.smac.planification.system.CAV;
 
 import javax.swing.JScrollPane;
 import java.awt.FlowLayout;

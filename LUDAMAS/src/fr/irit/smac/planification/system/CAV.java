@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.agents;
+package fr.irit.smac.planification.system;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +19,8 @@ import fr.irit.smac.planification.Objective;
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.Situation;
+import fr.irit.smac.planification.agents.DecisionProcess;
+import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.ui.MatrixUI;
 import fr.irit.smac.planification.ui.MatrixUITable;
 import fr.irit.smac.planification.ui.VisuEffector;
@@ -36,6 +38,7 @@ public class CAV {
 
 	private int nbObjectiveStates;
 
+	private int nbCopy;
 
 	private ComposedFunction composedFunction;
 
@@ -83,6 +86,8 @@ public class CAV {
 
 	private VisuEffector mainWindow;
 
+	private Integer nbVarEff;
+
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
 		this.currentTime = 0;
@@ -117,7 +122,8 @@ public class CAV {
 
 		this.name = name;
 		this.currentTime = 0;
-
+		this.nbCopy = nbCopy;
+		this.nbVarEff = nbVarEff;
 
 		this.nbObjectiveStates = nbEffectors;
 		this.nbEffectors = nbEffectors;
@@ -145,7 +151,8 @@ public class CAV {
 	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, Integer nbVar) {
 		this.name = name;
 		this.currentTime = 0;
-
+		this.nbCopy = nbCopy;
+		this.nbVarEff = nbVarEff;
 
 		this.nbObjectiveStates = nbEffectors;
 		this.nbEffectors = nbEffectors;
@@ -154,8 +161,8 @@ public class CAV {
 		this.internalEffect = new float[this.nbObjectiveStates];
 		this.situations = new Situation[this.nbSituation];
 		this.dataPerceived = new TreeSet<String>();
-		
-		
+		this.environment = new Environment(nbVar, -100, 100, nbEffectors);
+		initShield();
 	}
 
 	/**
@@ -179,7 +186,7 @@ public class CAV {
 		this.exteroData.addAll(variablesAvailable);
 		for(String s : this.exteroData) {
 			//this.environment.generateSimilarData(s, 1);
-			this.environment.generateSimilarDataDifferent(s,1);
+			this.environment.generateSimilarDataDifferent(s,this.nbCopy);
 		}
 		/*int i = 0;
 		this.initComposedFunction();
@@ -203,6 +210,7 @@ public class CAV {
 			this.internalState[k] = 0.0f;
 		}
 		List<String> dataInSituation = new ArrayList<String>();
+		// TODO je n'en rajoute qu'une
 		for(String s : this.exteroData) {
 			dataInSituation.add(this.environment.getCopyOfVar(s));
 		}

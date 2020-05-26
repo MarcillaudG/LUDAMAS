@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileSystemView;
 
-import fr.irit.smac.planification.agents.CAV;
+import fr.irit.smac.planification.system.CAV;
 
 import javax.swing.JLabel;
 import javax.swing.JButton;

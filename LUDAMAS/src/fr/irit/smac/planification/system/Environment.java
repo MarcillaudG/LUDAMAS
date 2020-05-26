@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.agents;
+package fr.irit.smac.planification.system;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import fr.irit.smac.generator.ShieldUser;
 import fr.irit.smac.shield.c2av.SyntheticFunction;
 import fr.irit.smac.shield.model.Variable;
 
-public class Environment {
+public class Environment extends EnvironmentGeneral{
 
 
 	private ShieldUser shieldUser;
@@ -69,15 +69,17 @@ public class Environment {
 		return this.shieldUser.getSyntheticFunctionWithName(name);
 	}
 	
-	public double getValueOfVariableWithName(String name) {
-		return this.shieldUser.getValueOfVariable(name);
+	@Override
+	public float getValueOfVariableWithName(String name) {
+		return (float) this.shieldUser.getValueOfVariable(name);
 	}
 
-	
+	@Override
 	public Set<String> getAllVariable() {
 		return this.shieldUser.getAllVariables();
 	}
 
+	@Override
 	public void generateNewValues(int cycle) {
 		this.historic.put(cycle-1, new TreeMap<String,Double>());
 		for(String s : this.shieldUser.getAllVariables()) {
@@ -87,7 +89,7 @@ public class Environment {
 		for(String str : this.shieldUser.getAllVariables()){
 			System.out.println(str+":"+this.shieldUser.getValueOfVariable(str));
 		}*/
-		this.shieldUser.nextCycle();
+		//this.shieldUser.nextCycle();
 		/*System.out.println("HISt");
 		System.out.println(this.historic);*/
 		
@@ -154,6 +156,12 @@ public class Environment {
 
 	public Variable getVariableWithName(String s) {
 		return this.shieldUser.getVariableWithName(s);
+	}
+
+	@Override
+	public void newCycle() {
+		this.shieldUser.nextCycle();
+		
 	}
 	
 }

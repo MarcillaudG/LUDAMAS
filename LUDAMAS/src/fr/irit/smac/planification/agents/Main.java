@@ -2,6 +2,7 @@ package fr.irit.smac.planification.agents;
 
 import fr.irit.smac.core.Links;
 import fr.irit.smac.model.Snapshot;
+import fr.irit.smac.planification.system.CAV;
 
 public class Main {
 

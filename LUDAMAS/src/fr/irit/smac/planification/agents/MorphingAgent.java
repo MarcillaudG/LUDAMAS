@@ -49,6 +49,8 @@ public class MorphingAgent {
 
 	private float etendu;
 
+	private boolean isActif;
+
 	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat) {
 		this.dataName = dataName;
 		this.inputName = inputName;
@@ -489,6 +491,22 @@ public class MorphingAgent {
 	
 	public void decreaseUsefull() {
 		this.usefulness = Math.max(.0f, this.usefulness-0.05f);
+	}
+
+	public boolean isActif() {
+		return this.isActif;
+	}
+	
+	public void activate() {
+		this.isActif = true;
+	}
+	
+	public void desactivate() {
+		this.isActif = false;
+	}
+	
+	public float getUsefulness() {
+		return this.usefulness;
 	}
 
 }

@@ -17,6 +17,7 @@ import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.Input;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
+import fr.irit.smac.planification.system.CAV;
 import fr.irit.smac.planification.ui.MatrixUI;
 import fr.irit.smac.planification.ui.MatrixUITable;
 
@@ -320,12 +321,26 @@ public class EffectorAgent {
 				Float worstValue = null;
 				Float bestValue = null;
 				float correctValue = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
-				for(MorphingAgent morph : this.morphlings.get(in)) {
+				/*for(MorphingAgent morph : this.morphlings.get(in)) {
 					if(morph.getData().equals(this.lastPlaning.getExteroChosen().get(in))) {
 						morph.sendFeedback(correctValue, this.myPlaning.isTolerant(this.lastPlaning));
 					}
 					if(this.morphActifs.contains(morph)) {
 						float valueMorph = morph.getPredict();
+						if(bestValue == null || Math.abs(valueMorph-correctValue) < Math.abs(bestValue - correctValue)) {
+							bestValue = valueMorph;
+							best = morph;
+						}
+						if(!best.equals(morph) && (worstValue == null || Math.abs(valueMorph-correctValue) > Math.abs(worstValue - correctValue))) {
+							worstValue = valueMorph;
+							worst = morph;
+						}
+					}
+				}*/
+				for(MorphingAgent morph : this.morphlings.get(in)) {
+					if(this.morphActifs.contains(morph)) {
+						float valueMorph = morph.getPredict();
+						morph.sendFeedback(correctValue, this.myPlaning.isTolerant(this.lastPlaning));
 						if(bestValue == null || Math.abs(valueMorph-correctValue) < Math.abs(bestValue - correctValue)) {
 							bestValue = valueMorph;
 							best = morph;

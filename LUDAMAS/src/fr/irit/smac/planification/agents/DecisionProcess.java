@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.planification.Situation;
+import fr.irit.smac.planification.system.EnvironmentGeneral;
 
 public class DecisionProcess {
 

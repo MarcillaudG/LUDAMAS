@@ -30,11 +30,11 @@ public class MatrixUITable extends JTable{
 	 * 
 	 */
 	private static final long serialVersionUID = -8872734280555285585L;
-private JTable tableMorph;
-	
+	private JTable tableMorph;
+
 	private Matrix mat;
 	private DefaultTableModel tableModel ;
-	
+
 
 	private DefaultTableModel tableMorphModel ;
 
@@ -73,13 +73,13 @@ private JTable tableMorph;
 		this.tableMorphModel = new DefaultTableModel();
 		//table = new JTable(this.mat.getNbInput(),3);
 		this.setModel(tableModel);
-		
+
 		this.tableMorph = new JTable(this.tableMorphModel);
-		
+
 		String [] data = {""};
 		this.tableModel.addRow(data);
 		this.tableModel.addColumn("inputs");
-		
+
 		this.tableMorphModel.addRow(data);
 		this.tableMorphModel.addColumn("inputs");
 		/*this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -190,6 +190,11 @@ private JTable tableMorph;
 	}
 
 	public class StatusColumnCellRenderer extends DefaultTableCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2148689509691682788L;
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 
@@ -198,17 +203,21 @@ private JTable tableMorph;
 
 			//Get the status for the current row.
 			TableModel tableModel = (TableModel) table.getModel();
+			if(row > 0 && col > 0 && (value == null || ((String)table.getValueAt(0, col)).equals((CharSequence) table.getValueAt(row, 0)))) {
+				l.setBackground(Color.GRAY);
+			}
+			else
 			if(value != null) {
 				if (value.equals(1.0f)) {
 					l.setBackground(Color.GREEN);
 				}
 				else {
-					if(value instanceof Float &&  (float)value > 0.0f){
-						l.setBackground(Color.ORANGE);
-					}
-					else {
-						l.setBackground(Color.WHITE);
-					}
+						if(value instanceof Float &&  (float)value > 0.0f){
+							l.setBackground(Color.ORANGE);
+						}
+						else {
+							l.setBackground(Color.WHITE);
+						}
 				}
 			}
 			//Return the JLabel which renders the cell.
@@ -216,8 +225,13 @@ private JTable tableMorph;
 
 		}
 	}
-	
+
 	public class MorphColumnCellRenderer extends DefaultTableCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3605652632598480699L;
+
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
 
@@ -226,6 +240,10 @@ private JTable tableMorph;
 
 			//Get the status for the current row.
 			TableModel tableModel = (TableModel) table.getModel();
+			if(row > 0 && col > 0 && (value == null || ((String)table.getValueAt(0, col)).equals((CharSequence) table.getValueAt(row, 0)))) {
+				l.setBackground(Color.GRAY);
+			}
+			else
 			if(value != null) {
 				if (value.equals(1.0f)) {
 					l.setBackground(Color.GREEN);

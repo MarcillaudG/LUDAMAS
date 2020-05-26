@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.agents;
+package fr.irit.smac.planification.system;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -96,7 +96,7 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 	}
 	
 	
-	public double getValueOfVariableWithName(String name) {
+	public float getValueOfVariableWithName(String name) {
 		return this.data.get(name);
 	}
 

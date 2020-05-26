@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import fr.irit.smac.complex.ComposedFunction;
-import fr.irit.smac.planification.agents.Environment;
+import fr.irit.smac.planification.system.Environment;
 import scala.util.Random;
 
 public class Situation {
