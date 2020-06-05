@@ -509,4 +509,13 @@ public class MorphingAgent {
 		return this.usefulness;
 	}
 
+	public float morph(float myValue) {
+		if(lr != null) {
+			return this.lr.predict(myValue);
+		}
+		else {
+			return myValue;
+		}
+	}
+
 }

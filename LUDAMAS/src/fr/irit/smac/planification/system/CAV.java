@@ -19,6 +19,8 @@ import fr.irit.smac.planification.Objective;
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.Situation;
+import fr.irit.smac.planification.agents.CoalitionAgent;
+import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.agents.DecisionProcess;
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.ui.MatrixUI;
@@ -57,6 +59,10 @@ public class CAV {
 	private List<String> exteroData;
 
 	private Map<String, Integer> exteroDataCorrect;
+	
+	private Map<String,DataAgent> allDataAgents;
+	
+	private List<CoalitionAgent> allCoalitions;
 
 
 	private List<String> effectorData;
@@ -243,6 +249,7 @@ public class CAV {
 		this.effectorData = new ArrayList<>();
 		this.exteroData = new ArrayList<>();
 		this.exteroDataCorrect = new TreeMap<>();
+		this.allDataAgents = new TreeMap<>();
 		
 		
 		Random rand = new Random();
@@ -597,4 +604,27 @@ public class CAV {
 		}
 		return 0;
 	}
+	
+	public int getCurrentTime() {
+		return this.currentTime;
+	}
+
+	public void createCoalition(String dataName, String asker) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public DataAgent addDataAgentToCoalition(String asker, CoalitionAgent coalition) {
+		this.allDataAgents.get(asker).mergeToCoalition(coalition);
+		return this.allDataAgents.get(asker);
+	}
+
+	/**
+	 * 
+	 * @param coal
+	 */
+	public void coalitionDestroyed(CoalitionAgent coal) {
+		this.allCoalitions.remove(coal);
+	}
+
 }

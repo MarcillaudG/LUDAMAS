@@ -14,58 +14,111 @@ public class CoalitionAgent {
 	
 	private CAV cav;
 	
-	private List<MorphingAgent> morphs;
+	private List<DataAgent> datas;
 
-	private List<MorphingAgent> morphsActifs;
+	private List<DataAgent> datasActifs;
+	
+	private static final float SEUIL_REJECT = 0.2f;
+	
+	private static final float SEUIL_ACCEPT = 0.5f;
 	
 	
-	public CoalitionAgent(int id, CAV cav, MorphingAgent morph1, MorphingAgent morph2) {
+	public CoalitionAgent(int id, CAV cav, DataAgent data1, DataAgent data2) {
 		this.id = id;
 		this.cav = cav;
 		
-		this.morphs = new ArrayList<>();
-		this.morphs.add(morph1);
-		this.morphs.add(morph2);
+		this.datas = new ArrayList<>();
+		this.datas.add(data1);
+		this.datas.add(data2);
 		
-		this.morphsActifs = new ArrayList<>();
+		this.datasActifs = new ArrayList<>();
 	}
 	
-	public void addMorph(MorphingAgent morph) {
-		this.morphs.add(morph);
+	public void addData(DataAgent data) {
+		this.datas.add(data);
 	}
 	
-	public void removeMorph(MorphingAgent morph) {
-		this.morphs.remove(morph);
+	public void datas(DataAgent data) {
+		this.datas.remove(data);
 	}
 	
 	public void perceive() {
-		this.morphsActifs.clear();
-		for(MorphingAgent morph : this.morphs) {
-			if(morph.isActif()) {
-				this.morphsActifs.add(morph);
+		this.datasActifs.clear();
+		for(DataAgent data : this.datas) {
+			if(data.isActif()) {
+				this.datasActifs.add(data);
 			}
 		}
 	}
 	
 	public void decide() {
 		
-		// Find the morph that would be their champion
-		Collections.shuffle(this.morphsActifs);
-		MorphingAgent best = null;
+		// Find the data that would be their champion
+		/*Collections.shuffle(this.datasActifs);
+		DataAgent best = null;
 		float useful = -1.0f;
-		for(MorphingAgent morph: this.morphsActifs) {
-			if(morph.getUsefulness() > useful) {
+		for(DataAgent morph: this.datasActifs) {
+			if(data.getUsefulness() > useful) {
 				best = morph;
 				useful = morph.getUsefulness();
 			}
 		}
 		float ponderedSum = 0.0f;
-		for(MorphingAgent morph: this.morphsActifs) {
+		for(DataAgent morph: this.datasActifs) {
 			ponderedSum += morph.getMorphValue();
-		}
+		}*/
 	}
 	
+
+
 	public void act() {
 		
 	}
+
+	public void proposeNewAgent(String asker) {
+		boolean accept = true;
+		float sumUse = 0.f;
+		for(DataAgent data : this.datas) {
+			sumUse += data.getUsefulnessForData(asker);
+			if(data.getUsefulnessForData(asker) <= SEUIL_REJECT) {
+				accept = false;
+			}
+		}
+		if(accept) {
+			if(sumUse / this.datas.size() > SEUIL_ACCEPT) {
+				this.addData(this.cav.addDataAgentToCoalition(asker,this));
+			}
+		}
+		
+	}
+
+	public List<DataAgent> getOtherDataAgent(DataAgent data) {
+		List<DataAgent> res = new ArrayList<>(this.datas);
+		res.remove(data);
+		return res;
+	}
+
+	/**
+	 * Remove a datagent
+	 * 
+	 * @param dataAgent
+	 * 
+	 * 		the dataAgent to remove
+	 */
+	public void leave(DataAgent dataAgent) {
+		this.datas.remove(dataAgent);
+		if(this.datas.size() < 2) {
+			destroy();
+		}
+	}
+
+	/**
+	 * Put all the reference to null
+	 */
+	private void destroy() {
+		this.datas.get(0).coalitionDestroyed();
+		this.datas.clear();
+		this.cav.coalitionDestroyed(this);
+	}
+	
 }
