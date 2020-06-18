@@ -1,31 +1,42 @@
 package fr.irit.smac.planification.agents;
 
+import fr.irit.smac.planification.generic.CompetitiveAgent;
 import fr.irit.smac.planification.matrix.InputConstraint;
 
 public class Offer {
 
 	
-	private MorphingAgent morph;
+	private  CompetitiveAgent agent;
 	
 	private InputConstraint inputConstraint;
 	
 	private int step;
 	
 	private float crit;
+	
+	private float value;
 
-	public Offer(MorphingAgent morph, InputConstraint inputConstraint, int step, float crit) {
-		this.morph = morph;
+	public Offer(CompetitiveAgent morph, InputConstraint inputConstraint, int step, float crit, float value) {
+		this.agent = morph;
+		this.inputConstraint = inputConstraint;
+		this.step = step;
+		this.crit = crit;
+		this.value = value;
+	}
+	
+	public Offer(CompetitiveAgent morph, InputConstraint inputConstraint, int step, float crit) {
+		this.agent = morph;
 		this.inputConstraint = inputConstraint;
 		this.step = step;
 		this.crit = crit;
 	}
 
-	public MorphingAgent getMorph() {
-		return morph;
+	public CompetitiveAgent getAgent() {
+		return agent;
 	}
 
-	public void setMorph(MorphingAgent morph) {
-		this.morph = morph;
+	public void setAgent(CompetitiveAgent agent) {
+		this.agent = agent;
 	}
 
 	public InputConstraint getInputConstraint() {
@@ -61,7 +72,7 @@ public class Offer {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((inputConstraint == null) ? 0 : inputConstraint.hashCode());
-		result = prime * result + ((morph == null) ? 0 : morph.hashCode());
+		result = prime * result + ((agent == null) ? 0 : agent.hashCode());
 		return result;
 	}
 
@@ -79,20 +90,22 @@ public class Offer {
 				return false;
 		} else if (!inputConstraint.equals(other.inputConstraint))
 			return false;
-		if (morph == null) {
-			if (other.morph != null)
+		if (agent == null) {
+			if (other.agent!= null)
 				return false;
-		} else if (!morph.equals(other.morph))
+		} else if (!agent.equals(other.agent))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Offer [morph=" + morph + ", inputConstraint=" + inputConstraint + ", step=" + step + ", crit=" + crit
+		return "Offer [agent=" + agent + ", inputConstraint=" + inputConstraint + ", step=" + step + ", crit=" + crit
 				+ "]";
 	}
 	
-	
+	public float getValue() {
+		return this.value;
+	}
 	
 }

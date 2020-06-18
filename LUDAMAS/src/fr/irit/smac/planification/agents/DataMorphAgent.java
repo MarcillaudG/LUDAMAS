@@ -1,5 +1,6 @@
 package fr.irit.smac.planification.agents;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +16,7 @@ import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
 import fr.irit.smac.planification.tools.LinearRegression;
 
-public class MorphingAgent implements CompetitiveAgent{
+public class DataMorphAgent implements CompetitiveAgent{
 
 
 	private String dataName;
@@ -26,9 +27,9 @@ public class MorphingAgent implements CompetitiveAgent{
 
 	private String name;
 
-	private EffectorAgent superiorAgent;
+	private DataAgent superiorAgent;
 
-	private Matrix matrix;
+	//private Matrix matrix;
 
 	private Float value;
 
@@ -42,7 +43,7 @@ public class MorphingAgent implements CompetitiveAgent{
 
 	private DataUnicityConstraint dataConstraint;
 
-	private List<MorphingAgent> neighbours;
+	private List<CompetitiveAgent> neighbours;
 
 	private LinearRegression lr;
 
@@ -52,13 +53,15 @@ public class MorphingAgent implements CompetitiveAgent{
 
 	private boolean isActif;
 
-	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat) {
+	public DataMorphAgent(String dataName, String inputName, DataAgent agent) {
 		this.dataName = dataName;
 		this.inputName = inputName;
-		this.superiorAgent = eff;
-		this.matrix = mat;
+		this.superiorAgent = agent;
 		this.morphValue = 1.0f;
 		this.usefulness = 0.5f;
+		if(dataName.equals(inputName)) {
+			this.usefulness = 1.0f;
+		}
 		this.etendu = 1.0f;
 
 
@@ -68,21 +71,24 @@ public class MorphingAgent implements CompetitiveAgent{
 		this.neighbours = new ArrayList<>();
 	}
 
-	public MorphingAgent(String dataName, String inputName) {
+	public DataMorphAgent(String dataName, String inputName) {
 		this.dataName = dataName;
 		this.inputName = inputName;
 		this.morphValue = 1.0f;
 		this.usefulness = 0.5f;
+		if(dataName.equals(inputName)) {
+			this.usefulness = 1.0f;
+		}
 		this.etendu = 1.0f;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
 	}
 
-	public MorphingAgent(String dataName, String inputName, EffectorAgent eff, Matrix mat, float value) {
+	public DataMorphAgent(String dataName, String inputName, DataAgent agent, Matrix mat, float value) {
 		this.dataName = dataName;
 		this.inputName = inputName;
-		this.superiorAgent = eff;
-		this.matrix = mat;
+		this.superiorAgent = agent;
+		//this.matrix = mat;
 		this.morphValue = 1.0f;
 		this.usefulness = value;
 		this.etendu = 1.0f;
@@ -96,26 +102,26 @@ public class MorphingAgent implements CompetitiveAgent{
 	public void perceive() {
 		this.value = null;
 		// voit sa valeur
-		this.value = this.superiorAgent.askValue(this.dataName);
+		this.value = this.superiorAgent.askValue();
+		
 
-		// voit son utilite
-		//this.usefulness = this.matrix.getMatrix().get(new Input(this.inputName,0)).get(this.dataName);
+		this.morphValue = this.linearRegression();
+		// recupere la valeur de son objective si dispo
+		//this.superiorAgent.askValueOfOtherData(this.inputName);
 
 		// Recupere les deux contraintes
-		this.dataConstraint = this.superiorAgent.getDataUnicityConstraint(this.dataName);
+		this.dataConstraint = this.superiorAgent.getDataUnicityConstraint();
 		this.inputConstraint = this.superiorAgent.getInputConstraint(this.inputName);
-
-		List<MorphingAgent> others = new ArrayList<>(this.superiorAgent.getMorphlingActive());
-		others.remove(this);
-
 		this.neighbours.clear();
-		this.neighbours.addAll(others);
+		
+		this.neighbours.addAll(this.superiorAgent.getNeighboursActives(this.inputName));
+
 	}
 
 	public void decide() {
 		// si valeur != null
 		if(this.value !=null) {
-			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentStep(),this.usefulness);
+			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentTime(),this.usefulness);
 			if(!this.dataConstraint.hasMyOffer(this) && !this.inputConstraint.hasMyOffer(this)) {
 				if(this.dataConstraint.isOfferBetter(myOffer) && this.inputConstraint.isOfferBetter(myOffer)) {
 					this.dataConstraint.addOffer(myOffer);
@@ -140,18 +146,18 @@ public class MorphingAgent implements CompetitiveAgent{
 					}
 					else {
 						// SOLVE SNC
-						MorphingAgent oth = null;
-						for(MorphingAgent morph: this.neighbours) {
-							if(morph.inputName.equals(this.inputName) && morph.dataConstraint.isSatisfied()) {
-								if(oth == null || morph.usefulness > oth.usefulness) {
-									oth = morph;
+						CompetitiveAgent oth = null;
+						for(CompetitiveAgent agent: this.neighbours) {
+							if(agent.isAvailable()) {
+								if(oth == null || agent.getUsefulness() > oth.getUsefulness()) {
+									oth = agent;
 								}
 							}
 						}
 						if(oth != null) {
 							this.dataConstraint.removeOffer(myOffer);
 							this.inputConstraint.removeOffer(myOffer);
-							oth.decide();
+							oth.cycleOffer();
 						}
 					}
 				}
@@ -159,50 +165,28 @@ public class MorphingAgent implements CompetitiveAgent{
 		}
 
 	}
-
 	public void act() {
 		// si lie
-		this.morphValue = this.linearRegression();
-		// alors envoyer valeur transformee
-		if(this.inputConstraint.hasMyOffer(this) && this.dataConstraint.isSatisfied() && this.inputConstraint.isSatisfied()) {
-			//this.morphValue = this.dico();
-			//float valueToSend = this.value * this.morphValue;
-			float valueToSend = this.value;
-			if(this.lr != null) {
-				valueToSend = this.morphValue;
-			}
-			this.superiorAgent.sendValueToDecisionProcessLinks(this,valueToSend);
-		}
+		//this.morphValue = this.linearRegression();
+		
 		//System.out.println(valueToSend);
 	}
 
 	public void sendFeedback(float correctValue) {
+		this.value = this.superiorAgent.askValue();
 		this.addMorph(this.value, correctValue);
 		if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value))) {
 			this.usefulness = Math.min(1.0f, this.usefulness+0.1f);
 		}
 		else {
 			this.usefulness = Math.max(.0f, this.usefulness-0.1f);
-			if(lr != null && this.dataName.contains(this.inputName)) {
-				/*System.out.println("--------------"+inputName + "-> "+ dataName);
-				System.out.println("CORRECT :"+correctValue);
-				System.out.println("MINE :"+this.value);
-				System.out.println("MORPHED :"+this.lr.predict(this.value));
-				System.out.println(this.historic);*/
-				/*try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
-			}
 		}
-		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
 
 	}
 
 
 	public void sendFeedback(Float correctValue, boolean tolerant) {
+		this.value = this.superiorAgent.askValue();
 		this.addMorph(this.value, correctValue);
 		float diffPourcent = this.sensibility+1;
 
@@ -226,19 +210,6 @@ public class MorphingAgent implements CompetitiveAgent{
 		}
 		else {
 			this.usefulness = Math.max(.0f, this.usefulness-0.05f);
-			if(lr != null && this.dataName.contains(this.inputName)) {
-				/*System.out.println("--------------"+inputName + "-> "+ dataName);
-				System.out.println("CORRECT :"+correctValue);
-				System.out.println("MINE :"+this.value);
-				System.out.println("MORPHED :"+this.lr.predict(this.value));
-				System.out.println(this.historic);*/
-				/*try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
-			}
 		}
 		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
 
@@ -318,57 +289,13 @@ public class MorphingAgent implements CompetitiveAgent{
 			System.out.println(lr.predict(this.value));*/
 		}
 		else {
-			morphedValue = 1.0f;
+			// TODO CHANGED
+			morphedValue = this.value;
 		}
 
 		return morphedValue;
 	}
-
-	/**
-	 * A REVOIR
-	 * @param myValue
-	 * @param otherValue
-	 */
-	@Deprecated
-	public void computeMorph(Float myValue, Float otherValue) {
-		Float inf = null;
-		Float sup = null;
-		float ratio = myValue/otherValue;
-		for(Float borne: this.distribution.keySet()) {
-			if(inf == null && borne < myValue) {
-				inf = borne;
-			}
-			if(inf != null && borne > inf && borne < myValue ) {
-				inf = borne;
-			}
-			if(sup == null && borne > myValue) {
-				sup = borne;
-			}
-		}
-		if(inf != null && sup != null) {
-			if(this.distribution.get(inf) != ratio ||this.distribution.get(sup) != ratio  ) {
-				this.distribution.put(myValue, ratio);
-			}
-		}
-		else {
-			if ((inf == null && sup != null)) {
-				this.distribution.put(myValue, ratio);
-				if(this.distribution.keySet().size()>2 && this.distribution.get(sup)== ratio) {
-					this.distribution.remove(sup);
-				}
-			}
-			if ((inf != null && sup == null)) {
-				this.distribution.put(myValue, ratio);
-				if(this.distribution.keySet().size()>2 && this.distribution.get(inf)== ratio) {
-					this.distribution.remove(inf);
-				}
-			}
-		}
-		if(this.distribution.keySet().size()==0) {
-			this.distribution.put(myValue, ratio);
-		}
-	}
-
+ 
 
 	public void addMorph(Float myValue, Float otherValue) {
 		if(otherValue !=0)
@@ -396,7 +323,7 @@ public class MorphingAgent implements CompetitiveAgent{
 	}
 
 	public static void main(String args[]) {
-		MorphingAgent morphling = new MorphingAgent("Data", "Input");
+		DataMorphAgent morphling = new DataMorphAgent("Data", "Input");
 		for(int i =0; i < 10; i++) {
 			morphling.addMorph(10.f*(i+1), 15.f*(i+1)+i*10);
 		}
@@ -410,6 +337,7 @@ public class MorphingAgent implements CompetitiveAgent{
 		return this.dataName;
 	}
 
+	@Override
 	public String getInput() {
 		return this.inputName;
 	}
@@ -443,7 +371,7 @@ public class MorphingAgent implements CompetitiveAgent{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MorphingAgent other = (MorphingAgent) obj;
+		DataMorphAgent other = (DataMorphAgent) obj;
 		if (dataName == null) {
 			if (other.dataName != null)
 				return false;
@@ -529,16 +457,23 @@ public class MorphingAgent implements CompetitiveAgent{
 	public boolean isAvailable() {
 		return this.dataConstraint.isSatisfied();
 	}
-
+	
 
 	@Override
 	public void cycleOffer() {
+		this.perceive();
 		this.decide();
+		this.act();
 	}
 
 	@Override
 	public float getValue() {
-		// TODO Auto-generated method stub
-		return 0;
+		this.morphValue = this.linearRegression();
+		float valueToSend = this.value;
+		if(this.lr != null) {
+			valueToSend = this.morphValue;
+		}
+		return valueToSend;
 	}
+
 }

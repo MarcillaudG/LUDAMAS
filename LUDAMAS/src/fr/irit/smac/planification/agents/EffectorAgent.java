@@ -1,6 +1,7 @@
 package fr.irit.smac.planification.agents;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +93,6 @@ public class EffectorAgent {
 
 	private int nbCycle;
 
-	private int nbFeed;
 
 	public EffectorAgent(String name,CAV pf, int objState, float actionOpt) {
 		this.cav = pf;
@@ -102,7 +102,8 @@ public class EffectorAgent {
 		this.myMatrix = new Matrix(pf.getExteroceptiveData(),this );
 		this.inputsConstraints = new TreeMap<>();
 		for(String s : pf.getExteroceptiveData()) {
-			this.inputsConstraints.put(s, new InputConstraint(this, s));
+			//this.inputsConstraints.put(s, new InputConstraint(this, s));
+			this.inputsConstraints.put(s, new InputConstraint(s));
 		}
 
 		this.bestAction = actionOpt;
@@ -123,8 +124,6 @@ public class EffectorAgent {
 		this.effectorsBefore = new ArrayList<>();
 		this.dataConstraint = new TreeMap<>();
 
-		//Create a new experiment
-		this.nbFeed = 0;
 	}
 
 	public void initSituation() {
@@ -178,7 +177,8 @@ public class EffectorAgent {
 		List<String> constraintToADD = new ArrayList<>(this.dataPerceived);
 		constraintToADD.removeAll(this.dataConstraint.keySet());
 		for(String data: constraintToADD) {
-			this.dataConstraint.put(data, new DataUnicityConstraint(this, data));
+			//this.dataConstraint.put(data, new DataUnicityConstraint(this, data));
+			this.dataConstraint.put(data, new DataUnicityConstraint(data));
 			for(String input: this.inputsConstraints.keySet()) {
 				float value = 0.5f;
 				if(data.equals(input)) {
@@ -239,7 +239,7 @@ public class EffectorAgent {
 			if(this.inputsConstraints.get(input).getOffers().isEmpty()) {
 				//System.out.println(input);
 			}
-			this.myPlaning.setExteroChosen(input, this.inputsConstraints.get(input).getOffers().get(0).getMorph().getData());
+			this.myPlaning.setExteroChosen(input, this.inputsConstraints.get(input).getOffers().get(0).getAgent().getData());
 		}
 
 
@@ -297,7 +297,6 @@ public class EffectorAgent {
 		if(!this.myPlaning.isIdenticalToLast(this.lastPlaning)) {
 			this.learn();
 
-			this.nbFeed++;
 		}
 
 		this.myMatrix.updateUI();
@@ -598,6 +597,11 @@ public class EffectorAgent {
 
 	public int sendUI(MatrixUITable myUI) {
 		return this.cav.sendUI(myUI) ;
+	}
+
+
+	public DecisionProcess getDecisionProcess(Situation current) {
+		return this.decisionProcess.get(current);
 	}
 
 

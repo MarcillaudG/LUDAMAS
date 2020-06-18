@@ -14,7 +14,7 @@ public class DecisionProcess {
 
 	private Situation situation;
 
-	private EffectorAgent effector;
+	private Effector effector;
 
 	private ComposedFunction function;
 
@@ -28,7 +28,7 @@ public class DecisionProcess {
 
 	private Map<String,Integer> valuesExtero;
 
-	public DecisionProcess(Situation situ, EffectorAgent eff, EnvironmentGeneral env) {
+	public DecisionProcess(Situation situ, Effector eff, EnvironmentGeneral env) {
 		this.situation = situ;
 		this.effector = eff;
 		this.env = env;
@@ -42,7 +42,7 @@ public class DecisionProcess {
 		return situation;
 	}
 
-	public EffectorAgent getEffector() {
+	public Effector getEffector() {
 		return effector;
 	}
 

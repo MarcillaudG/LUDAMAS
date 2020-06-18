@@ -6,27 +6,32 @@ import java.util.List;
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.agents.MorphingAgent;
 import fr.irit.smac.planification.agents.Offer;
+import fr.irit.smac.planification.generic.CompetitiveAgent;
 
 public class InputConstraint {
 
 
-	private EffectorAgent eff;
+	//private EffectorAgent eff;
 
 	private String input;
 
 	private List<Offer> offers;
 
-	public InputConstraint(EffectorAgent eff, String input) {
+	/*public InputConstraint(EffectorAgent eff, String input) {
 		this.eff = eff;
 		this.input = input;
 		this.offers = new ArrayList<>();
-	}
+	}*/
 
+	public InputConstraint(String input) {
+		this.input = input;
+		this.offers = new ArrayList<>();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((eff == null) ? 0 : eff.hashCode());
 		result = prime * result + ((input == null) ? 0 : input.hashCode());
 		return result;
 	}
@@ -40,11 +45,6 @@ public class InputConstraint {
 		if (getClass() != obj.getClass())
 			return false;
 		InputConstraint other = (InputConstraint) obj;
-		if (eff == null) {
-			if (other.eff != null)
-				return false;
-		} else if (!eff.equals(other.eff))
-			return false;
 		if (input == null) {
 			if (other.input != null)
 				return false;
@@ -76,10 +76,10 @@ public class InputConstraint {
 		return better;
 	}
 
-	public boolean hasMyOffer(MorphingAgent morph) {
+	public boolean hasMyOffer(CompetitiveAgent agent) {
 		boolean found = false;
 		for(Offer off : this.offers) {
-			if(off.getMorph().equals(morph)) {
+			if(off.getAgent().equals(agent)) {
 				found = true;
 			}
 		}
@@ -97,7 +97,7 @@ public class InputConstraint {
 
 	@Override
 	public String toString() {
-		return "InputConstraint [eff=" + eff + ", input=" + input + "]";
+		return "InputConstraint [ input=" + input + "]";
 	}
 
 	public List<Offer> getOffers() {

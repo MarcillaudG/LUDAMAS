@@ -86,7 +86,6 @@ public class VisuEffector extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("ICI");
 				Thread t = new Thread() {
 					public void run() {
 
