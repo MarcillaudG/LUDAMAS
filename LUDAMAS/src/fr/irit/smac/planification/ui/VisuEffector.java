@@ -104,6 +104,24 @@ public class VisuEffector extends JFrame {
 				t.start();
 			}
 		});
+		Thread t = new Thread() {
+			public void run() {
+
+				int i =0;
+				cav.generateNewValues(i);
+				while(i < 1000) {
+					System.out.println("CYCLE : "+i);
+					cav.manageSituation();
+					i++;
+					cav.generateNewValues(i);
+					pack();
+					panel.repaint();
+					contentPane.repaint();
+				}
+			}
+		};
+		t.start();
+		
 		
 	}
 
@@ -113,5 +131,10 @@ public class VisuEffector extends JFrame {
 		this.matrices.add(myUI);
 	}
 	
+	public void addMatrix(MatrixUITable myUI) {
+		this.panel.add(myUI, this.matrices.size()/2,this.matrices.size()%2);
+		this.mapGrid.put(myUI.getName(), this.mapGrid.size());
+		this.matrices.add(myUI);
+	}
 
 }

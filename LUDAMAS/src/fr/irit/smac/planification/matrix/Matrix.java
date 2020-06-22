@@ -10,8 +10,10 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.agents.MorphingAgent;
+import fr.irit.smac.planification.system.CAV;
 import fr.irit.smac.planification.ui.MatrixUI;
 import fr.irit.smac.planification.ui.MatrixUITable;
 
@@ -27,8 +29,25 @@ public class Matrix {
 
 	private MatrixUITable myUI;
 
+	private String name;
+	
+	private CAV cav;
+
 	public Matrix (List<String> dataExteroceptive) {
 		this.matrix = new HashMap<Input,Map<String,Float>>();
+		this.nbInput =0;
+		for(int i =0; i < dataExteroceptive.size();i++) {
+			String s = dataExteroceptive.get(i);
+			this.matrix.put(new Input(s,i),new TreeMap<String,Float>());
+			this.matrix.get(new Input(s,i)).put(s, 1.0f);
+			nbInput++;
+		}
+	}
+
+	public Matrix (CAV cav, List<String> dataExteroceptive) {
+		this.matrix = new HashMap<Input,Map<String,Float>>();
+		this.cav = cav;
+		this.name = cav.getName();
 		this.nbInput =0;
 		for(int i =0; i < dataExteroceptive.size();i++) {
 			String s = dataExteroceptive.get(i);
@@ -226,16 +245,40 @@ public class Matrix {
 
 	}
 
+
 	public Float getValueOfMorph(String input, String data) {
 		return this.matrix.get(new Input(input,0)).get(data);
 	}
 
 	public String getMorphValue(String input, String data) {
-		return this.effectorAgent.getMorphValue(input,data);
+		if(this.effectorAgent != null) {
+			return this.effectorAgent.getMorphValue(input,data);
+		}
+		else {
+			return this.cav.getMorphLR(input,data);
+		}
 	}
 
 	public String getname() {
 		return this.effectorAgent.getName();
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void updateWithData(DataAgent data) {
+		if(!this.matrix.keySet().contains(new Input(data.getDataName(),0))) {
+			this.matrix.put(new Input(data.getDataName(),0), new TreeMap<>());
+		}
+	}
+
+	public void addAllNewData(Collection<DataAgent> datas) {
+		for(DataAgent data : datas) {
+			if(!this.matrix.keySet().contains(new Input(data.getDataName(),0))) {
+				this.matrix.put(new Input(data.getDataName(),0), new TreeMap<>());
+			}
+		}
 	}
 
 

@@ -17,5 +17,7 @@ public interface CompetitiveAgent {
 	public String getInput();
 
 	public float getValue();
+	
+	public String getCompetitiveName();
 
 }

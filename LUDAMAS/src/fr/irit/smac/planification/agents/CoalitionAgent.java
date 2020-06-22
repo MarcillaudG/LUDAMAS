@@ -1,6 +1,7 @@
 package fr.irit.smac.planification.agents;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +39,13 @@ public class CoalitionAgent implements CompetitiveAgent{
 	public CoalitionAgent(int id, CAV cav, DataAgent data1, DataAgent data2) {
 		this.id = id;
 		this.cav = cav;
-
+		this.name = "COALITION: "+this.id;
 		this.datas = new TreeMap<>();
 		this.datas.put(data1.getDataName(),data1);
 		this.datas.put(data2.getDataName(),data2);
+		
+		data1.bindToCoalition(this);
+		data2.bindToCoalition(this);
 
 		this.datasActifs = new ArrayList<>();
 	}
@@ -249,6 +253,19 @@ public class CoalitionAgent implements CompetitiveAgent{
 	public String toString() {
 		return "CoalitionAgent [name=" + name + ", id=" + id + ", proposition=" + proposition + ", datas=" + datas
 				+ "]";
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public Collection<? extends String> getAllData() {
+		return this.datas.keySet();
+	}
+
+	@Override
+	public String getCompetitiveName() {
+		return this.name;
 	}
 
 	

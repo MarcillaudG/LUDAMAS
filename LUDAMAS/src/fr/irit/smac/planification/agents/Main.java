@@ -7,10 +7,11 @@ import fr.irit.smac.planification.system.CAV;
 public class Main {
 
 	public static void main(String[] args) {
-		CAV cav = new CAV("CAV1", 1, 2);
+		Links links = new Links();
+		/*CAV cav = new CAV("CAV1", 1, 2);
 		/*cav.startSituation();
 		cav.senseData();
-		cav.planificationEffectors();*/
+		cav.planificationEffectors();
 		int i =0;
 		while(i < 1000) {
 			cav.manageSituation();
@@ -24,6 +25,6 @@ public class Main {
 				}
 			}
 			cav.generateNewValues(i);
-		}
+		}*/
 	}
 }

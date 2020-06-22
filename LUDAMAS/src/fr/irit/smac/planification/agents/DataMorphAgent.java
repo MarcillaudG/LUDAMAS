@@ -187,13 +187,14 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	public void sendFeedback(Float correctValue, boolean tolerant) {
 		this.value = this.superiorAgent.askValue();
+		this.morphValue = this.linearRegression();
 		this.addMorph(this.value, correctValue);
 		float diffPourcent = this.sensibility+1;
 
 		if(lr != null) {
 			diffPourcent = Math.abs(((correctValue - this.lr.predict(this.value))/this.lr.predict(this.value)*100));
 			if(lr != null && this.dataName.contains(this.inputName)) {
-				System.out.println(this.name);
+			/*System.out.println(this.name);
 				System.out.println("DIFF:"+diffPourcent);
 				System.out.println("VALUE:"+this.value);
 				System.out.println("CORRECT:"+correctValue);
@@ -201,12 +202,18 @@ public class DataMorphAgent implements CompetitiveAgent{
 				System.out.println("ETENDU:"+this.etendu);
 				if(diffPourcent < this.sensibility*this.etendu/100) {
 					System.out.println("UP");
-				}
+				}*/
 			}
 		}
 		if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value)) 
 				||  diffPourcent < this.sensibility*this.etendu/100) {
 			this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
+			System.out.println("DIFF:"+diffPourcent);
+			System.out.println("VALUE:"+this.value);
+			System.out.println("CORRECT:"+correctValue);
+			System.out.println("ETENDU:"+this.etendu);
+			if(lr != null)
+			System.out.println(this.name+" : correct : "+correctValue+ " morphed : "+this.lr.predict(this.value) + " : value :"+this.value);
 		}
 		else {
 			this.usefulness = Math.max(.0f, this.usefulness-0.05f);
@@ -215,60 +222,12 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	}
 
-	/**
-	 * Recherche dans l'historique la valeur la plus proche
-	 * et renvoi la valeur de transformation
-	 * @return morphedValue
-	 * 		la valeur de transformation
-	 */
-	private float dico() {
-		float morphedValue = 1.0f;
-		List<Float> toDico = new ArrayList<>(this.distribution.keySet());
-		Collections.sort(toDico);
-		//System.out.println(toDico);
-		boolean found = false;
-		int ind =toDico.size() /2;
-		int borneSup = toDico.size()-1;
-		int borneInf = 0;
-		while (!found && borneSup > borneInf && toDico.size() > 0) {
-			ind = (borneSup+borneInf)/2;
-			if(toDico.get(ind) == this.value) {
-				found = true;
-				morphedValue = this.distribution.get(toDico.get(ind));
-			}
-			else {
-				if(borneSup - borneInf   == 1) {
-					found = true;
-					if(this.value -toDico.get(borneInf) < toDico.get(borneSup) - this.value) {
-						ind = borneInf;
-						morphedValue = this.distribution.get(toDico.get(ind));
-					}
-					else {
-						ind = borneSup;
-						morphedValue = this.distribution.get(toDico.get(ind));
-					}
-				}
-				else {
-					if(this.value > toDico.get(ind)) {
-						borneInf = ind;
-					}
-					else {
-						borneSup = ind;
-					}
-				}
-			}
-		}
-		if(toDico.size() == 1) {
-			morphedValue = this.distribution.get(toDico.get(0));
-		}
-		return morphedValue;
-	}
-
+	
 	private float linearRegression() {
 		double x [] = new double[this.historic.keySet().size()];
 		double y [] = new double[this.historic.keySet().size()];
 
-		float morphedValue = 1.0f;
+		float morphedValue = this.value;
 
 		int i =0;
 		//System.out.println(this.historic);
@@ -350,7 +309,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	@Override
 	public String toString() {
-		return "MorphingAgent:"+this.inputName+":"+this.dataName;
+		return "DataMorphAgent:"+this.inputName+":"+this.dataName;
 	}
 
 	@Override
@@ -474,6 +433,11 @@ public class DataMorphAgent implements CompetitiveAgent{
 			valueToSend = this.morphValue;
 		}
 		return valueToSend;
+	}
+
+	@Override
+	public String getCompetitiveName() {
+		return this.dataName;
 	}
 
 }

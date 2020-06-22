@@ -65,7 +65,7 @@ public class MatrixUITable extends JTable{
 	 */
 	public MatrixUITable(Matrix mat) {
 		this.mat = mat;
-		setName(mat.getname());
+		setName(mat.getName());
 		this.datas = new ArrayList<>();
 		this.inputs = new ArrayList<>();
 		setBounds(100, 100, 450, 300);

@@ -14,18 +14,22 @@ import java.util.TreeSet;
 import com.sun.scenario.effect.Effect;
 
 import fr.irit.smac.complex.ComposedFunction;
+import fr.irit.smac.core.Links;
 import fr.irit.smac.generator.ShieldUser;
+import fr.irit.smac.model.Snapshot;
 import fr.irit.smac.planification.Objective;
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.Situation;
 import fr.irit.smac.planification.agents.CoalitionAgent;
 import fr.irit.smac.planification.agents.DataAgent;
+import fr.irit.smac.planification.agents.DataMorphAgent;
 import fr.irit.smac.planification.agents.DecisionProcess;
 import fr.irit.smac.planification.agents.Effector;
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 import fr.irit.smac.planification.matrix.InputConstraint;
+import fr.irit.smac.planification.matrix.Matrix;
 import fr.irit.smac.planification.ui.MatrixUI;
 import fr.irit.smac.planification.ui.MatrixUITable;
 import fr.irit.smac.planification.ui.VisuEffector;
@@ -36,7 +40,7 @@ public class CAV {
 	private static final int MAX_DATA_MISSING = 6;
 
 	public static final int NB_EXTEROCEPTIVES = 4;
-	
+
 	public static final int WINDOW = 5;
 
 	private String name;
@@ -70,7 +74,7 @@ public class CAV {
 	private Map<String,DataAgent> allDataAgents;
 
 	private List<CoalitionAgent> allCoalitions;
-	
+
 	private Map<String,List<CompetitiveAgent>> competitiveActives;
 
 	private Map<String,InputConstraint> inputConstraints;
@@ -111,6 +115,12 @@ public class CAV {
 	private Planing lastPlaning;
 
 	private Planing myPlaning;
+
+	private Matrix matrix;
+
+	private MatrixUITable matrixTable;
+
+	private Links links;
 
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
@@ -313,6 +323,9 @@ public class CAV {
 
 	private void initDatasetCoalition() {
 		System.out.println("Init");
+		
+		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+		//this.links.deleteExperiment(name);
 
 		// Init the collections
 		this.effectors = new TreeMap<String,Effector>();
@@ -534,16 +547,16 @@ public class CAV {
 		this.currentTime = 0;
 		boolean over = false;
 		while(this.currentTime < this.currentSituation.getTime()) {
-			
+
 			//Perception
 			this.senseData();
-			
+
 			// agents cycle
 			this.chooseValuesForEffector();
-			
+
 			// planification
 			this.planificationEffectors();
-			
+
 			//Ma planification
 			this.lastPlaning = this.myPlaning;
 			this.myPlaning = new Planing();
@@ -554,22 +567,96 @@ public class CAV {
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
-			
+
 			//TODO historiques
-				
+
 			this.currentTime++;
 
 		}
 		learnFromSituation();
+
+		this.linksManagement();
+		//UI
+		//this.updateMatrix();
 		
+		//Links
+		
+
 		/*for(EffectorAgent eff : this.effectors.values()) {
 			eff.saveExperiment();
 		}*/
 	}
 
 
-	private void learnFromSituation() {
+	private void linksManagement() {
+		Snapshot snap = new Snapshot();
+		
+		
+		for(String data : this.dataPerceivedInSituation) {
+			snap.addEntity(data, "DATAACTIVE");
+			snap.getEntity(data).addOneAttribute("Value", "Value", this.environment.getValueOfVariableWithName(data));
+			for(DataMorphAgent morph : this.allDataAgents.get(data).getAllMorphs()) {
+				snap.getEntity(data).addOneAttribute("USEFULNESS", morph.getInput(), morph.getUsefulness());
+				snap.getEntity(data).addOneAttribute("MORPH", morph.getInput(), morph.morph(this.environment.getValueOfVariableWithName(data)));
+			}
+		}
+		List<String> dataInactive = new ArrayList<>(this.allDataAgents.keySet());
+		dataInactive.removeAll(this.dataPerceivedInSituation);
+		
+		for(String inact: dataInactive) {
+			snap.addEntity(inact,"DATAINACTIVE");
+			for(DataMorphAgent morph : this.allDataAgents.get(inact).getAllMorphs()) {
+				snap.getEntity(inact).addOneAttribute("USEFULNESS", morph.getInput(), morph.getUsefulness());
+			}
+		}
+		
+		for(CoalitionAgent coal : this.allCoalitions) {
+			snap.addEntity(coal.getName(), "COALITION");
+			for(String dataInCoal : coal.getAllData()) {
+				snap.addRelation(dataInCoal, coal.getName(), dataInCoal +" submissed to "+ coal.getName(),true, "SUBMISSED");
+			}
+		}
+
+		for(Effector eff : this.effectors.values()) {
+			snap.addEntity(eff.getName(), "EFFECTOR");
+			int i = 0;
+			for(String inpu : eff.getDecisionProcess(this.currentSituation).getExtero()) {
+				snap.getEntity(eff.getName()).addOneAttribute("INPUTS", "input"+i, inpu);
+				String nameData = this.inputConstraints.get(inpu).getOffers().get(0).getAgent().getCompetitiveName();
+				snap.addRelation(nameData, eff.getName(), nameData + "used for "+ inpu, true, "USED");
+				//snap.getRelation(nameData + "used for "+ inpu).addOneAttribute("Value", this.inputConstraints.get(inpu).getOffers().get(0).);
+				i++;
+			}
+		}
+		this.links.addSnapshot(snap);
+		
+	}
+
+	private void updateMatrix() {
+		if(this.matrix == null) {
+			this.matrix = new Matrix(this,this.allInputs);
+		}
+		this.matrix.addAllNewData(this.allDataAgents.values());
+
 		for(DataAgent data : this.allDataAgents.values()) {
+			data.updateMatrix(this.matrix);
+		}
+
+		if(this.matrixTable == null) {
+			this.matrixTable = new MatrixUITable(this.matrix);
+			this.mainWindow.addMatrix(matrixTable);
+		}
+		
+		
+		this.matrixTable.updateUI();
+	}
+
+	private void learnFromSituation() {
+		for(String datainSitu : this.dataPerceivedInSituation) {
+			System.out.println(datainSitu +" --->> "+this.environment.getValueOfVariableWithName(datainSitu));
+		}
+		for(DataAgent data : this.allDataAgents.values()) {
+			if(this.dataPerceivedInSituation.contains(data.getDataName()))
 			data.sendFeedBackToMorphs(true);
 		}
 	}
@@ -581,12 +668,12 @@ public class CAV {
 		for(InputConstraint constr : this.inputConstraints.values()) {
 			constr.restart();
 		}
-		
+
 		this.competitiveActives.clear();
 		for(String s: this.allInputs) {
 			this.competitiveActives.put(s, new ArrayList<>());
 		}
-		
+
 		List<String> dataAgentsActives = new ArrayList<>(this.dataPerceivedInSituation);
 		Collections.shuffle(dataAgentsActives);
 
@@ -605,15 +692,14 @@ public class CAV {
 			}
 		}
 		boolean satisfied = false;
-		System.out.println(allCompets);
 
 		// look which constraint are to look at
 		List<InputConstraint> inputConstrActive = new ArrayList<>();
 		for(String input : this.getInputInSituation()) {
 			inputConstrActive.add(this.inputConstraints.get(input));
 		}
-		
-		
+
+
 		// choose the competitive agent for an input
 		while(!satisfied) {
 			for(CompetitiveAgent compet : allCompets) {
@@ -631,7 +717,6 @@ public class CAV {
 				}
 			}
 		}
-		System.out.println("ENDDEICSION");
 	}
 
 	/**
@@ -793,7 +878,7 @@ public class CAV {
 	public void createCoalition(String dataName, String asker) {
 		int idMax = 0;
 		if(this.allCoalitions.size()>0) {
-			this.allCoalitions.get(this.allCoalitions.size()-1).getID();
+			idMax = this.allCoalitions.get(this.allCoalitions.size()-1).getID() + 1;
 		}
 		this.allCoalitions.add(new CoalitionAgent(idMax, this, this.allDataAgents.get(dataName), this.allDataAgents.get(asker)));
 
@@ -831,6 +916,9 @@ public class CAV {
 	}
 
 	public boolean applyForCoalition(String dataName, float bestUseful, String otherData) {
+		if(dataName.equals(otherData)) {
+			return false;
+		}
 		return this.allDataAgents.get(otherData).proposeCoalition(dataName,bestUseful) ;			
 	}
 
@@ -864,6 +952,14 @@ public class CAV {
 
 	public void sendPlanning(String name, Planing plan) {
 		this.planningSubProcess.put(name,plan);
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public String getMorphLR(String input, String data) {
+		return this.allDataAgents.get(data).askMorphLR(input);
 	}
 
 }

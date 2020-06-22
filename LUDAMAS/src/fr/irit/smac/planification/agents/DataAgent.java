@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.InputConstraint;
+import fr.irit.smac.planification.matrix.Matrix;
 import fr.irit.smac.planification.system.CAV;
 
 public class DataAgent {
@@ -183,7 +184,7 @@ public class DataAgent {
 				DataMorphAgent best = null;
 				float bestUseful = -1.0f;
 				for(DataMorphAgent morph : this.morphActifs) {
-					if(morph.getUsefulness() > bestUseful) {
+					if(!morph.getInput().equals(this.dataName) && morph.getUsefulness() > bestUseful) {
 						bestUseful = morph.getUsefulness();
 						best = morph;
 					}
@@ -398,7 +399,7 @@ public class DataAgent {
 	}
 
 	public void sendFeedBackToMorphs(boolean tolerant) {
-		if(this.myValue != null){
+		if(this.myValue != null && this.dataInSituation.contains(this.dataName)){
 			for(String input : this.cav.getDataPerceivedInSituation()) {
 				if(this.morphs.keySet().contains(input)) {
 					this.morphs.get(input).sendFeedback(this.cav.getValueOfData(input),tolerant);
@@ -417,4 +418,32 @@ public class DataAgent {
 		return res;
 	}
 
+	public void updateMatrix(Matrix matrix) {
+		for(DataMorphAgent morph : this.morphActifs) {
+			matrix.setWeight(morph.getInput(), this.dataName, morph.getUsefulness());
+		}
+	}
+
+	public String askMorphLR(String input) {
+		if(this.morphs.keySet().contains(input)) {
+			return this.morphs.get(input).getMorphLRFormula();
+		}
+		return "NONE";
+	}
+
+	@Override
+	public String toString() {
+		return "DataAgent [dataName=" + dataName + "]";
+	}
+
+	public void bindToCoalition(CoalitionAgent coalitionAgent) {
+		this.coalition = coalitionAgent;
+	}
+
+	public Collection<? extends DataMorphAgent> getAllMorphs() {
+		return this.morphs.values();
+	}
+
+	
+	
 }
