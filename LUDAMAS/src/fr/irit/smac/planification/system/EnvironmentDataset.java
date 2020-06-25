@@ -18,19 +18,21 @@ import fr.irit.smac.shield.model.Variable;
 
 public class EnvironmentDataset extends EnvironmentGeneral{
 
-	
-	
+
+
 	private Scanner reader;
-	
+
 	private File dataset;
-	
+
+	private String[] dataOrder;
+
 	public EnvironmentDataset(String fileName) {
 		this.shieldUser = new ShieldUser();
 		System.out.println(fileName);
 		this.dataset = new File(fileName);
 		init();
 	}
-	
+
 	/**
 	 * WARNING : NBTYPE IS NOT FUINCTIONAL
 	 * TODO
@@ -41,32 +43,32 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 	 */
 	public EnvironmentDataset(int nbVar, double min, double max, int nbtype) {
 		this.shieldUser = new ShieldUser();
-		
+
 
 		/*this.shieldUser.initSetOfTypedVariableWithRange(15, 0, 200, "Type 1");
 		this.shieldUser.generateAllFunctionsOfVariable();
-		
+
 		this.shieldUser.initGeneratorOfFunction();
-		
+
 		this.shieldUser.initGeneratorOfComposedFunction();
 		this.historic = new TreeMap<Integer,Map<String,Double>>();*/
 		init();
 	}
-	
-	
+
+
 	private void init() {
 
 		this.shieldUser = new ShieldUser();
-		
+
 		this.shieldUser.initSetOfTypedVariableWithRange(10, 0, 10, "Type 1");
 		this.shieldUser.generateAllFunctionsOfVariable();
-		
+
 		this.shieldUser.initGeneratorOfFunction();
 		this.historic = new TreeMap<Integer,Map<String,Double>>();
-		
+
 
 		this.shieldUser.initGeneratorOfComposedFunction();
-		
+
 
 		this.data = new TreeMap<String,Float>();
 		try {
@@ -74,28 +76,34 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 			this.reader = new Scanner(this.dataset);
 			String line = this.reader.nextLine();
 			String lineSplit[] = line.split(";");
+			this.dataOrder = new String[lineSplit.length];
 			for(int i = 0; i < lineSplit.length; i++) {
 				this.data.put(lineSplit[i], 0.f);
+				this.dataOrder[i] = lineSplit[i];
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void newCycle() {
 		String line = this.reader.nextLine();
 		String lineSplit[] = line.split(";");
 		int i = 0;
-		for(String var : this.data.keySet()) {
+		/*for(String var : this.data.keySet()) {
 			this.data.put(var, Float.parseFloat(lineSplit[i]));
 			i++;
-		}
+		}*/
 		
+		for(int j  = 0 ; j < this.dataOrder.length;j++) {
+			this.data.put(this.dataOrder[j], Float.parseFloat(lineSplit[j]));
+		}
+
 	}
-	
-	
+
+
 	public float getValueOfVariableWithName(String name) {
 		return this.data.get(name);
 	}
@@ -119,16 +127,16 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 		this.newCycle();
 		/*System.out.println("HISt");
 		System.out.println(this.historic);*/
-		
+
 	}
 
 	public double getValueOfVariable(String var, int cycle) {
 		return this.historic.get(cycle-1).get(var);
 	}
-	
+
 	public void printAllVariables() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
@@ -165,7 +173,7 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 
 	public void generateComposedFunction(String name, List<String> input, List<String> outputs, int i, int j) {
 		this.shieldUser.generateComposedFunction(name, input, outputs, 3, 3);
-		
+
 	}
 
 	public ComposedFunction getComposedFunctionWithName(String name) {
@@ -184,13 +192,13 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 
 	public void generateSimilarDataDifferent(String var, int i) {
 		this.shieldUser.generateSimilarDataDifferent(var, i);
-		
+
 	}
 
 	public Variable getVariableWithName(String s) {
 		return this.shieldUser.getVariableWithName(s);
 	}
-	
+
 	public static void main(String args[]) {
 		EnvironmentDataset env = new EnvironmentDataset("C:\\\\Users\\\\gmarcill\\\\Desktop\\\\dataset_mock_enhanced.csv");
 		env.newCycle();

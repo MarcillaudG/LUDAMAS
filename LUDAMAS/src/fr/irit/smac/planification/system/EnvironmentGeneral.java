@@ -105,6 +105,16 @@ public abstract class EnvironmentGeneral {
 		}
 		return res;
 	}
+	
+	public Set<String> getAllCopyOfVar(String var){
+		Set<String> res = new TreeSet<>();
+		for(String dat : this.data.keySet()) {
+			if(!dat.equals(var) && dat.contains(var+":copy")) {
+				res.add(dat);
+			}
+		}
+		return res;		
+	}
 
 	public void generateSimilarDataDifferent(String var, int i) {
 		this.shieldUser.generateSimilarDataDifferent(var, i);

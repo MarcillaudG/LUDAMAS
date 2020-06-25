@@ -28,9 +28,9 @@ public class DataAgent {
 
 	private Float myValue;
 
-	private float min;
+	private Float min;
 
-	private float max;
+	private Float max;
 
 	private float morphedValue;
 
@@ -60,7 +60,7 @@ public class DataAgent {
 
 	private float maxUseful;
 
-	private static final float SEUILMORPH = 10.0f;
+	private static final float SEUILMORPH = 5.0f;
 
 	private static final float SEUIL_COAL = 0.7f;
 
@@ -154,6 +154,13 @@ public class DataAgent {
 					this.morphActifs.add(morph);
 				}
 			}
+
+			if(min == null || this.min > this.myValue) {
+				this.min = this.myValue;
+			}
+			if(max == null || this.max < this.myValue) {
+				this.max = this.myValue;
+			}
 		}
 	}
 
@@ -195,34 +202,12 @@ public class DataAgent {
 				if(bestUseful > SEUIL_COAL) {
 					this.wantToCoal = true;
 					//this.neighbours.get(best.getInput()).proposeCoalition(this.dataName, this.morphedValue);
-					if(this.cav.applyForCoalition(this.dataName, bestUseful, best.getInput())) {
+					if(this.cav.applyForCoalition(this.dataName, best.getMorphValue(), best.getInput())) {
 						this.submissed = true;
 					}
-					// le cycle des offres se fait plus tard
-					/*else {
-						// TODO send offers
-						Collections.shuffle(this.morphActifs);
-						for(DataMorphAgent morph : this.morphActifs) {
-							morph.cycleOffer();
-						}
-					}*/
 				}
 
 			}
-			// evaluer sa coalition
-			/*float sumUse = 0.0f;
-				int nbOther = 0;
-				for(DataAgent other : this.coalition.getOtherDataAgent(this)) {
-					sumUse += this.morphs.get(other.dataName).getUsefulness();
-					nbOther++;
-				}
-				if(sumUse / nbOther < SEUIL_LEAVE) {
-					this.coalition.leave(this);
-					this.coalition = null;
-					this.submissed = false;
-					System.gc();
-				}
-				else {*/
 			// met a jour l'objectif pour la coalition
 			this.maxUseful = -1.0f;
 			for(DataMorphAgent agent : this.morphActifs) {
@@ -246,6 +231,7 @@ public class DataAgent {
 	 * @return 
 	 */
 	public boolean proposeCoalition(String asker, float value) {
+		this.myValue = this.cav.getValueOfData(this.dataName);
 		if(!this.submissed) {
 			if(this.valueClosedToMine(value) || this.morphs.get(asker).getUsefulness() > SEUIL_LEAVE) {
 				this.cav.createCoalition(this.dataName, asker);
@@ -270,6 +256,10 @@ public class DataAgent {
 	 * @return true if close
 	 */
 	private boolean valueClosedToMine(float value) {
+		System.out.println("MINE : "+this.myValue);
+		System.out.println("ITS : "+value);
+		System.out.println("MAX : "+this.max + " MINI "+this.min);
+		System.out.println(""+Math.abs(value-this.myValue)+" < "+DataAgent.SEUILMORPH * (this.max- this.min)/100);
 		return (Math.abs(value-this.myValue) < DataAgent.SEUILMORPH * (this.max- this.min)/100);
 	}
 
@@ -438,6 +428,7 @@ public class DataAgent {
 
 	public void bindToCoalition(CoalitionAgent coalitionAgent) {
 		this.coalition = coalitionAgent;
+		this.submissed = true;
 	}
 
 	public Collection<? extends DataMorphAgent> getAllMorphs() {

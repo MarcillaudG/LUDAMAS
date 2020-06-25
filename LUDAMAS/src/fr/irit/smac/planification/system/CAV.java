@@ -1,8 +1,11 @@
 package fr.irit.smac.planification.system;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -153,8 +156,9 @@ public class CAV {
 	 * @param filePath
 	 */
 	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, String filePath) {
-
-		this.name = name;
+		SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+		Date date = new Date(System.currentTimeMillis());
+		this.name = name+"->"+filePath+":"+date;
 		this.currentTime = 0;
 		this.nbCopy = nbCopy;
 		this.nbVarEff = nbVarEff;
@@ -380,7 +384,8 @@ public class CAV {
 		// TODO Rework with more situation
 		List<String> dataInSituation = new ArrayList<String>();
 		for(String s : this.exteroData) {
-			dataInSituation.add(this.environment.getCopyOfVar(s));
+			//dataInSituation.add(this.environment.getCopyOfVar(s));
+			dataInSituation.addAll(this.environment.getAllCopyOfVar(s));
 		}
 		dataInSituation.addAll(this.exteroData);
 
@@ -652,9 +657,6 @@ public class CAV {
 	}
 
 	private void learnFromSituation() {
-		for(String datainSitu : this.dataPerceivedInSituation) {
-			System.out.println(datainSitu +" --->> "+this.environment.getValueOfVariableWithName(datainSitu));
-		}
 		for(DataAgent data : this.allDataAgents.values()) {
 			if(this.dataPerceivedInSituation.contains(data.getDataName()))
 			data.sendFeedBackToMorphs(true);

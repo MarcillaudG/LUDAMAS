@@ -47,7 +47,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private LinearRegression lr;
 
-	private final float sensibility = 10.f;
+	private final float sensibility = 1.f;
 
 	private float etendu;
 
@@ -103,7 +103,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.value = null;
 		// voit sa valeur
 		this.value = this.superiorAgent.askValue();
-		
+
 
 		this.morphValue = this.linearRegression();
 		// recupere la valeur de son objective si dispo
@@ -113,7 +113,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.dataConstraint = this.superiorAgent.getDataUnicityConstraint();
 		this.inputConstraint = this.superiorAgent.getInputConstraint(this.inputName);
 		this.neighbours.clear();
-		
+
 		this.neighbours.addAll(this.superiorAgent.getNeighboursActives(this.inputName));
 
 	}
@@ -168,7 +168,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 	public void act() {
 		// si lie
 		//this.morphValue = this.linearRegression();
-		
+
 		//System.out.println(valueToSend);
 	}
 
@@ -194,7 +194,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 		if(lr != null) {
 			diffPourcent = Math.abs(((correctValue - this.lr.predict(this.value))/this.lr.predict(this.value)*100));
 			if(lr != null && this.dataName.contains(this.inputName)) {
-			/*System.out.println(this.name);
+				/*System.out.println(this.name);
 				System.out.println("DIFF:"+diffPourcent);
 				System.out.println("VALUE:"+this.value);
 				System.out.println("CORRECT:"+correctValue);
@@ -205,24 +205,31 @@ public class DataMorphAgent implements CompetitiveAgent{
 				}*/
 			}
 		}
-		if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value)) 
-				||  diffPourcent < this.sensibility*this.etendu/100) {
-			this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
-			System.out.println("DIFF:"+diffPourcent);
-			System.out.println("VALUE:"+this.value);
-			System.out.println("CORRECT:"+correctValue);
-			System.out.println("ETENDU:"+this.etendu);
-			if(lr != null)
-			System.out.println(this.name+" : correct : "+correctValue+ " morphed : "+this.lr.predict(this.value) + " : value :"+this.value);
+		/*if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value)) 
+				||  diffPourcent < this.sensibility*this.etendu/100) {*/
+		if(this.lr == null) {
+
 		}
 		else {
-			this.usefulness = Math.max(.0f, this.usefulness-0.05f);
+			if((this.lr != null && correctValue == this.lr.predict(this.value)) 
+					||  diffPourcent < this.sensibility*this.etendu/100) {
+				this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
+				/*System.out.println("DIFF:"+diffPourcent);
+				System.out.println("VALUE:"+this.value);
+				System.out.println("CORRECT:"+correctValue);
+				System.out.println("ETENDU:"+this.etendu);
+				if(lr != null)
+					System.out.println(this.name+" : correct : "+correctValue+ " morphed : "+this.lr.predict(this.value) + " : value :"+this.value);*/
+			}
+			else {
+				this.usefulness = Math.max(.0f, this.usefulness-0.05f);
+			}
 		}
 		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
 
 	}
 
-	
+
 	private float linearRegression() {
 		double x [] = new double[this.historic.keySet().size()];
 		double y [] = new double[this.historic.keySet().size()];
@@ -254,7 +261,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 		return morphedValue;
 	}
- 
+
 
 	public void addMorph(Float myValue, Float otherValue) {
 		if(otherValue !=0)
@@ -376,7 +383,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 	public void increaseUsefull() {
 		this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
 	}
-	
+
 	public void decreaseUsefull() {
 		this.usefulness = Math.max(.0f, this.usefulness-0.05f);
 	}
@@ -384,15 +391,15 @@ public class DataMorphAgent implements CompetitiveAgent{
 	public boolean isActif() {
 		return this.isActif;
 	}
-	
+
 	public void activate() {
 		this.isActif = true;
 	}
-	
+
 	public void desactivate() {
 		this.isActif = false;
 	}
-	
+
 	public float getUsefulness() {
 		return this.usefulness;
 	}
@@ -409,14 +416,14 @@ public class DataMorphAgent implements CompetitiveAgent{
 	@Override
 	public void sendOffer(Offer offer) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public boolean isAvailable() {
 		return this.dataConstraint.isSatisfied();
 	}
-	
+
 
 	@Override
 	public void cycleOffer() {
