@@ -185,6 +185,18 @@ public class DataAgent {
 					this.submissed = false;
 					System.gc();
 				}
+				else {
+					for(DataAgent other : this.coalition.getOtherDataAgent(this)) {
+						sumUse += this.morphs.get(other.dataName).getUsefulness();
+						nbOther++;
+					}
+					if(sumUse / nbOther < SEUIL_LEAVE) {
+						this.coalition.leave(this);
+						this.coalition = null;
+						this.submissed = false;
+						System.gc();
+					}
+				}
 			}
 
 			if(!this.submissed) {
@@ -292,6 +304,7 @@ public class DataAgent {
 
 	public void mergeToCoalition(CoalitionAgent coalition2) {
 		this.coalition = coalition2;
+		coalition2.addData(this);
 		this.submissed = true;
 	}
 
@@ -435,6 +448,6 @@ public class DataAgent {
 		return this.morphs.values();
 	}
 
-	
-	
+
+
 }

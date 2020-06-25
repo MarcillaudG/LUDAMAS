@@ -125,6 +125,8 @@ public class CAV {
 
 	private Links links;
 
+	private List<CoalitionAgent> coalitionsToRemove;
+
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
 		this.currentTime = 0;
@@ -345,6 +347,7 @@ public class CAV {
 		this.competitiveActives = new TreeMap<>();
 		this.planningSubProcess = new TreeMap<>();
 		this.allCoalitions = new ArrayList<>();
+		this.coalitionsToRemove = new ArrayList<>();
 
 		Random rand = new Random();
 		List<String> variablesAvailable = new ArrayList<>(this.environment.getAllVariable());
@@ -579,6 +582,13 @@ public class CAV {
 
 		}
 		learnFromSituation();
+		for(CoalitionAgent coal : this.allCoalitions) {
+			coal.lookForOtherCoalition();
+		}
+		for(CoalitionAgent coal: this.coalitionsToRemove) {
+			this.allCoalitions.remove(coal);
+		}
+		this.coalitionsToRemove.clear();
 
 		this.linksManagement();
 		//UI
@@ -896,7 +906,8 @@ public class CAV {
 	 * @param coal
 	 */
 	public void coalitionDestroyed(CoalitionAgent coal) {
-		this.allCoalitions.remove(coal);
+		this.coalitionsToRemove.add(coal);
+		//this.allCoalitions.remove(coal);
 	}
 
 	/**
@@ -963,5 +974,13 @@ public class CAV {
 	public String getMorphLR(String input, String data) {
 		return this.allDataAgents.get(data).askMorphLR(input);
 	}
+
+	public Collection<? extends CoalitionAgent> getOtherCoalitionAgent(CoalitionAgent coal) {
+		List<CoalitionAgent> res = new ArrayList<>(this.allCoalitions);
+		res.remove(coal);
+		
+		return res;
+	}
+
 
 }

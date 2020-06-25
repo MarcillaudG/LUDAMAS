@@ -35,6 +35,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	private static final float ADVANTAGE = 0.5f;
 
+	private static final float SEUIL_MERGE = 0.7f;
+
 
 	public CoalitionAgent(int id, CAV cav, DataAgent data1, DataAgent data2) {
 		this.id = id;
@@ -43,7 +45,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 		this.datas = new TreeMap<>();
 		this.datas.put(data1.getDataName(),data1);
 		this.datas.put(data2.getDataName(),data2);
-		
+
 		data1.bindToCoalition(this);
 		data2.bindToCoalition(this);
 
@@ -54,7 +56,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 		this.datas.put(data.getDataName(),data);
 	}
 
-	
+
 
 	public void perceive() {
 		this.datasActifs.clear();
@@ -77,7 +79,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 					maxUseful = agent.getUsefulnessForData(agent.getInputObj());
 				}
 			}
-			
+
 			for(DataAgent agent : this.datasActifs) {
 				meanSum += agent.askMorphUsefulness(this.input)*agent.askMorphedValue(this.input);
 				sumUseful += agent.askMorphUsefulness(this.input);
@@ -92,9 +94,73 @@ public class CoalitionAgent implements CompetitiveAgent{
 	}
 
 
-
 	public void act() {
 		this.cav.sendProposition(this.input, this.proposition);
+	}
+
+	/**
+	 * Look forward to merge more data to increase the usefulness overall
+	 */
+	public void lookForOtherCoalition() {
+		float maxMeanUsefulness = 0.0f;
+		CoalitionAgent coal = null;
+		for(CoalitionAgent neighbour : this.cav.getOtherCoalitionAgent(this)) {
+			float meanUsefulness = 0.0f;
+			int nbData = 0;
+			if(neighbour.isInCompetitionWithMe(this.input)) {
+				for(String data : neighbour.getAllData()) {
+					for(DataAgent agent : this.datas.values()) {
+						meanUsefulness += agent.getUsefulnessForData(data);
+						nbData++;
+					}
+				}
+			}
+			meanUsefulness = meanUsefulness/nbData;
+			if(coal == null || meanUsefulness > maxMeanUsefulness) {
+				coal = neighbour;
+				maxMeanUsefulness = meanUsefulness;
+			}
+		}
+		if(coal != null && maxMeanUsefulness > SEUIL_MERGE) {
+			if(coal.proposeMerging(this)) {
+				System.gc();
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param neighbour
+	 * @return
+	 */
+	private boolean proposeMerging(CoalitionAgent neighbour) {
+		float meanUsefulness = 0.0f;
+		int nbData = 0;
+			for(String data : neighbour.getAllData()) {
+				for(DataAgent agent : this.datas.values()) {
+					meanUsefulness += agent.getUsefulnessForData(data);
+					nbData++;
+				}
+			}
+		meanUsefulness = meanUsefulness/nbData;	
+		if(meanUsefulness > SEUIL_MERGE) {
+			for(DataAgent data : this.datas.values()) {
+				data.mergeToCoalition(neighbour);
+			}
+			this.datas.clear();
+			this.cav.coalitionDestroyed(this);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Return true if the two coalition are in competition for the same input
+	 * @param input2
+	 * @return
+	 */
+	private boolean isInCompetitionWithMe(String input2) {
+		return this.input.equals(input2);
 	}
 
 	public boolean proposeNewAgent(String asker) {
@@ -128,7 +194,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 * 		the dataAgent to remove
 	 */
 	public void leave(DataAgent dataAgent) {
-		this.datas.remove(dataAgent);
+		this.datas.remove(dataAgent.getDataName());
 		if(this.datas.size() < 2) {
 			destroy();
 		}
@@ -205,7 +271,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 
 	}
-	
+
 	@Override
 	public float getUsefulness() {
 		float maxUseful = 0.0f;
@@ -268,7 +334,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 		return this.name;
 	}
 
-	
+
 
 
 }
