@@ -192,8 +192,6 @@ public class DataAgent {
 					}
 					if(sumUse / nbOther < SEUIL_LEAVE) {
 						this.coalition.leave(this);
-						this.coalition = null;
-						this.submissed = false;
 						System.gc();
 					}
 				}
@@ -232,6 +230,11 @@ public class DataAgent {
 			}
 		}
 	}
+	
+	public void RemoveFromCoalition() {
+		this.coalition = null;
+		this.submissed = false;
+	}
 
 	/**
 	 * Receive a proposition to create a coalition btween the asker and itself
@@ -243,9 +246,10 @@ public class DataAgent {
 	 * @return 
 	 */
 	public boolean proposeCoalition(String asker, float value) {
+		this.submissed = this.coalition != null;
 		this.myValue = this.cav.getValueOfData(this.dataName);
 		if(!this.submissed) {
-			if(this.valueClosedToMine(value) || this.morphs.get(asker).getUsefulness() > SEUIL_LEAVE) {
+			if(this.valueClosedToMine(value) && this.morphs.get(asker).getUsefulness() > SEUIL_LEAVE) {
 				this.cav.createCoalition(this.dataName, asker);
 				return true;
 			}
@@ -268,10 +272,10 @@ public class DataAgent {
 	 * @return true if close
 	 */
 	private boolean valueClosedToMine(float value) {
-		System.out.println("MINE : "+this.myValue);
+		/*System.out.println("MINE : "+this.myValue);
 		System.out.println("ITS : "+value);
 		System.out.println("MAX : "+this.max + " MINI "+this.min);
-		System.out.println(""+Math.abs(value-this.myValue)+" < "+DataAgent.SEUILMORPH * (this.max- this.min)/100);
+		System.out.println(""+Math.abs(value-this.myValue)+" < "+DataAgent.SEUILMORPH * (this.max- this.min)/100);*/
 		return (Math.abs(value-this.myValue) < DataAgent.SEUILMORPH * (this.max- this.min)/100);
 	}
 
@@ -337,7 +341,7 @@ public class DataAgent {
 		this.coalition = null;
 		this.submissed = false;
 
-		this.cycle();
+		//this.cycle();
 	}
 
 	public void cycle() {

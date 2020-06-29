@@ -902,12 +902,27 @@ public class CAV {
 	}
 
 	/**
-	 * 
+	 * Remove the no longer useful coalition
+	 * Make submissed agent decide again
 	 * @param coal
+	 * @param set 
 	 */
-	public void coalitionDestroyed(CoalitionAgent coal) {
+	public void coalitionDestroyed(CoalitionAgent coal, Set<String> agentToDecide) {
 		this.coalitionsToRemove.add(coal);
-		//this.allCoalitions.remove(coal);
+		this.allCoalitions.remove(coal);
+		for(String agent : agentToDecide) {
+			this.allDataAgents.get(agent).cycle();
+		}
+	}
+	
+
+	/**
+	 * Remove the no longer useful coalition
+	 * 
+	 * @param coalitionAgent
+	 */
+	public void coalitionDestroyed(CoalitionAgent coalitionAgent) {
+		this.coalitionsToRemove.add(coalitionAgent);
 	}
 
 	/**
@@ -981,6 +996,17 @@ public class CAV {
 		
 		return res;
 	}
+
+	public boolean isACoalitionWithMe(DataAgent dataAgent) {
+		for(CoalitionAgent coal : this.allCoalitions) {
+			if(coal.getAllData().contains(dataAgent.getDataName())) {
+				System.out.println(coal);
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 
 }

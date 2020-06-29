@@ -160,6 +160,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 * @return
 	 */
 	private boolean isInCompetitionWithMe(String input2) {
+		if(this.input == null) {
+		}
 		return this.input.equals(input2);
 	}
 
@@ -194,6 +196,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 * 		the dataAgent to remove
 	 */
 	public void leave(DataAgent dataAgent) {
+		dataAgent.RemoveFromCoalition();
 		this.datas.remove(dataAgent.getDataName());
 		if(this.datas.size() < 2) {
 			destroy();
@@ -207,8 +210,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 		for(String s : this.datas.keySet()) {
 			this.datas.get(s).coalitionDestroyed();
 		}
+		this.cav.coalitionDestroyed(this, this.datas.keySet());
 		this.datas.clear();
-		this.cav.coalitionDestroyed(this);
 	}
 
 	@Override

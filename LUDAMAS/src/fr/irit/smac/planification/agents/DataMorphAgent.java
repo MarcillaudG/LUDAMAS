@@ -47,7 +47,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private LinearRegression lr;
 
-	private final float sensibility = 1.f;
+	private final float sensibility = 2.f;
 
 	private float etendu;
 
