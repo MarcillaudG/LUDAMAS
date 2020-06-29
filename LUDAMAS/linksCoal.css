@@ -1,0 +1,34 @@
+
+node {
+	size: 10px, 15px;
+	shape: circle;
+	fill-color: black;
+	stroke-mode: plain;
+	text-alignment:under;
+}
+
+node.EFFECTOR{
+	size:20px, 30px;
+	fill-color:black;
+	shape:box;
+}
+
+node.COALITION{
+	size:15px, 20px;
+	fill-color:red;
+	shape:circle;
+}
+
+node.DATAACTIVE{
+	fill-color:green;
+	shape:triangle;
+}
+
+node.DATAINACTIVE{
+	fill-color:grey;
+	shape:triangle;
+}
+
+node.COUNT{
+	fill-color:green;
+}
