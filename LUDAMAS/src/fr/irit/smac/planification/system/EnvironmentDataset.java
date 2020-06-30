@@ -22,15 +22,61 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 
 	private Scanner reader;
 
+	private Scanner readerNotNoised;
+
 	private File dataset;
 
 	private String[] dataOrder;
+
+	private File datasetNotNoised;
+	
 
 	public EnvironmentDataset(String fileName) {
 		this.shieldUser = new ShieldUser();
 		System.out.println(fileName);
 		this.dataset = new File(fileName);
 		init();
+	}
+	
+
+	
+	/**
+	 * Create the environment with two filepath, the noised one for the learning
+	 * and the not noised one for evaluating the feedback
+	 * 
+	 * @param filePath
+	 * 		Noised one
+	 * @param filePathNotNoised
+	 * 		Not noised one
+	 * @throws Exception 
+	 */
+	public EnvironmentDataset(String filePath, String filePathNotNoised) throws Exception {
+		this.shieldUser = new ShieldUser();
+		
+		// Verifie que les files sont bien compatibles
+		try {
+			Scanner tmpReaderNoised = new Scanner(new File(filePath));
+			Scanner tmpReaderNotNoised = new Scanner(new File(filePathNotNoised));
+			
+			String firstLineNoised = tmpReaderNoised.nextLine();
+			String firstLineNotNoised = tmpReaderNotNoised.nextLine();
+			if(!firstLineNoised.equals(firstLineNotNoised)) {
+				tmpReaderNoised.close();
+				tmpReaderNotNoised.close();
+				throw new Exception();
+			}
+
+			tmpReaderNoised.close();
+			tmpReaderNotNoised.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		this.dataset = new File(filePath);
+		this.datasetNotNoised = new File(filePathNotNoised);
+		init();
+		
 	}
 
 	/**
@@ -54,6 +100,7 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 		this.historic = new TreeMap<Integer,Map<String,Double>>();*/
 		init();
 	}
+
 
 
 	private void init() {
@@ -85,12 +132,33 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		if(this.datasetNotNoised != null) {
+			try {
+				this.readerNotNoised = new Scanner(this.datasetNotNoised);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			String line = this.readerNotNoised.nextLine();
+			String lineSplit[] = line.split(";");
+			this.dataNotNoised = new TreeMap<>();
+			for(String data : lineSplit) {
+				this.dataNotNoised.put(data, 0.0f);
+			}
+		}
 	}
 
 	@Override
 	public void newCycle() {
 		String line = this.reader.nextLine();
 		String lineSplit[] = line.split(";");
+		String lineNotNoised;
+		String lineSplitNotNoised[] = null ;
+		if(this.dataNotNoised != null) {
+			lineNotNoised = this.readerNotNoised.nextLine();
+			lineSplitNotNoised = lineNotNoised.split(";");
+		}
 		int i = 0;
 		/*for(String var : this.data.keySet()) {
 			this.data.put(var, Float.parseFloat(lineSplit[i]));
@@ -99,6 +167,9 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 		
 		for(int j  = 0 ; j < this.dataOrder.length;j++) {
 			this.data.put(this.dataOrder[j], Float.parseFloat(lineSplit[j]));
+			if(this.dataNotNoised != null) {
+				this.dataNotNoised.put(this.dataOrder[j], Float.parseFloat(lineSplitNotNoised[j]));
+			}
 		}
 
 	}
@@ -202,5 +273,23 @@ public class EnvironmentDataset extends EnvironmentGeneral{
 	public static void main(String args[]) {
 		EnvironmentDataset env = new EnvironmentDataset("C:\\\\Users\\\\gmarcill\\\\Desktop\\\\dataset_mock_enhanced.csv");
 		env.newCycle();
+	}
+	
+	/**
+	 * Return the value of a data for the feedback
+	 * if there is two file then the value for the not noised file is returned
+	 * else its the one from the first file
+	 * 
+	 * @param dataName
+	 * 		the name of the data
+	 * @return the value of the data
+	 */
+	public Float getValueForFeedbackWithName(String dataName) {
+		if(this.datasetNotNoised!= null) {
+			return this.dataNotNoised.get(dataName);
+		}
+		else {
+			return this.getValueOfVariableWithName(dataName);
+		}
 	}
 }

@@ -21,6 +21,7 @@ public abstract class EnvironmentGeneral {
 	
 	protected Map<Integer,Map<String,Double>> historic;
 	protected Map<String, Float> data;
+	protected Map<String,Float> dataNotNoised;
 	protected ShieldUser shieldUser;
 	
 	private Scanner reader;

@@ -158,7 +158,6 @@ public class CAV {
 	 * @param filePath
 	 */
 	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, String filePath) {
-		SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 		Date date = new Date(System.currentTimeMillis());
 		this.name = name+"->"+filePath+":"+date;
 		this.currentTime = 0;
@@ -177,6 +176,50 @@ public class CAV {
 		//this.environment.getSubsetOfVariables(4);
 
 		initDatasetCoalition();
+	}
+	
+	/**
+	 * Constructor using a noised dataset and its not noised one
+	 * 
+	 * @param name
+	 * @param nbEffectors
+	 * @param nbSituation
+	 * @param nbVarEff
+	 * @param nbCopy
+	 * @param filePath
+	 * @param filePathNoised
+	 */
+	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, String filePath, String filePathNotNoised) {
+		Date date = new Date(System.currentTimeMillis());
+		this.name = name+"->"+filePath+":"+date;
+		this.currentTime = 0;
+		this.nbCopy = nbCopy;
+		this.nbVarEff = nbVarEff;
+
+		this.nbObjectiveStates = nbEffectors;
+		this.nbEffectors = nbEffectors;
+		this.nbSituation = nbSituation;
+		this.internalState = new float[this.nbObjectiveStates];
+		this.internalEffect = new float[this.nbObjectiveStates];
+		this.situations = new Situation[this.nbSituation];
+
+		try {
+			this.environment = new EnvironmentDataset(filePath, filePathNotNoised);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.dataPerceived = new TreeSet<String>();
+		//this.environment.getSubsetOfVariables(4);
+		
+
+		initDatasetCoalition();
+		
+	}
+
+	private void initRealDecisionprocess(String filePathNotNoised) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**
