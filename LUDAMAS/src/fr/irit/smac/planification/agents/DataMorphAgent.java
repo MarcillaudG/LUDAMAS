@@ -47,9 +47,13 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private LinearRegression lr;
 
-	private final float sensibility = 2.f;
+	private final float sensibility = 5.f;
+	
+	private final float accepted_error = 5.f;
 
 	private float etendu;
+	
+	private float error;
 
 	private boolean isActif;
 
@@ -190,36 +194,20 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.morphValue = this.linearRegression();
 		this.addMorph(this.value, correctValue);
 		float diffPourcent = this.sensibility+1;
+		
+		this.error = this.computeError(correctValue);
 
 		if(lr != null) {
 			diffPourcent = Math.abs(((correctValue - this.lr.predict(this.value))/this.lr.predict(this.value)*100));
-			if(lr != null && this.dataName.contains(this.inputName)) {
-				/*System.out.println(this.name);
-				System.out.println("DIFF:"+diffPourcent);
-				System.out.println("VALUE:"+this.value);
-				System.out.println("CORRECT:"+correctValue);
-				System.out.println("predict:"+this.lr.predict(this.value));
-				System.out.println("ETENDU:"+this.etendu);
-				if(diffPourcent < this.sensibility*this.etendu/100) {
-					System.out.println("UP");
-				}*/
-			}
 		}
-		/*if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value)) 
-				||  diffPourcent < this.sensibility*this.etendu/100) {*/
 		if(this.lr == null) {
 
 		}
 		else {
+			//||  diffPourcent < this.sensibility*this.etendu/100 
 			if((this.lr != null && correctValue == this.lr.predict(this.value)) 
-					||  diffPourcent < this.sensibility*this.etendu/100) {
+					|| this.error <= this.accepted_error) {
 				this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
-				/*System.out.println("DIFF:"+diffPourcent);
-				System.out.println("VALUE:"+this.value);
-				System.out.println("CORRECT:"+correctValue);
-				System.out.println("ETENDU:"+this.etendu);
-				if(lr != null)
-					System.out.println(this.name+" : correct : "+correctValue+ " morphed : "+this.lr.predict(this.value) + " : value :"+this.value);*/
 			}
 			else {
 				this.usefulness = Math.max(.0f, this.usefulness-0.05f);
@@ -229,6 +217,15 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	}
 
+
+	private float computeError(Float correctValue) {
+		if(this.etendu != 0.0f) {
+			return Math.abs(this.morphValue-correctValue)/this.etendu *100;
+		}
+		else {
+			return Math.abs(Math.abs(this.morphValue-correctValue)/correctValue) *100;
+		}
+	}
 
 	private float linearRegression() {
 		double x [] = new double[this.historic.keySet().size()];
@@ -445,6 +442,10 @@ public class DataMorphAgent implements CompetitiveAgent{
 	@Override
 	public String getCompetitiveName() {
 		return this.dataName;
+	}
+	
+	public float getError() {
+		return this.error;
 	}
 
 }

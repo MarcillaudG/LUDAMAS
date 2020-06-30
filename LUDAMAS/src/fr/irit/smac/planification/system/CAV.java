@@ -603,6 +603,9 @@ public class CAV {
 	}
 
 
+	/**
+	 * Manage links
+	 */
 	private void linksManagement() {
 		Snapshot snap = new Snapshot();
 		
@@ -613,6 +616,7 @@ public class CAV {
 			for(DataMorphAgent morph : this.allDataAgents.get(data).getAllMorphs()) {
 				snap.getEntity(data).addOneAttribute("USEFULNESS", morph.getInput(), morph.getUsefulness());
 				snap.getEntity(data).addOneAttribute("MORPH", morph.getInput(), morph.morph(this.environment.getValueOfVariableWithName(data)));
+				snap.getEntity(data).addOneAttribute("ERROR", morph.getInput(), morph.getError());
 			}
 		}
 		List<String> dataInactive = new ArrayList<>(this.allDataAgents.keySet());
