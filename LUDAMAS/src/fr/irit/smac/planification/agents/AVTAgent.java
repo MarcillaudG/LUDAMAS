@@ -113,6 +113,8 @@ public class AVTAgent {
 		if(feed == 0) {
 			this.historic[this.indHisto] = Feedback.EQUALS;
 		}
+		
+		this.adaptWeight();
 	}
 
 	/**
