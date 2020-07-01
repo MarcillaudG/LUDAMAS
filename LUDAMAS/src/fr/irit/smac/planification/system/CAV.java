@@ -27,8 +27,6 @@ import fr.irit.smac.planification.Situation;
 import fr.irit.smac.planification.agents.CoalitionAgent;
 import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.agents.DataMorphAgent;
-import fr.irit.smac.planification.agents.DecisionProcess;
-import fr.irit.smac.planification.agents.Effector;
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 import fr.irit.smac.planification.matrix.InputConstraint;
@@ -217,10 +215,6 @@ public class CAV {
 		
 	}
 
-	private void initRealDecisionprocess(String filePathNotNoised) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	/**
 	 * Constructor using shield
@@ -618,12 +612,38 @@ public class CAV {
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
-
+			
+			// Set the input at the true value
+			for(String input : this.allInputs) {
+				this.inputConstraints.get(input).setTrueValue(this.environment.getValueForFeedbackWithName(input));
+			}
+			
+			// rerun the decision process
+			this.planificationEffectors();
+			
+			// Look at the real planing
+			Planing truePlaning = new Planing();
+			for(int i = 0 ; i < this.currentSituation.getTime();i++) {
+				float res = 0.0f;
+				for(String effect : this.planningSubProcess.keySet()) {
+					res += this.planningSubProcess.get(effect).getResAtTime(i).getValue();
+				}
+				truePlaning.addRes(new Result(this.getCurrentTime()+i, res));
+			}
+			
+			// TODO visu Difference
+			// TODO NB replaning
+			// TODO Result final
+			
+			
 			//TODO historiques
 
 			this.currentTime++;
 
 		}
+		
+		//True planning
+		
 		learnFromSituation();
 		for(CoalitionAgent coal : this.allCoalitions) {
 			coal.lookForOtherCoalition();
@@ -1021,8 +1041,12 @@ public class CAV {
 	}
 
 	public Float getValueForInput(String input) {
-		float value = this.inputConstraints.get(input).getOffers().get(0).getAgent().getValue();
-		return value;
+		if(this.inputConstraints.get(input).getOffers().get(0).getAgent() != null) {
+			return this.inputConstraints.get(input).getOffers().get(0).getAgent().getValue();
+		}
+		else {
+			return this.inputConstraints.get(input).getOffers().get(0).getValue();
+		}
 	}
 
 	public void sendPlanning(String name, Planing plan) {

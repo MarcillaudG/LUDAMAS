@@ -126,5 +126,22 @@ public abstract class EnvironmentGeneral {
 		return this.shieldUser.getVariableWithName(s);
 	}
 	
+	/**
+	 * Return the value of a data for the feedback
+	 * if there is two file then the value for the not noised file is returned
+	 * else its the one from the first file
+	 * 
+	 * @param dataName
+	 * 		the name of the data
+	 * @return the value of the data
+	 */
+	public Float getValueForFeedbackWithName(String dataName) {
+		if(this.dataNotNoised!= null) {
+			return this.dataNotNoised.get(dataName);
+		}
+		else {
+			return this.getValueOfVariableWithName(dataName);
+		}
+	}
 	
 }

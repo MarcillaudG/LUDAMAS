@@ -1,7 +1,6 @@
-package fr.irit.smac.planification.agents;
+package fr.irit.smac.planification.matrix;
 
 import fr.irit.smac.planification.generic.CompetitiveAgent;
-import fr.irit.smac.planification.matrix.InputConstraint;
 
 public class Offer {
 

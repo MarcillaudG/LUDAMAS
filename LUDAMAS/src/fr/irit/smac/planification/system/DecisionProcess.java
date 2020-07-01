@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.agents;
+package fr.irit.smac.planification.system;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.planification.Situation;
-import fr.irit.smac.planification.system.EnvironmentGeneral;
 
 public class DecisionProcess {
 

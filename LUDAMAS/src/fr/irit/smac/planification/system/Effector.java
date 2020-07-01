@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.agents;
+package fr.irit.smac.planification.system;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,6 @@ import fr.irit.smac.planification.Situation;
 import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
-import fr.irit.smac.planification.system.CAV;
 
 /**
  * 

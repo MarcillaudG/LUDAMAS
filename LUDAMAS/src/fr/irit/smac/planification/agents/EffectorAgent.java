@@ -19,6 +19,7 @@ import fr.irit.smac.planification.matrix.Input;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
 import fr.irit.smac.planification.system.CAV;
+import fr.irit.smac.planification.system.DecisionProcess;
 import fr.irit.smac.planification.ui.MatrixUI;
 import fr.irit.smac.planification.ui.MatrixUITable;
 

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import fr.irit.smac.lxplot.LxPlot;
-import fr.irit.smac.planification.agents.Offer;
+import fr.irit.smac.planification.matrix.Offer;
 
 public class Planing {
 

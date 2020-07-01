@@ -1,6 +1,6 @@
 package fr.irit.smac.planification.generic;
 
-import fr.irit.smac.planification.agents.Offer;
+import fr.irit.smac.planification.matrix.Offer;
 
 public interface CompetitiveAgent {
 

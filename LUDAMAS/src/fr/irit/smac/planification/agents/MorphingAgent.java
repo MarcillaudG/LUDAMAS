@@ -13,6 +13,7 @@ import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.Input;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
+import fr.irit.smac.planification.matrix.Offer;
 import fr.irit.smac.planification.tools.LinearRegression;
 
 public class MorphingAgent implements CompetitiveAgent{

@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 import fr.irit.smac.planification.matrix.InputConstraint;
+import fr.irit.smac.planification.matrix.Offer;
 import fr.irit.smac.planification.system.CAV;
 
 public class CoalitionAgent implements CompetitiveAgent{
@@ -335,6 +336,11 @@ public class CoalitionAgent implements CompetitiveAgent{
 	@Override
 	public String getCompetitiveName() {
 		return this.name;
+	}
+
+	public void sendValue(Float weightedValue) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

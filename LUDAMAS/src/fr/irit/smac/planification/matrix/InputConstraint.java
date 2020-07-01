@@ -5,7 +5,6 @@ import java.util.List;
 
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.agents.MorphingAgent;
-import fr.irit.smac.planification.agents.Offer;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 
 public class InputConstraint {
@@ -106,6 +105,11 @@ public class InputConstraint {
 
 	public void restart() {
 		this.offers.clear();
+	}
+
+	public void setTrueValue(Float valueForFeedback) {
+		this.offers.clear();
+		this.offers.add(new Offer(null, this, 0, 0, valueForFeedback));
 	}
 
 
