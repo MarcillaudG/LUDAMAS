@@ -399,8 +399,17 @@ public class CAV {
 
 		// With coalition
 		for(String s : variablesAvailable) {
-			this.allDataAgents.put(s, new DataAgent(this, s, variablesAvailable));
+			//this.allDataAgents.put(s, new DataAgent(this, s, variablesAvailable));
 			this.inputConstraints.put(s,new InputConstraint(s));
+
+			this.allDataAgents.put(s,new DataAgent(this, s, this.allInputs));
+			if(this.allCoalitions.size() > 0) {
+				this.allCoalitions.add(new CoalitionAgent(this.allCoalitions.get(this.allCoalitions.size()-1).getID()+1,this,this.allDataAgents.get(s)));
+			}
+			else {
+				this.allCoalitions.add(new CoalitionAgent(0,this,this.allDataAgents.get(s)));
+			}
+			this.allDataAgents.get(s).bindToCoalition(this.allCoalitions.get(this.allCoalitions.size()-1));
 		}
 
 
@@ -614,22 +623,25 @@ public class CAV {
 			}
 			
 			// Set the input at the true value
-			for(String input : this.allInputs) {
+			/*for(String input : this.allInputs) {
 				this.inputConstraints.get(input).setTrueValue(this.environment.getValueForFeedbackWithName(input));
-			}
+			}*/
 			
 			// rerun the decision process
 			this.planificationEffectors();
 			
 			// Look at the real planing
-			Planing truePlaning = new Planing();
+			/*Planing truePlaning = new Planing();
 			for(int i = 0 ; i < this.currentSituation.getTime();i++) {
 				float res = 0.0f;
 				for(String effect : this.planningSubProcess.keySet()) {
+					System.out.println(this.planningSubProcess);
+					System.out.println(this.planningSubProcess.get(effect));
+					System.out.println(this.planningSubProcess.get(effect).getResAtTime(i));
 					res += this.planningSubProcess.get(effect).getResAtTime(i).getValue();
 				}
 				truePlaning.addRes(new Result(this.getCurrentTime()+i, res));
-			}
+			}*/
 			
 			// TODO visu Difference
 			// TODO NB replaning
@@ -762,7 +774,8 @@ public class CAV {
 		}
 
 		// put all conpetitive agent together
-		List<CompetitiveAgent> allCompets = new ArrayList<>(this.allCoalitions);
+		//List<CompetitiveAgent> allCompets = new ArrayList<>(this.allCoalitions);
+		List<CompetitiveAgent> allCompets = new ArrayList<>();
 		for(String ag : dataAgentsActives) {
 			//allCompets.addAll(this.allDataAgents.get(ag).getAllMorphActives());
 			allCompets.addAll(this.allDataAgents.get(ag).getAllMorphInCompet());
@@ -796,6 +809,9 @@ public class CAV {
 				}
 			}
 		}
+		for(InputConstraint constr : inputConstrActive) {
+			constr.getOffers().get(0).getAgent().wonCompet(constr.getInput());
+		}
 	}
 
 	/**
@@ -805,11 +821,21 @@ public class CAV {
 	private void senseData() {
 		this.dataPerceivedInSituation.clear();
 		this.dataPerceivedInSituation.addAll(this.currentSituation.getInformationAvailable(this.currentTime));
+		
 		if(!this.allDataAgents.keySet().containsAll(this.dataPerceivedInSituation)) {
 			List<String> missingData = new ArrayList<>(this.dataPerceivedInSituation);
 			missingData.removeAll(this.allDataAgents.keySet());
+			
 			for(String missing : missingData) {
+				//this.allDataAgents.put(missing,new DataAgent(this, missing, this.allInputs));
 				this.allDataAgents.put(missing,new DataAgent(this, missing, this.allInputs));
+				if(this.allCoalitions.size() > 0) {
+					this.allCoalitions.add(new CoalitionAgent(this.allCoalitions.get(this.allCoalitions.size()-1).getID()+1,this,this.allDataAgents.get(missing)));
+				}
+				else {
+					this.allCoalitions.add(new CoalitionAgent(0,this,this.allDataAgents.get(missing)));
+				}
+				this.allDataAgents.get(missing).bindToCoalition(this.allCoalitions.get(this.allCoalitions.size()-1));
 			}
 		}
 	}

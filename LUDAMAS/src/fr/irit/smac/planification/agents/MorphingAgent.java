@@ -547,4 +547,10 @@ public class MorphingAgent implements CompetitiveAgent{
 	public String getCompetitiveName() {
 		return this.name;
 	}
+
+	@Override
+	public void wonCompet(String string) {
+		// TODO Auto-generated method stub
+		
+	}
 }

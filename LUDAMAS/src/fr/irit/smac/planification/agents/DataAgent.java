@@ -174,7 +174,7 @@ public class DataAgent {
 			// evaluer sa coalition
 			float sumUse = 0.0f;
 			int nbOther = 0;
-			if(this.submissed) {
+			if(this.submissed && this.coalition.getAllData().size()>1) {
 				for(DataAgent other : this.coalition.getOtherDataAgent(this)) {
 					sumUse += this.morphs.get(other.dataName).getUsefulness();
 					nbOther++;
@@ -220,12 +220,10 @@ public class DataAgent {
 			}
 			// met a jour l'objectif pour la coalition
 			this.maxUseful = -1.0f;
-			for(DataMorphAgent agent : this.morphActifs) {
+			for(DataMorphAgent agent : this.morphs.values()) {
 				if(this.inputInSituation.contains(agent.getInput()) && agent.getUsefulness()> this.maxUseful) {
 					this.maxUseful = agent.getUsefulness();
 					this.inputObj = agent.getInput();
-
-
 				}
 			}
 		}
@@ -303,6 +301,9 @@ public class DataAgent {
 	 * @return the usefulness for the data
 	 */
 	public float getUsefulnessForData(String asker) {
+		if(!this.morphs.containsKey(asker)) {
+			return 0.0f;
+		}
 		return this.morphs.get(asker).getUsefulness();
 	}
 
@@ -356,6 +357,9 @@ public class DataAgent {
 	}
 
 	public DataUnicityConstraint getDataUnicityConstraint() {
+		if(this.submissed) {
+			return this.coalition.getDataUnicityConstraint();
+		}
 		return this.dataConstraint;
 	}
 
@@ -417,11 +421,9 @@ public class DataAgent {
 
 	public Collection<? extends CompetitiveAgent> getAllMorphInCompet() {
 		List<DataMorphAgent> res = new ArrayList<>();
-		if(!submissed) {
 			for(String input : this.cav.getInputInSituation()) {
 				res.add(this.morphs.get(input));
 			}
-		}
 		return res;
 	}
 
@@ -450,6 +452,26 @@ public class DataAgent {
 
 	public Collection<? extends DataMorphAgent> getAllMorphs() {
 		return this.morphs.values();
+	}
+
+	public void setDataUnicityConstraint(DataUnicityConstraint dataConstraint2) {
+		this.dataConstraint = dataConstraint2;
+		System.gc();
+	}
+
+	public CoalitionAgent getCoalition() {
+		return this.coalition;
+	}
+
+	public void wonCompet(String input) {
+		this.inputObj = input;
+		if(this.submissed) {
+			this.coalition.wonCompet(input);
+		}
+	}
+
+	public void setInputObj(String input) {
+		this.inputObj = input;
 	}
 
 

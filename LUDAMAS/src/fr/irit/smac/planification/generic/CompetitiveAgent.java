@@ -1,5 +1,6 @@
 package fr.irit.smac.planification.generic;
 
+import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Offer;
 
 public interface CompetitiveAgent {
@@ -19,5 +20,7 @@ public interface CompetitiveAgent {
 	public float getValue();
 	
 	public String getCompetitiveName();
+
+	public void wonCompet(String string);
 
 }

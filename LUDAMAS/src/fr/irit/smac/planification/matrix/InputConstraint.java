@@ -111,6 +111,10 @@ public class InputConstraint {
 		this.offers.clear();
 		this.offers.add(new Offer(null, this, 0, 0, valueForFeedback));
 	}
+	
+	public String getInput() {
+		return this.input;
+	}
 
 
 

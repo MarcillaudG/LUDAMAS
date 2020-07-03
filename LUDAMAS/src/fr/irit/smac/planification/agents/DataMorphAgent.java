@@ -76,34 +76,6 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.neighbours = new ArrayList<>();
 	}
 
-	public DataMorphAgent(String dataName, String inputName) {
-		this.dataName = dataName;
-		this.inputName = inputName;
-		this.morphValue = 1.0f;
-		this.usefulness = 0.5f;
-		if(dataName.equals(inputName)) {
-			this.usefulness = 1.0f;
-		}
-		this.etendu = 1.0f;
-		this.historic = new TreeMap<>();
-		this.distribution = new TreeMap<>();
-	}
-
-	public DataMorphAgent(String dataName, String inputName, DataAgent agent, Matrix mat, float value) {
-		this.dataName = dataName;
-		this.inputName = inputName;
-		this.superiorAgent = agent;
-		//this.matrix = mat;
-		this.morphValue = 1.0f;
-		this.usefulness = value;
-		this.etendu = 1.0f;
-
-		this.name = inputName+":"+dataName;
-		this.historic = new TreeMap<>();
-		this.distribution = new TreeMap<>();
-		this.neighbours = new ArrayList<>();
-	}
-
 	public void perceive() {
 		this.value = null;
 		// voit sa valeur
@@ -286,17 +258,6 @@ public class DataMorphAgent implements CompetitiveAgent{
 		}
 	}
 
-	public static void main(String args[]) {
-		DataMorphAgent morphling = new DataMorphAgent("Data", "Input");
-		for(int i =0; i < 10; i++) {
-			morphling.addMorph(10.f*(i+1), 15.f*(i+1)+i*10);
-		}
-		morphling.value = 35.f;
-		//morphling.act();
-		morphling.linearRegression();
-		//System.out.println(morphling.morphValue);
-	}
-
 	public String getData() {
 		return this.dataName;
 	}
@@ -449,4 +410,9 @@ public class DataMorphAgent implements CompetitiveAgent{
 		return this.error;
 	}
 
+
+	@Override
+	public void wonCompet(String input) {
+		this.superiorAgent.wonCompet(input);
+	}
 }

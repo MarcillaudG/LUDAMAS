@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import fr.irit.smac.planification.generic.CompetitiveAgent;
+import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Offer;
 import fr.irit.smac.planification.system.CAV;
@@ -29,6 +30,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 	private List<DataAgent> datasActifs;
 
 	private InputConstraint inputConstraint;
+	
+	private DataUnicityConstraint dataConstraint;
 
 	private static final float SEUIL_REJECT = 0.2f;
 
@@ -46,15 +49,31 @@ public class CoalitionAgent implements CompetitiveAgent{
 		this.datas = new TreeMap<>();
 		this.datas.put(data1.getDataName(),data1);
 		this.datas.put(data2.getDataName(),data2);
+		this.dataConstraint = new DataUnicityConstraint(this.toString());
 
 		data1.bindToCoalition(this);
 		data2.bindToCoalition(this);
 
 		this.datasActifs = new ArrayList<>();
 	}
+	
+	public CoalitionAgent(int id, CAV cav, DataAgent data1) {
+		this.id = id;
+		this.cav = cav;
+		this.name = "COALITION: "+this.id;
+		this.datas = new TreeMap<>();
+		this.datas.put(data1.getDataName(),data1);
+
+		this.dataConstraint = new DataUnicityConstraint(this.toString());
+		data1.bindToCoalition(this);
+		
+
+		this.datasActifs = new ArrayList<>();
+	}
 
 	public void addData(DataAgent data) {
 		this.datas.put(data.getDataName(),data);
+		//data.setDataUnicityConstraint(this.dataConstraint);
 	}
 
 
@@ -108,14 +127,14 @@ public class CoalitionAgent implements CompetitiveAgent{
 		for(CoalitionAgent neighbour : this.cav.getOtherCoalitionAgent(this)) {
 			float meanUsefulness = 0.0f;
 			int nbData = 0;
-			if(neighbour.isInCompetitionWithMe(this.input)) {
+			//if(neighbour.isInCompetitionWithMe(this.input)) {
 				for(String data : neighbour.getAllData()) {
 					for(DataAgent agent : this.datas.values()) {
 						meanUsefulness += agent.getUsefulnessForData(data);
 						nbData++;
 					}
 				}
-			}
+			//}
 			meanUsefulness = meanUsefulness/nbData;
 			if(coal == null || meanUsefulness > maxMeanUsefulness) {
 				coal = neighbour;
@@ -162,6 +181,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 */
 	private boolean isInCompetitionWithMe(String input2) {
 		if(this.input == null) {
+			return false;
 		}
 		return this.input.equals(input2);
 	}
@@ -199,7 +219,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 	public void leave(DataAgent dataAgent) {
 		dataAgent.RemoveFromCoalition();
 		this.datas.remove(dataAgent.getDataName());
-		if(this.datas.size() < 2) {
+		if(this.datas.size() < 1) {
 			destroy();
 		}
 	}
@@ -341,6 +361,18 @@ public class CoalitionAgent implements CompetitiveAgent{
 	public void sendValue(Float weightedValue) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public DataUnicityConstraint getDataUnicityConstraint() {
+		return this.dataConstraint;
+	}
+
+	@Override
+	public void wonCompet(String input) {
+		this.input = input;
+		for(DataAgent agent : this.datas.values()) {
+			agent.setInputObj(input);
+		}
 	}
 
 
