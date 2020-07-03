@@ -122,4 +122,20 @@ public class Effector {
 		this.act();
 	}
 
+
+	public void cycleOracle() {
+		this.perceive();
+		for(String input : this.decisionProcess.get(this.currentSituation).getExtero()) {
+			this.decisionProcess.get(this.currentSituation).setValueOfInitInput(input, this.cav.getTrueValueForInput(input));
+		}
+		for(int i=0; i < this.cav.getCurrentSituation().getTime();i++) {
+			Result res = new Result(i, this.decisionProcess.get(this.currentSituation).computeMorph(effectorsBefore, i));
+			this.myPlaning.addRes(res);
+		}
+
+		this.cav.sendPlanning(this.name,this.myPlaning);
+	}
+	
+	
+
 }

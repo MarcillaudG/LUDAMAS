@@ -533,6 +533,15 @@ public class CAV {
 			it.next().cycle();
 		}
 	}
+	
+	private void planificationEffectorsOracle() {
+		List<Effector> effShuffle = new ArrayList<Effector>(this.effectors.values());
+		Collections.shuffle(effShuffle);
+		Iterator<Effector> it = effShuffle.iterator();
+		while(it.hasNext()) {
+			it.next().cycleOracle();
+		}
+	}
 
 	/**
 	 * Compute a planing with several information
@@ -613,23 +622,7 @@ public class CAV {
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
 			
-			// Set the input at the true value
-			for(String input : this.allInputs) {
-				this.inputConstraints.get(input).setTrueValue(this.environment.getValueForFeedbackWithName(input));
-			}
 			
-			// rerun the decision process
-			this.planificationEffectors();
-			
-			// Look at the real planing
-			Planing truePlaning = new Planing();
-			for(int i = 0 ; i < this.currentSituation.getTime();i++) {
-				float res = 0.0f;
-				for(String effect : this.planningSubProcess.keySet()) {
-					res += this.planningSubProcess.get(effect).getResAtTime(i).getValue();
-				}
-				truePlaning.addRes(new Result(this.getCurrentTime()+i, res));
-			}
 			
 			// TODO visu Difference
 			// TODO NB replaning
@@ -643,6 +636,19 @@ public class CAV {
 		}
 		
 		//True planning
+
+		// rerun the decision process
+		this.planificationEffectorsOracle();
+		
+		// Look at the real planing
+		Planing truePlaning = new Planing();
+		for(int i = 0 ; i < this.currentSituation.getTime();i++) {
+			float res = 0.0f;
+			for(String effect : this.planningSubProcess.keySet()) {
+				res += this.planningSubProcess.get(effect).getResAtTime(i).getValue();
+			}
+			truePlaning.addRes(new Result(i, res));
+		}
 		
 		learnFromSituation();
 		for(CoalitionAgent coal : this.allCoalitions) {
@@ -1076,6 +1082,10 @@ public class CAV {
 			}
 		}
 		return false;
+	}
+
+	public Float getTrueValueForInput(String input) {
+		return this.environment.getValueForFeedbackWithName(input);
 	}
 
 
