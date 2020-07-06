@@ -25,6 +25,7 @@ public class AgentDisplayChoice extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 
+		
 		/* DEBUT COMPOSANTS PARTIE SUPERIEURE */
 		primaryStage.setTitle("Data Display Choice");
 		Label labelTitle = new Label("AGENT TYPES");

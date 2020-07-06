@@ -25,12 +25,14 @@ public class ChartDisplay extends Application{
 		lineChart.setTitle("Graphique données");
 		Series<Number, Number> series = new XYChart.Series<>();
 		series.setName("Données TEST");
-		series.getData().add(new XYChart.Data<>(1, 20));
-		series.getData().add(new XYChart.Data<>(2, 15));
-		series.getData().add(new XYChart.Data<>(3, 25));
-		series.getData().add(new XYChart.Data<>(4, 5));
-		series.getData().add(new XYChart.Data<>(1000, 10));
+		series.getData().add(new XYChart.Data<>(30, 20));
+		series.getData().add(new XYChart.Data<>(20, 15));
+		series.getData().add(new XYChart.Data<>(45, 25));
+		series.getData().add(new XYChart.Data<>(50, 5));
+		series.getData().add(new XYChart.Data<>(100, 10));
 		lineChart.getData().add(series);
+//		xAxis.setAutoRanging(false);
+//		yAxis.setAutoRanging(false);
 		
 		VBox root = new VBox();
 		root.getChildren().add(lineChart);

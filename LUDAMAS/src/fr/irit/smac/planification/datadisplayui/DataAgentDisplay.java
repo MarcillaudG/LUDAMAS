@@ -29,6 +29,7 @@ import javafx.stage.Stage;
 public class DataAgentDisplay {
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
+	private GridPane grid;
 
 	public void buildWindow(int agentType) {
 
@@ -60,7 +61,7 @@ public class DataAgentDisplay {
 		personnes.add(personTest3);
 
 		/* CREATION DE LA MATRICE */
-		GridPane grid = new GridPane();
+		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 				null, new BorderWidths(0.5), null)));
@@ -125,49 +126,8 @@ public class DataAgentDisplay {
 		primaryStage.setScene(new Scene(scrollPane, 645, 500));
 		primaryStage.show();
 		
-		Thread taskThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				for(int i=0; i<15; i++) {
-					personnes.get(0).setAge(i);
-					System.out.println(i);
-					
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					
-					Platform.runLater(new Runnable() {
-			            @Override
-			            public void run() {
-			            	resetGrid(grid);
-//			            	System.out.println("removed");
-//			            	switch (agentType) {
-//			        		case 1:
-//			        			buildFirstLigneDataAgent(grid);
-//			        			buildLignesDataAgent(grid, personnes);
-//			        			break;
-//			        		case 2:
-//			        			buildFirstLigneDataMorphAgent(grid);
-//			        			buildLignesDataMorphAgent(grid, personnes);
-//			        			break;
-//			        		case 3:
-//			        			buildFirstLigneEffectorAgent(grid);
-//			        			buildLignesEffectorAgent(grid, personnes);
-//			        			break;
-//			        		default:
-//			        			System.out.println("Unknown agent type");
-//			        		}
-//			            	//root.getChildren().add(grid);
-//			            	System.out.println("added");
-			            }
-			       });
-				}
-			}
-			
-		});
-		taskThread.start();
+		/* TESTS DE MOFICIATION DU GRIDPANE */
+		modificationPeriodique(agentType, personnes, root);
 	}
 
 	private void buildCellule(VBox box) {
@@ -298,5 +258,57 @@ public class DataAgentDisplay {
 		while(grid.getRowConstraints().size() > 0){
 		    grid.getRowConstraints().remove(0);
 		}
+	}
+	
+	public void modificationPeriodique(int agentType, List<AgentPersonTest> personnes, VBox root) {
+		
+		Thread taskThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for(int i=0; i<10; i++) {
+					personnes.get(0).setAge(i);
+					System.out.println(i);
+					
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					
+					Platform.runLater(new Runnable() {
+			            @Override
+			            public void run() {
+			            	root.getChildren().remove(grid);
+			            	grid.setVisible(false);
+			            	GridPane newGrid = new GridPane();
+			        		newGrid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+			        				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
+			        				null, new BorderWidths(0.5), null)));
+			            	
+			            	switch (agentType) {
+			        		case 1:
+			        			buildFirstLigneDataAgent(newGrid);
+			        			buildLignesDataAgent(newGrid, personnes);
+			        			break;
+			        		case 2:
+			        			buildFirstLigneDataMorphAgent(newGrid);
+			        			buildLignesDataMorphAgent(newGrid, personnes);
+			        			break;
+			        		case 3:
+			        			buildFirstLigneEffectorAgent(newGrid);
+			        			buildLignesEffectorAgent(newGrid, personnes);
+			        			break;
+			        		default:
+			        			System.out.println("Unknown agent type");
+			        		}
+			            	root.getChildren().add(newGrid);
+			            	grid = newGrid;
+			            }
+			       });
+				}
+			}
+			
+		});
+		taskThread.start();
 	}
 }
