@@ -16,6 +16,7 @@ public class Planing {
 	private Map<String,String> exteroChosen;
 
 	private final float tolerance = 50.f;
+	
 
 	public Planing() {
 		plan = new ArrayList<Result>();
@@ -135,7 +136,9 @@ public class Planing {
 	}
 
 	public float isAlmostIdenticalToLast(Planing other) {
-		boolean res = true;
+		if(other == null) {
+			return 0.0f;
+		}
 		float diffCumulative = 0.0f;
 		for(int i =0; i < this.plan.size()-1 && i < other.size();i++) {
 			if(this.plan.get(i).getValue() != other.plan.get(i+1).getValue()) {

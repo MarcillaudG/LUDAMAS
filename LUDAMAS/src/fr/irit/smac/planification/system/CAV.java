@@ -160,7 +160,10 @@ public class CAV {
 	 */
 	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, String filePath) {
 		Date date = new Date(System.currentTimeMillis());
-		this.name = name+"->"+filePath+":"+date;
+		//this.name = name+"->"+filePath+":"+date;
+		String[] splitFile = filePath.split("\\\\");
+		System.out.println(splitFile[0]);
+		this.name = name+"->"+splitFile[splitFile.length-1]+":"+date;
 		this.currentTime = 0;
 		this.nbCopy = nbCopy;
 		this.nbVarEff = nbVarEff;
@@ -178,7 +181,7 @@ public class CAV {
 
 		initDatasetCoalition();
 	}
-	
+
 	/**
 	 * Constructor using a noised dataset and its not noised one
 	 * 
@@ -192,7 +195,9 @@ public class CAV {
 	 */
 	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, String filePath, String filePathNotNoised) {
 		Date date = new Date(System.currentTimeMillis());
-		this.name = name+"->"+filePath+":"+date;
+		//this.name = name+"->"+filePath+":"+date;
+		String[] splitFile = filePath.split("\\");
+		this.name = name+"->"+splitFile[splitFile.length-1]+":"+date;
 		this.currentTime = 0;
 		this.nbCopy = nbCopy;
 		this.nbVarEff = nbVarEff;
@@ -212,10 +217,10 @@ public class CAV {
 		}
 		this.dataPerceived = new TreeSet<String>();
 		//this.environment.getSubsetOfVariables(4);
-		
+
 
 		initDatasetCoalition();
-		
+
 	}
 
 
@@ -369,8 +374,9 @@ public class CAV {
 
 	private void initDatasetCoalition() {
 		System.out.println("Init");
-		
-		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+
+		this.links = new Links(this.name,false,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+		this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.deleteExperiment(name);
 
 		// Init the collections
@@ -536,7 +542,7 @@ public class CAV {
 			it.next().cycle();
 		}
 	}
-	
+
 	private void planificationEffectorsOracle() {
 		List<Effector> effShuffle = new ArrayList<Effector>(this.effectors.values());
 		Collections.shuffle(effShuffle);
@@ -603,8 +609,10 @@ public class CAV {
 		this.startSituation();
 		this.currentTime = 0;
 		boolean over = false;
+		this.lastPlaning = null;
 		Planing planingSituation = new Planing();
 		this.nbReplaning =0;
+		this.dataPerceivedInSituation.clear();
 		while(this.currentTime < this.currentSituation.getTime()) {
 
 			//Perception
@@ -626,24 +634,24 @@ public class CAV {
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
-			if(!this.myPlaning.isIdenticalToLast(lastPlaning)) {
+			if(!(this.myPlaning.isAlmostIdenticalToLast(lastPlaning) < 10.f)) {
 				nbReplaning++;
+				this.linksManagement(this.name+"IN SITU");
 			}
 			planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
-			
 
-			
+
 			//TODO historiques
 
 			this.currentTime++;
 
 		}
-		
+
 		//True planning
 
 		// rerun the decision process
 		this.planificationEffectorsOracle();
-		
+
 		// Look at the real planing
 		Planing truePlaning = new Planing();
 		for(int i = 0 ; i < this.currentSituation.getTime();i++) {
@@ -655,21 +663,24 @@ public class CAV {
 		}
 
 		// TODO visu Difference
-		System.out.println("MEAN difference --->> "+truePlaning.computeMeanDifference(planingSituation));
-		
+		//System.out.println("MEAN difference --->> "+truePlaning.computeMeanDifference(planingSituation));
+
 		// TODO NB replaning
-		System.out.println("NB Replanification --->> "+nbReplaning);
-		
+		//System.out.println("NB Replanification --->> "+nbReplaning);
+
 		// TODO Result final
-		System.out.println("Max diff --->> "+truePlaning.computeMaxDifference(planingSituation));
+		//System.out.println("Max diff --->> "+truePlaning.computeMaxDifference(planingSituation));
 		
+		System.out.println(planingSituation);
+		System.out.println(truePlaning);
+
 
 		LxPlot.getChart("NBReplan").add(cycle, this.nbReplaning);
 		LxPlot.getChart("MEANDiff").add(cycle,truePlaning.computeMeanDifference(planingSituation));
 		LxPlot.getChart("MAxDiff").add(cycle, truePlaning.computeMaxDifference(planingSituation));
-		
-		
-		
+
+
+
 		learnFromSituation();
 		for(CoalitionAgent coal : this.allCoalitions) {
 			coal.lookForOtherCoalition();
@@ -679,14 +690,14 @@ public class CAV {
 		}
 		this.coalitionsToRemove.clear();
 
-		this.linksManagement();
-		
-		
+		this.linksManagement(this.name);
+
+
 		//UI
 		//this.updateMatrix();
-		
+
 		//Links
-		
+
 
 		/*for(EffectorAgent eff : this.effectors.values()) {
 			eff.saveExperiment();
@@ -697,10 +708,10 @@ public class CAV {
 	/**
 	 * Manage links
 	 */
-	private void linksManagement() {
+	private void linksManagement(String xpName) {
 		Snapshot snap = new Snapshot();
-		
-		
+
+
 		for(String data : this.dataPerceivedInSituation) {
 			snap.addEntity(data, "DATAACTIVE");
 			snap.getEntity(data).addOneAttribute("Value", "Value", this.environment.getValueOfVariableWithName(data));
@@ -712,14 +723,14 @@ public class CAV {
 		}
 		List<String> dataInactive = new ArrayList<>(this.allDataAgents.keySet());
 		dataInactive.removeAll(this.dataPerceivedInSituation);
-		
+
 		for(String inact: dataInactive) {
 			snap.addEntity(inact,"DATAINACTIVE");
 			for(DataMorphAgent morph : this.allDataAgents.get(inact).getAllMorphs()) {
 				snap.getEntity(inact).addOneAttribute("USEFULNESS", morph.getInput(), morph.getUsefulness());
 			}
 		}
-		
+
 		for(CoalitionAgent coal : this.allCoalitions) {
 			snap.addEntity(coal.getName(), "COALITION");
 			for(String dataInCoal : coal.getAllData()) {
@@ -738,8 +749,8 @@ public class CAV {
 				i++;
 			}
 		}
-		this.links.addSnapshot(snap);
-		
+		this.links.addSnapshot(snap,xpName);
+
 	}
 
 	private void updateMatrix() {
@@ -756,15 +767,15 @@ public class CAV {
 			this.matrixTable = new MatrixUITable(this.matrix);
 			this.mainWindow.addMatrix(matrixTable);
 		}
-		
-		
+
+
 		this.matrixTable.updateUI();
 	}
 
 	private void learnFromSituation() {
 		for(DataAgent data : this.allDataAgents.values()) {
 			if(this.dataPerceivedInSituation.contains(data.getDataName()))
-			data.sendFeedBackToMorphs(true);
+				data.sendFeedBackToMorphs(true);
 		}
 	}
 
@@ -772,9 +783,9 @@ public class CAV {
 	 * Start the decision for the agent to apply for input
 	 */
 	private void chooseValuesForEffector() {
-		for(InputConstraint constr : this.inputConstraints.values()) {
+		/*for(InputConstraint constr : this.inputConstraints.values()) {
 			constr.restart();
-		}
+		}*/
 
 		this.competitiveActives.clear();
 		for(String s: this.allInputs) {
@@ -831,6 +842,7 @@ public class CAV {
 	 * Create new DataAgent
 	 */
 	private void senseData() {
+		List<String> lastDatas = new ArrayList<>(this.dataPerceivedInSituation);
 		this.dataPerceivedInSituation.clear();
 		this.dataPerceivedInSituation.addAll(this.currentSituation.getInformationAvailable(this.currentTime));
 		if(!this.allDataAgents.keySet().containsAll(this.dataPerceivedInSituation)) {
@@ -838,6 +850,12 @@ public class CAV {
 			missingData.removeAll(this.allDataAgents.keySet());
 			for(String missing : missingData) {
 				this.allDataAgents.put(missing,new DataAgent(this, missing, this.allInputs));
+			}
+		}
+		
+		if(!lastDatas.containsAll(this.dataPerceivedInSituation)) {
+			for(InputConstraint constr : this.inputConstraints.values()) {
+				constr.restart();
 			}
 		}
 	}
@@ -1009,7 +1027,7 @@ public class CAV {
 			this.allDataAgents.get(agent).cycle();
 		}
 	}
-	
+
 
 	/**
 	 * Remove the no longer useful coalition
@@ -1092,7 +1110,7 @@ public class CAV {
 	public Collection<? extends CoalitionAgent> getOtherCoalitionAgent(CoalitionAgent coal) {
 		List<CoalitionAgent> res = new ArrayList<>(this.allCoalitions);
 		res.remove(coal);
-		
+
 		return res;
 	}
 
