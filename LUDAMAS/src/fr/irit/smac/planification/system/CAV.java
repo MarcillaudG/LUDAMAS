@@ -19,6 +19,7 @@ import com.sun.scenario.effect.Effect;
 import fr.irit.smac.complex.ComposedFunction;
 import fr.irit.smac.core.Links;
 import fr.irit.smac.generator.ShieldUser;
+import fr.irit.smac.lxplot.LxPlot;
 import fr.irit.smac.model.Snapshot;
 import fr.irit.smac.planification.Objective;
 import fr.irit.smac.planification.Planing;
@@ -124,6 +125,8 @@ public class CAV {
 	private Links links;
 
 	private List<CoalitionAgent> coalitionsToRemove;
+
+	private float nbReplaning;
 
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
@@ -594,12 +597,14 @@ public class CAV {
 	/**
 	 * The global method use to pass a situation
 	 */
-	public void manageSituation() {
+	public void manageSituation(int cycle) {
 
 		//this.computeObjective();
 		this.startSituation();
 		this.currentTime = 0;
 		boolean over = false;
+		Planing planingSituation = new Planing();
+		this.nbReplaning =0;
 		while(this.currentTime < this.currentSituation.getTime()) {
 
 			//Perception
@@ -621,13 +626,12 @@ public class CAV {
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
+			if(!this.myPlaning.isIdenticalToLast(lastPlaning)) {
+				nbReplaning++;
+			}
+			planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
 			
-			
-			
-			// TODO visu Difference
-			// TODO NB replaning
-			// TODO Result final
-			
+
 			
 			//TODO historiques
 
@@ -649,6 +653,22 @@ public class CAV {
 			}
 			truePlaning.addRes(new Result(i, res));
 		}
+
+		// TODO visu Difference
+		System.out.println("MEAN difference --->> "+truePlaning.computeMeanDifference(planingSituation));
+		
+		// TODO NB replaning
+		System.out.println("NB Replanification --->> "+nbReplaning);
+		
+		// TODO Result final
+		System.out.println("Max diff --->> "+truePlaning.computeMaxDifference(planingSituation));
+		
+
+		LxPlot.getChart("NBReplan").add(cycle, this.nbReplaning);
+		LxPlot.getChart("MEANDiff").add(cycle,truePlaning.computeMeanDifference(planingSituation));
+		LxPlot.getChart("MAxDiff").add(cycle, truePlaning.computeMaxDifference(planingSituation));
+		
+		
 		
 		learnFromSituation();
 		for(CoalitionAgent coal : this.allCoalitions) {
@@ -660,6 +680,8 @@ public class CAV {
 		this.coalitionsToRemove.clear();
 
 		this.linksManagement();
+		
+		
 		//UI
 		//this.updateMatrix();
 		
@@ -917,7 +939,7 @@ public class CAV {
 		cav.planificationEffectors();*/
 		int i =0;
 		while(i < 1000) {
-			cav.manageSituation();
+			cav.manageSituation(i);
 			i++;
 			if(i!=0 && i % 50 == 0) {
 				try {
@@ -1087,7 +1109,6 @@ public class CAV {
 	public Float getTrueValueForInput(String input) {
 		return this.environment.getValueForFeedbackWithName(input);
 	}
-
 
 
 }

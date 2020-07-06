@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import fr.irit.smac.lxplot.LxPlot;
 import fr.irit.smac.planification.system.CAV;
 
 import javax.swing.JScrollPane;
@@ -92,12 +93,13 @@ public class VisuEffector extends JFrame {
 						int i =0;
 						while(i < 1000) {
 							System.out.println("CYCLE : "+i);
-							cav.manageSituation();
+							cav.manageSituation(i);
 							i++;
 							cav.generateNewValues(i);
 							pack();
 							panel.repaint();
 							contentPane.repaint();
+
 						}
 					}
 				};
@@ -111,7 +113,7 @@ public class VisuEffector extends JFrame {
 				cav.generateNewValues(i);
 				while(i < 1000) {
 					System.out.println("CYCLE : "+i);
-					cav.manageSituation();
+					cav.manageSituation(i);
 					i++;
 					cav.generateNewValues(i);
 					pack();

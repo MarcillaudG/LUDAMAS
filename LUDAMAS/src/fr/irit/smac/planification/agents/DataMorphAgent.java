@@ -47,6 +47,10 @@ public class DataMorphAgent implements CompetitiveAgent{
 	private List<CompetitiveAgent> neighbours;
 
 	private LinearRegression lr;
+	
+	private Float a;
+	
+	private Float b;
 
 	private final float sensibility = 5.f;
 	

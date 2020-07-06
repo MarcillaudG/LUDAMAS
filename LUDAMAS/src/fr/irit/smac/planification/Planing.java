@@ -110,6 +110,9 @@ public class Planing {
 	}
 
 	public boolean isIdenticalToLast(Planing other) {
+		if(other == null) {
+			return true;
+		}
 		boolean res = true;
 		for(int i =0; i < this.plan.size()-1 && i < other.size();i++) {
 			res = false;
@@ -161,5 +164,34 @@ public class Planing {
 	public boolean isUnderstandedInput(String in) {
 		return this.exteroChosen.get(in).equals(in);
 	}
+
+	/**
+	 * Compute the mean difference between two planing
+	 * @param planingSituation
+	 * @return
+	 */
+	public float computeMeanDifference(Planing other) {
+		float res = 0.0f;
+		for(Result result : this.plan) {
+			res += Math.abs(result.getValue() - other.getResAtTime(result.getStep()).getValue());
+		}
+		return res;
+	}
+
+	/**
+	 * Compute the max difference of two planing
+	 * @param planingSituation
+	 * @return
+	 */
+	public float computeMaxDifference(Planing other) {
+		float res = 0.0f;
+		for(Result result : this.plan) {
+			if(res < Math.abs(result.getValue() - other.getResAtTime(result.getStep()).getValue())) {
+				res = Math.abs(result.getValue() - other.getResAtTime(result.getStep()).getValue());
+			}
+		}
+		return res;
+	}
+
 
 }
