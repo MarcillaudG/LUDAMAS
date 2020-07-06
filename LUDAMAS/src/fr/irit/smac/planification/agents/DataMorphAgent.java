@@ -130,7 +130,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 	public void decide() {
 		// si valeur != null
 		if(this.value !=null) {
-			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentTime(),this.usefulness);
+			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentTime(),this.usefulness, this.morphValue);
 			if(!this.dataConstraint.hasMyOffer(this) && !this.inputConstraint.hasMyOffer(this)) {
 				if(this.dataConstraint.isOfferBetter(myOffer) && this.inputConstraint.isOfferBetter(myOffer)) {
 					this.dataConstraint.addOffer(myOffer);

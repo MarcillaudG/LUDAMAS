@@ -634,9 +634,15 @@ public class CAV {
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
-			if(!(this.myPlaning.isAlmostIdenticalToLast(lastPlaning) < 10.f)) {
+			boolean constraintHasChanged = false;
+			for(InputConstraint constr : this.inputConstraints.values()) {
+				if(constr.hasChanged()) {
+					constraintHasChanged = true;
+				}
+			}
+			if(constraintHasChanged) {
 				nbReplaning++;
-				this.linksManagement(this.name+"IN SITU");
+				//this.linksManagement(this.name+"IN SITU");
 			}
 			planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
 
@@ -680,11 +686,14 @@ public class CAV {
 		LxPlot.getChart("MAxDiff").add(cycle, truePlaning.computeMaxDifference(planingSituation));
 
 
-
+		// Gives feedback to agent
 		learnFromSituation();
+		
+		// Coalition seek to merge
 		for(CoalitionAgent coal : this.allCoalitions) {
 			coal.lookForOtherCoalition();
 		}
+		
 		for(CoalitionAgent coal: this.coalitionsToRemove) {
 			this.allCoalitions.remove(coal);
 		}
@@ -783,9 +792,9 @@ public class CAV {
 	 * Start the decision for the agent to apply for input
 	 */
 	private void chooseValuesForEffector() {
-		/*for(InputConstraint constr : this.inputConstraints.values()) {
-			constr.restart();
-		}*/
+		for(InputConstraint constr : this.inputConstraints.values()) {
+			constr.newCycleOffer();;
+		}
 
 		this.competitiveActives.clear();
 		for(String s: this.allInputs) {
@@ -853,11 +862,11 @@ public class CAV {
 			}
 		}
 		
-		if(!lastDatas.containsAll(this.dataPerceivedInSituation)) {
+		/*if(!lastDatas.containsAll(this.dataPerceivedInSituation)) {
 			for(InputConstraint constr : this.inputConstraints.values()) {
 				constr.restart();
 			}
-		}
+		}*/
 	}
 
 

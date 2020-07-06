@@ -88,7 +88,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 			meanSum = meanSum / sumUseful;
 			this.inputConstraint = this.cav.getInputConstraint(this.input);
 			this.proposition = meanSum;
-			Offer myOffer = new Offer(this, inputConstraint, this.cav.getCurrentTime(), maxUseful+ADVANTAGE);
+			Offer myOffer = new Offer(this, inputConstraint, this.cav.getCurrentTime(), maxUseful+ADVANTAGE,this.proposition);
 			this.sendOffer(myOffer);
 			//this.inputConstraint.addOffer(new Offer(this, inputConstraint, this.cav.getCurrentStep(), maxUseful+ADVANTAGE));
 		}

@@ -15,6 +15,8 @@ public class InputConstraint {
 	private String input;
 
 	private List<Offer> offers;
+	
+	private boolean offerChanged;
 
 	/*public InputConstraint(EffectorAgent eff, String input) {
 		this.eff = eff;
@@ -59,6 +61,7 @@ public class InputConstraint {
 
 	public void addOffer(Offer offer) {
 		this.offers.add(offer);
+		this.offerChanged = true;
 	}
 
 	public void startCycle() {
@@ -105,6 +108,7 @@ public class InputConstraint {
 
 	public void restart() {
 		this.offers.clear();
+		this.offerChanged = false;
 	}
 
 	public void setTrueValue(Float valueForFeedback) {
@@ -112,6 +116,13 @@ public class InputConstraint {
 		this.offers.add(new Offer(null, this, 0, 0, valueForFeedback));
 	}
 
+	public void newCycleOffer() {
+		this.offerChanged = false;
+	}
+	
+	public boolean hasChanged() {
+		return this.offerChanged;
+	}
 
 
 }
