@@ -525,6 +525,11 @@ public class CAV {
 		for(Effector eff: this.effectors.values()) {
 			eff.initSituation();
 		}
+		
+
+		for(InputConstraint constr : this.inputConstraints.values()) {
+			constr.restart();
+		}
 	}
 
 	private void computeObjective() {
@@ -613,6 +618,8 @@ public class CAV {
 		Planing planingSituation = new Planing();
 		this.nbReplaning =0;
 		this.dataPerceivedInSituation.clear();
+		
+
 		while(this.currentTime < this.currentSituation.getTime()) {
 
 			//Perception
@@ -752,8 +759,10 @@ public class CAV {
 			int i = 0;
 			for(String inpu : eff.getDecisionProcess(this.currentSituation).getExtero()) {
 				snap.getEntity(eff.getName()).addOneAttribute("INPUTS", "input"+i, inpu);
+				snap.getEntity(eff.getName()).addOneAttribute("ValueOFInput", inpu, this.getTrueValueForInput(inpu));
 				String nameData = this.inputConstraints.get(inpu).getOffers().get(0).getAgent().getCompetitiveName();
 				snap.addRelation(nameData, eff.getName(), nameData + "used for "+ inpu, true, "USED");
+				snap.getRelation(nameData + "used for "+ inpu).addOneAttribute("ValueSend", "ValueSend", this.getValueForInput(inpu));
 				//snap.getRelation(nameData + "used for "+ inpu).addOneAttribute("Value", this.inputConstraints.get(inpu).getOffers().get(0).);
 				i++;
 			}
@@ -793,7 +802,7 @@ public class CAV {
 	 */
 	private void chooseValuesForEffector() {
 		for(InputConstraint constr : this.inputConstraints.values()) {
-			constr.newCycleOffer();;
+			constr.newCycleOffer();
 		}
 
 		this.competitiveActives.clear();
@@ -861,6 +870,7 @@ public class CAV {
 				this.allDataAgents.put(missing,new DataAgent(this, missing, this.allInputs));
 			}
 		}
+		
 		
 		/*if(!lastDatas.containsAll(this.dataPerceivedInSituation)) {
 			for(InputConstraint constr : this.inputConstraints.values()) {
