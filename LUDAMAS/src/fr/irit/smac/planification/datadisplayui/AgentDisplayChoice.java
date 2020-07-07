@@ -52,9 +52,9 @@ public class AgentDisplayChoice {
 		agentTypeThree.setOnAction(new OpenEffectorDisplayHandler());
 
 		Button agentTypeFour = new Button();
-		agentTypeFour.setText("AGENT TYPE 4");
+		agentTypeFour.setText("Chart Display");
 		agentTypeFour.setPrefSize(120, 70);
-		agentTypeFour.setOnAction(new CloseButtonHandler());
+		agentTypeFour.setOnAction(new OpenChartDisplayHandler());
 
 		/* CONFIGURATION SCENE GRAPHS */
 		GridPane grid = new GridPane();

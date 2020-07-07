@@ -261,7 +261,6 @@ public class DataAgentDisplay {
 			public void run() {
 				for(int i=0; i<10; i++) {
 					personnes.get(0).setAge(i);
-					System.out.println(i);
 					
 					try {
 						Thread.sleep(1000);

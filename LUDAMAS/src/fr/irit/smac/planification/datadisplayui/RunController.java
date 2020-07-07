@@ -65,6 +65,12 @@ public class RunController implements EventHandler<ActionEvent> {
 			listeVariables.add(variable3);
 			variables.add(listeVariables);
 		}
+		try {
+			Thread.sleep(4000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		oracleDisplay.launchView(3, oracles, oracles, variables, variables);
 	}
 

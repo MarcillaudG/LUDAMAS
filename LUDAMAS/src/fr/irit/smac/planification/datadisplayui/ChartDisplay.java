@@ -2,7 +2,6 @@ package fr.irit.smac.planification.datadisplayui;
 
 import java.util.Random;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
@@ -13,9 +12,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class ChartDisplay {
-
 	
-	public void start(Stage primaryStage) {
+	private Stage primaryStage;
+
+	public ChartDisplay() {
+		primaryStage = new Stage();
+		start();
+	}
+	
+	public void start() {
 		primaryStage.setTitle("Affichage graphique");
 		
 		NumberAxis xAxis = new NumberAxis();
