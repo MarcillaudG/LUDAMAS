@@ -210,4 +210,5 @@ public class AVTAgent {
 	public float getValue() {
 		return this.weightedValue;
 	}
+
 }

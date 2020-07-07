@@ -525,7 +525,7 @@ public class CAV {
 		for(Effector eff: this.effectors.values()) {
 			eff.initSituation();
 		}
-		
+
 
 		for(InputConstraint constr : this.inputConstraints.values()) {
 			constr.restart();
@@ -618,10 +618,10 @@ public class CAV {
 		Planing planingSituation = new Planing();
 		this.nbReplaning =0;
 		this.dataPerceivedInSituation.clear();
-		
+
 		//System.out.println("START");
 		while(this.currentTime < this.currentSituation.getTime()) {
-		
+
 
 			//System.out.println("PERCE");
 			//Perception
@@ -649,7 +649,7 @@ public class CAV {
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
-			
+
 
 			//System.out.println("HASCHANGED");
 			boolean constraintHasChanged = false;
@@ -699,7 +699,7 @@ public class CAV {
 
 		// TODO Result final
 		//System.out.println("Max diff --->> "+truePlaning.computeMaxDifference(planingSituation));
-		
+
 		//System.out.println(planingSituation);
 		//System.out.println(truePlaning);
 
@@ -713,21 +713,18 @@ public class CAV {
 		//System.out.println("LEARNING");
 		// Gives feedback to agent
 		learnFromSituation();
-		
+
 
 		//System.out.println("COAL MERGE");
 		// Coalition seek to merge
 		for(CoalitionAgent coal : this.allCoalitions) {
 			coal.lookForOtherCoalition();
 		}
-		
+
 		for(CoalitionAgent coal: this.coalitionsToRemove) {
 			this.allCoalitions.remove(coal);
 		}
 		this.coalitionsToRemove.clear();
-
-
-		System.out.println("LINKS");
 		this.linksManagement(this.name);
 
 
@@ -814,10 +811,21 @@ public class CAV {
 		this.matrixTable.updateUI();
 	}
 
+	/**
+	 * Gives the feedback to agents
+	 */
 	private void learnFromSituation() {
+		// Learn how to morph into each other
 		for(DataAgent data : this.allDataAgents.values()) {
 			if(this.dataPerceivedInSituation.contains(data.getDataName()))
 				data.sendFeedBackToMorphs(true);
+		}
+		
+		// learn how to trust each other
+		for(String input : this.getInputInSituation()) {
+			if(this.inputConstraints.get(input).getOffers().get(0).getAgent() instanceof CoalitionAgent) {
+				((CoalitionAgent)this.inputConstraints.get(input).getOffers().get(0).getAgent()).sendFeedbackToAVT(this.getTrueValueForInput(input));
+			}
 		}
 	}
 
@@ -875,7 +883,7 @@ public class CAV {
 		for(CompetitiveAgent compet : allCompets) {
 			compet.prepareToNegociate();
 		}
-		
+
 		while(!satisfied) {
 			for(CompetitiveAgent compet : allCompets) {
 				compet.cycleOffer();
@@ -925,8 +933,8 @@ public class CAV {
 				this.allDataAgents.put(missing,new DataAgent(this, missing, this.allInputs));
 			}
 		}
-		
-		
+
+
 		/*if(!lastDatas.containsAll(this.dataPerceivedInSituation)) {
 			for(InputConstraint constr : this.inputConstraints.values()) {
 				constr.restart();

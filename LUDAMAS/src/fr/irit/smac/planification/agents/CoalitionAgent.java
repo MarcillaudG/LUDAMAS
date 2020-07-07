@@ -227,6 +227,9 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 * 		the dataAgent to remove
 	 */
 	public void leave(DataAgent dataAgent) {
+		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(this)) {
+			this.inputConstraint.removeOffer(this);
+		}
 		dataAgent.RemoveFromCoalition();
 		this.datas.remove(dataAgent.getDataName());
 		if(this.datas.size() < 2) {
@@ -387,6 +390,26 @@ public class CoalitionAgent implements CompetitiveAgent{
 	public void prepareToNegociate() {
 		this.input = null;
 		this.inputConstraint = null;
+	}
+
+	/**
+	 * Send the feedback to the avts
+	 * 
+	 * @param trueValueForInput
+	 * @param input
+	 */
+	public void sendFeedbackToAVT(Float trueValueForInput) {
+		int feed = 0;
+		if(trueValueForInput > this.proposition) {
+			feed = -1;
+		}
+		if(trueValueForInput < this.proposition) {
+			feed = 1;
+		}
+		for(DataAgent data : this.datasActifs) {
+			this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
+		}
+		
 	}
 
 
