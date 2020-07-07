@@ -10,7 +10,6 @@ import fr.irit.smac.planification.system.CAV;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
@@ -21,10 +20,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class OracleComparaisonDisplay extends Application{
+public class OracleComparaisonDisplay {
 	
+	private Stage primaryStage;
 	private GridPane gridOracles;
 	private GridPane gridResultats;
+	private CAV cav;
 	
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
@@ -55,9 +56,13 @@ public class OracleComparaisonDisplay extends Application{
 		/* FIN TESTS */
 	}
 	
+	public OracleComparaisonDisplay(CAV cav) {
+		this.cav = cav;
+		this.primaryStage = new Stage();
+		initFrame();
+	}
 	
-	@Override
-	public void start(Stage primaryStage) {
+	public void initFrame() {
 		primaryStage.setTitle("Comparaison oracles");
 		
 		
@@ -73,18 +78,11 @@ public class OracleComparaisonDisplay extends Application{
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 				null, new BorderWidths(0.5), null)));
 		gridResultats.setPadding(new Insets(20, 20, 20, 20));
-		
-		Button startButton = new Button();
-		startButton.setText("RUN");
-		startButton.setPrefSize(70, 30);
-		startButton.setStyle(BOLDSTYLE);
-		startButton.setOnAction(new StartRunHandler());
 
-		
+
 		root.setPadding(new Insets(10, 0, 0, 0));
 		root.getChildren().add(gridOracles);
 		root.getChildren().add(gridResultats);
-		root.getChildren().add(startButton);
 		primaryStage.setScene(new Scene(root, 400, 450));
 		primaryStage.show();
 		
@@ -136,6 +134,10 @@ public class OracleComparaisonDisplay extends Application{
 		}
 	}
 	
+	public void initGrids() {
+		
+	}
+	
 	public void launchView(int nbCars, List<Float> oracles, List<Float> resultats, List<List<String>> variablesOracles, List<List<String>> variablesResultats) {
 		Thread taskThread = new Thread(new Runnable() {
 			@Override
@@ -176,5 +178,9 @@ public class OracleComparaisonDisplay extends Application{
 		label.setPrefSize(75, 40);
 		label.setBorder(new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 							BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
+	}
+	
+	public CAV getCav() {
+		return cav;
 	}
 }

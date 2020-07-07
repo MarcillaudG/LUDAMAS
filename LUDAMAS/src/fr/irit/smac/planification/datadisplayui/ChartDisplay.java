@@ -12,8 +12,9 @@ import javafx.scene.chart.XYChart.Series;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class ChartDisplay extends Application{
-	@Override
+public class ChartDisplay {
+
+	
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("Affichage graphique");
 		
@@ -31,8 +32,6 @@ public class ChartDisplay extends Application{
 		series.getData().add(new XYChart.Data<>(50, 5));
 		series.getData().add(new XYChart.Data<>(100, 10));
 		lineChart.getData().add(series);
-//		xAxis.setAutoRanging(false);
-//		yAxis.setAutoRanging(false);
 		
 		VBox root = new VBox();
 		root.getChildren().add(lineChart);
@@ -69,7 +68,4 @@ public class ChartDisplay extends Application{
 		taskThread.start();
 	}
 	
-	public static void main(String[] args) {
-		Application.launch(args);
-	}
 }

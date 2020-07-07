@@ -254,12 +254,6 @@ public class DataAgentDisplay {
 	}
 	
 	
-	public void resetGrid(GridPane grid) {
-		while(grid.getRowConstraints().size() > 0){
-		    grid.getRowConstraints().remove(0);
-		}
-	}
-	
 	public void modificationPeriodique(int agentType, List<AgentPersonTest> personnes, VBox root) {
 		
 		Thread taskThread = new Thread(new Runnable() {

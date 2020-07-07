@@ -1,6 +1,6 @@
 package fr.irit.smac.planification.datadisplayui;
 
-import javafx.application.Application;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,12 +17,15 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
-public class AgentDisplayChoice extends Application {
-	public static void main(String[] args) {
-		Application.launch(args);
-	}
+public class AgentDisplayChoice {
+	
+	private Stage primaryStage;
 
-	@Override
+	public AgentDisplayChoice() {
+		primaryStage = new Stage();
+		start(primaryStage);
+	}
+	
 	public void start(Stage primaryStage) {
 
 		
