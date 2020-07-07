@@ -238,6 +238,9 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 * Put all the reference to null
 	 */
 	private void destroy() {
+		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(this)) {
+			this.inputConstraint.removeOffer(this);
+		}
 		for(String s : this.datas.keySet()) {
 			this.datas.get(s).coalitionDestroyed();
 		}
