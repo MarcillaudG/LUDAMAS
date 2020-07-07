@@ -1,8 +1,6 @@
 package fr.irit.smac.planification.datadisplayui;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import fr.irit.smac.planification.system.CAV;
 import javafx.event.ActionEvent;
@@ -37,7 +35,7 @@ public class RunController implements EventHandler<ActionEvent> {
 		this.cav = new CAV("cavtest", 1, 1, 3, 3, filePath);
 		OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cav);
 		new AgentDisplayChoice();
-		
+
 		Thread taskThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -48,30 +46,13 @@ public class RunController implements EventHandler<ActionEvent> {
 			}
 		});
 		taskThread.start();
-		List<Float> oracles = new ArrayList<>();
-		oracles.add(20.0F);
-		oracles.add(1.0F);
-		oracles.add(55.3F);
-		oracles.add(25.1F);
-		oracles.add(0.0F);
-		String variable1 = "var1";
-		String variable2 = "var2";
-		String variable3 = "var3";
-		List<List<String>> variables = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			List<String> listeVariables = new ArrayList<>();
-			listeVariables.add(variable1);
-			listeVariables.add(variable2);
-			listeVariables.add(variable3);
-			variables.add(listeVariables);
-		}
+
 		try {
-			Thread.sleep(4000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		oracleDisplay.launchView(3, oracles, oracles, variables, variables);
+		oracleDisplay.launchView();
 	}
 
 	public void setCav(CAV cav) {

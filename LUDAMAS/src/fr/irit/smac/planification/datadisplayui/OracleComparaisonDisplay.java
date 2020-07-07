@@ -6,8 +6,9 @@ import javafx.geometry.Pos;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.irit.smac.planification.Planing;
+import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.system.CAV;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -26,35 +27,11 @@ public class OracleComparaisonDisplay {
 	private GridPane gridOracles;
 	private GridPane gridResultats;
 	private CAV cav;
+	private VBox root;
 	
+	/* CONSTANTES */
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
-	
-	public static void main(String[] args) {
-		Application.launch(args);
-		
-		/* DEBUT TESTS */
-		List<Float> oracles = new ArrayList<>();
-		oracles.add(20.0F);
-		oracles.add(1.0F);
-		oracles.add(55.3F);
-		oracles.add(25.1F);
-		oracles.add(0.0F);
-		String variable1 = "var1";
-		String variable2 = "var2";
-		String variable3 = "var3";
-		List<List<String>> variables = new ArrayList<>();
-		for(int i=0; i<5; i++) {
-			List<String> listeVariables = new ArrayList<>();
-			listeVariables.add(variable1);
-			listeVariables.add(variable2);
-			listeVariables.add(variable3);
-			variables.add(listeVariables);
-		}
-
-		//launchView(5, oracles, oracles, variables, variables);
-		/* FIN TESTS */
-	}
 	
 	public OracleComparaisonDisplay(CAV cav) {
 		this.cav = cav;
@@ -63,23 +40,10 @@ public class OracleComparaisonDisplay {
 	}
 	
 	public void initFrame() {
+		
 		primaryStage.setTitle("Comparaison oracles");
-		
-		
-		VBox root = new VBox();
-		gridOracles = new GridPane();
-		gridOracles.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
-				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
-				null, new BorderWidths(0.5), null)));
-		gridOracles.setPadding(new Insets(20, 20, 20, 20));
-		
-		gridResultats = new GridPane();
-		gridResultats.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
-				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
-				null, new BorderWidths(0.5), null)));
-		gridResultats.setPadding(new Insets(20, 20, 20, 20));
-
-
+		root = new VBox();
+		initGrids();
 		root.setPadding(new Insets(10, 0, 0, 0));
 		root.getChildren().add(gridOracles);
 		root.getChildren().add(gridResultats);
@@ -87,8 +51,26 @@ public class OracleComparaisonDisplay {
 		primaryStage.show();
 		
 	}
+	
+	private void initGrids() {
+		
+		GridPane newGridOracles = new GridPane();
+		newGridOracles.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
+				null, new BorderWidths(0.5), null)));
+		newGridOracles.setPadding(new Insets(20, 20, 20, 20));
+		
+		GridPane newGridResultats = new GridPane();
+		newGridResultats.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
+				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
+				null, new BorderWidths(0.5), null)));
+		newGridResultats.setPadding(new Insets(20, 20, 20, 20));
+		
+		gridOracles = newGridOracles;
+		gridResultats = newGridResultats;
+	}
 
-	public void buildFirstLigne(int nbCars, int gridType) {
+	private void buildFirstLigne(int nbCars, int gridType) {
 		for(int i=1; i<=nbCars; i++) {
 			Label labelNumero = new Label(String.valueOf(i));
 			buildBoldLabel(labelNumero);
@@ -100,7 +82,7 @@ public class OracleComparaisonDisplay {
 		}
 	}
 	
-	public void buildLigneUn(List<Float> oracles, int gridType) {
+	private void buildLigneUn(List<Float> oracles, int gridType) {
 		for(int i=0; i<oracles.size(); i++) {
 			float oracle = oracles.get(i);
 			VBox vbox = new VBox();
@@ -115,7 +97,7 @@ public class OracleComparaisonDisplay {
 		}
 	}
 	
-	public void buildLigneVariables(List<List<String>> variables, int gridType) {
+	private void buildLigneVariables(List<List<String>> variables, int gridType) {
 		for(int i=0; i<variables.size(); i++) {
 			List<String> listeVariables = variables.get(i);
 			VBox cellule = new VBox();
@@ -134,33 +116,6 @@ public class OracleComparaisonDisplay {
 		}
 	}
 	
-	public void initGrids() {
-		
-	}
-	
-	public void launchView(int nbCars, List<Float> oracles, List<Float> resultats, List<List<String>> variablesOracles, List<List<String>> variablesResultats) {
-		Thread taskThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						buildFirstLigne(nbCars, 0);
-						buildLigneUn(oracles, 0);
-						buildLigneVariables(variablesOracles, 0);
-						
-						buildFirstLigne(nbCars, 1);
-						buildLigneUn(resultats, 1);
-						buildLigneVariables(variablesResultats, 1);
-					}
-				});
-			}
-		});
-		
-		taskThread.start();
-	}
-
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(75, 40);
@@ -180,7 +135,51 @@ public class OracleComparaisonDisplay {
 							BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
 	
-	public CAV getCav() {
-		return cav;
+	public void launchView() {
+		
+		Thread taskThread = new Thread(new Runnable () {
+			
+			@Override
+			public void run() {
+				for(int i=0; i<10; i++) {
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							/* Destruction des tableaux actuel */
+							root.getChildren().remove(gridOracles);
+							root.getChildren().remove(gridResultats);
+							gridOracles.setVisible(false);
+							gridResultats.setVisible(false);
+							
+							
+							/* récupération des données oracle */
+							Planing resultsPlaning = cav.getMyPlaning();
+							List<Result> results = resultsPlaning.getPlan();
+							int nbResults = results.size();
+							List<Float> resultsFloat = new ArrayList<>();
+							for(Result res : results) {
+								resultsFloat.add(res.getValue());
+							}
+								
+							initGrids();
+							buildFirstLigne(nbResults, 0);
+							buildLigneUn(resultsFloat, 0);
+							buildFirstLigne(nbResults, 1);
+							buildLigneUn(resultsFloat, 1);
+							
+							root.getChildren().add(gridOracles);
+							root.getChildren().add(gridResultats);
+						}
+					});
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		taskThread.start();
 	}
+
 }
