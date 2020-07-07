@@ -619,18 +619,26 @@ public class CAV {
 		this.nbReplaning =0;
 		this.dataPerceivedInSituation.clear();
 		
-
+		//System.out.println("START");
 		while(this.currentTime < this.currentSituation.getTime()) {
+		
 
+			//System.out.println("PERCE");
 			//Perception
 			this.senseData();
 
+
+			//System.out.println("ValuesEffect");
 			// agents cycle
 			this.chooseValuesForEffector();
 
+
+			//System.out.println("planif");
 			// planification
 			this.planificationEffectors();
 
+
+			//System.out.println("MA PLANIF");
 			//Ma planification
 			this.lastPlaning = this.myPlaning;
 			this.myPlaning = new Planing();
@@ -641,6 +649,9 @@ public class CAV {
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
+			
+
+			//System.out.println("HASCHANGED");
 			boolean constraintHasChanged = false;
 			for(InputConstraint constr : this.inputConstraints.values()) {
 				if(constr.hasChanged()) {
@@ -653,6 +664,7 @@ public class CAV {
 			}
 			planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
 
+			//System.out.println("END STEP");
 
 			//TODO historiques
 
@@ -662,9 +674,13 @@ public class CAV {
 
 		//True planning
 
+
+		//System.out.println("ORACLE");
 		// rerun the decision process
 		this.planificationEffectorsOracle();
 
+
+		//System.out.println("REAL PLANING");
 		// Look at the real planing
 		Planing truePlaning = new Planing();
 		for(int i = 0 ; i < this.currentSituation.getTime();i++) {
@@ -684,8 +700,8 @@ public class CAV {
 		// TODO Result final
 		//System.out.println("Max diff --->> "+truePlaning.computeMaxDifference(planingSituation));
 		
-		System.out.println(planingSituation);
-		System.out.println(truePlaning);
+		//System.out.println(planingSituation);
+		//System.out.println(truePlaning);
 
 
 		LxPlot.getChart("NBReplan").add(cycle, this.nbReplaning);
@@ -693,9 +709,13 @@ public class CAV {
 		LxPlot.getChart("MAxDiff").add(cycle, truePlaning.computeMaxDifference(planingSituation));
 
 
+
+		//System.out.println("LEARNING");
 		// Gives feedback to agent
 		learnFromSituation();
 		
+
+		//System.out.println("COAL MERGE");
 		// Coalition seek to merge
 		for(CoalitionAgent coal : this.allCoalitions) {
 			coal.lookForOtherCoalition();
@@ -706,8 +726,12 @@ public class CAV {
 		}
 		this.coalitionsToRemove.clear();
 
+
+		System.out.println("LINKS");
 		this.linksManagement(this.name);
 
+
+		System.out.println("END CYCLE");
 
 		//UI
 		//this.updateMatrix();
@@ -759,10 +783,10 @@ public class CAV {
 			int i = 0;
 			for(String inpu : eff.getDecisionProcess(this.currentSituation).getExtero()) {
 				snap.getEntity(eff.getName()).addOneAttribute("INPUTS", "input"+i, inpu);
-				snap.getEntity(eff.getName()).addOneAttribute("ValueOFInput", inpu, this.getTrueValueForInput(inpu));
+				//snap.getEntity(eff.getName()).addOneAttribute("ValueOFInput", inpu, this.getTrueValueForInput(inpu));
 				String nameData = this.inputConstraints.get(inpu).getOffers().get(0).getAgent().getCompetitiveName();
 				snap.addRelation(nameData, eff.getName(), nameData + "used for "+ inpu, true, "USED");
-				snap.getRelation(nameData + "used for "+ inpu).addOneAttribute("ValueSend", "ValueSend", this.getValueForInput(inpu));
+				//snap.getRelation(nameData + "used for "+ inpu).addOneAttribute("ValueSend", "ValueSend", this.getValueForInput(inpu));
 				//snap.getRelation(nameData + "used for "+ inpu).addOneAttribute("Value", this.inputConstraints.get(inpu).getOffers().get(0).);
 				i++;
 			}
@@ -801,6 +825,8 @@ public class CAV {
 	 * Start the decision for the agent to apply for input
 	 */
 	private void chooseValuesForEffector() {
+
+		//System.out.println("DEBUT CHOOSE");
 		for(InputConstraint constr : this.inputConstraints.values()) {
 			constr.newCycleOffer();
 		}
@@ -813,11 +839,15 @@ public class CAV {
 		List<String> dataAgentsActives = new ArrayList<>(this.dataPerceivedInSituation);
 		Collections.shuffle(dataAgentsActives);
 
+
+		//System.out.println("DATAAGENT CYCLE --->> "+dataAgentsActives);
 		// management of coalition
 		for(String ag : dataAgentsActives) {
 			this.allDataAgents.get(ag).cycle();
 		}
 
+
+		//System.out.println("ADD ALL COMPETS");
 		// put all conpetitive agent together
 		List<CompetitiveAgent> allCompets = new ArrayList<>(this.allCoalitions);
 		for(String ag : dataAgentsActives) {
@@ -829,6 +859,8 @@ public class CAV {
 		}
 		boolean satisfied = false;
 
+
+		//System.out.println("CONSTRAINT TO LOOK AT --->>> "+ allCompets);
 		// look which constraint are to look at
 		List<InputConstraint> inputConstrActive = new ArrayList<>();
 		for(String input : this.getInputInSituation()) {
@@ -836,7 +868,14 @@ public class CAV {
 		}
 
 
+
+		//System.out.println("RESOLUTION --->>> "+inputConstrActive);
 		// choose the competitive agent for an input
+		int i = 0;
+		for(CompetitiveAgent compet : allCompets) {
+			compet.prepareToNegociate();
+		}
+		
 		while(!satisfied) {
 			for(CompetitiveAgent compet : allCompets) {
 				compet.cycleOffer();
@@ -850,6 +889,22 @@ public class CAV {
 			for(String data: dataAgentsActives) {
 				if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
 					satisfied = false;
+				}
+			}
+			i++;
+			if(i > 20) {
+				for(InputConstraint constr : inputConstrActive) {
+					if(!constr.isSatisfied()) {
+						System.out.println(constr + " offers : "+constr.getOffers());
+					}
+				}
+			}
+			if(i > 30) {
+				try {
+					Thread.sleep(200000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}

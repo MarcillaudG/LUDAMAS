@@ -307,9 +307,11 @@ public class DataAgent {
 	}
 
 	public void mergeToCoalition(CoalitionAgent coalition2) {
-		this.coalition = coalition2;
+		//this.coalition = coalition2;
+		
 		coalition2.addData(this);
-		this.submissed = true;
+		//this.submissed = true;
+		this.bindToCoalition(coalition2);
 	}
 
 	@Override
@@ -444,6 +446,9 @@ public class DataAgent {
 	}
 
 	public void bindToCoalition(CoalitionAgent coalitionAgent) {
+		for(DataMorphAgent morph : this.morphs.values()) {
+			morph.clearOffer();
+		}
 		this.coalition = coalitionAgent;
 		this.submissed = true;
 	}

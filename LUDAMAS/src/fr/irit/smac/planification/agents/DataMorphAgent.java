@@ -315,6 +315,11 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.decide();
 		this.act();
 	}
+	
+	@Override
+	public void prepareToNegociate() {
+		this.inputConstraint = null;
+	}
 
 	@Override
 	public String toString() {
@@ -451,6 +456,15 @@ public class DataMorphAgent implements CompetitiveAgent{
 	
 	public float getError() {
 		return this.error;
+	}
+
+	public void clearOffer() {
+		if(this.dataConstraint != null && this.dataConstraint.hasMyOffer(this)) {
+			this.dataConstraint.removeOffer(this);
+		}
+		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(this)) {
+			this.inputConstraint.removeOffer(this);
+		}
 	}
 
 }

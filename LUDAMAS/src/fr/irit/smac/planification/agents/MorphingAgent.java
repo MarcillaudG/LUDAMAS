@@ -525,6 +525,10 @@ public class MorphingAgent implements CompetitiveAgent{
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public void prepareToNegociate() {
+		this.inputConstraint = null;
+	}
 
 	@Override
 	public boolean isAvailable() {

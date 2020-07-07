@@ -82,7 +82,7 @@ public class AVTAgent {
 	}
 
 	private void act() {
-		this.coalition.sendValue(this.weightedValue);
+		this.coalition.sendValueFromAVTAgent(this.weightedValue,this.dataAgent.getDataName());
 	}
 	
 	/**
@@ -205,5 +205,9 @@ public class AVTAgent {
 		
 			
 		this.indHisto = this.advanceIndHisto();
+	}
+
+	public float getValue() {
+		return this.weightedValue;
 	}
 }

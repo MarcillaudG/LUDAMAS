@@ -3,6 +3,7 @@ package fr.irit.smac.planification.matrix;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.irit.smac.planification.agents.DataMorphAgent;
 import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.agents.MorphingAgent;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
@@ -122,6 +123,16 @@ public class InputConstraint {
 	
 	public boolean hasChanged() {
 		return this.offerChanged;
+	}
+
+	public void removeOffer(CompetitiveAgent agent) {
+		Offer toRemove = null;
+		for(Offer offer : this.offers) {
+			if(offer.getAgent().equals(agent)) {
+				toRemove = offer;
+			}
+		}
+		this.offers.remove(toRemove);
 	}
 
 

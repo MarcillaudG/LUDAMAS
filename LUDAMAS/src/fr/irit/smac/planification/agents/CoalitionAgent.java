@@ -28,6 +28,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	private List<DataAgent> datasActifs;
 
+	private Map<String,AVTAgent> avtAgents;
+
 	private InputConstraint inputConstraint;
 
 	private static final float SEUIL_REJECT = 0.2f;
@@ -44,17 +46,22 @@ public class CoalitionAgent implements CompetitiveAgent{
 		this.cav = cav;
 		this.name = "COALITION: "+this.id;
 		this.datas = new TreeMap<>();
+		this.avtAgents = new TreeMap<>();
 		this.datas.put(data1.getDataName(),data1);
 		this.datas.put(data2.getDataName(),data2);
 
 		data1.bindToCoalition(this);
 		data2.bindToCoalition(this);
 
+		this.avtAgents.put(data1.getDataName(), new AVTAgent(this, data1));
+		this.avtAgents.put(data2.getDataName(), new AVTAgent(this, data2));
+
 		this.datasActifs = new ArrayList<>();
 	}
 
 	public void addData(DataAgent data) {
 		this.datas.put(data.getDataName(),data);
+		this.avtAgents.put(data.getDataName(), new AVTAgent(this, data));
 	}
 
 
@@ -73,23 +80,35 @@ public class CoalitionAgent implements CompetitiveAgent{
 			float meanSum = 0.0f;
 			float sumUseful = 0.0f;
 			float maxUseful = -1.0f;
-			// Test avec le plus haut qui commande
-			for(DataAgent agent : this.datasActifs) {
-				if(agent.getUsefulnessForData(agent.getInputObj()) > maxUseful) {
-					this.input = agent.getInputObj();
-					maxUseful = agent.getUsefulnessForData(agent.getInputObj());
+			Offer myOffer = null;
+			if(input != null) {
+				if(this.inputConstraint.hasMyOffer(this)) {
+					myOffer = new Offer(this, inputConstraint, this.cav.getCurrentTime(), maxUseful,this.proposition);
+				}
+				else {
+					input = null;
 				}
 			}
 
-			for(DataAgent agent : this.datasActifs) {
-				meanSum += agent.askMorphUsefulness(this.input)*agent.askMorphedValue(this.input);
-				sumUseful += agent.askMorphUsefulness(this.input);
+			if(input == null) {
+				// Test avec le plus haut qui commande
+				for(DataAgent agent : this.datasActifs) {
+					if(agent.getUsefulnessForData(agent.getInputObj()) > maxUseful) {
+						this.input = agent.getInputObj();
+						maxUseful = agent.getUsefulnessForData(agent.getInputObj());
+					}
+				}
+
+				for(DataAgent agent : this.datasActifs) {
+					meanSum += agent.askMorphUsefulness(this.input)*agent.askMorphedValue(this.input);
+					sumUseful += agent.askMorphUsefulness(this.input);
+				}
+				meanSum = meanSum / sumUseful;
+				this.inputConstraint = this.cav.getInputConstraint(this.input);
+				this.proposition = meanSum;
+				//Offer myOffer = new Offer(this, inputConstraint, this.cav.getCurrentTime(), maxUseful+ADVANTAGE,this.proposition);
+				myOffer = new Offer(this, inputConstraint, this.cav.getCurrentTime(), maxUseful,this.proposition);
 			}
-			meanSum = meanSum / sumUseful;
-			this.inputConstraint = this.cav.getInputConstraint(this.input);
-			this.proposition = meanSum;
-			//Offer myOffer = new Offer(this, inputConstraint, this.cav.getCurrentTime(), maxUseful+ADVANTAGE,this.proposition);
-			Offer myOffer = new Offer(this, inputConstraint, this.cav.getCurrentTime(), maxUseful,this.proposition);
 			this.sendOffer(myOffer);
 			//this.inputConstraint.addOffer(new Offer(this, inputConstraint, this.cav.getCurrentStep(), maxUseful+ADVANTAGE));
 		}
@@ -97,6 +116,16 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 
 	public void act() {
+		float valueofProposition = 0.0f;
+		float sumWeight = 0.0f;
+		for(DataAgent data : this.datasActifs) {
+			this.avtAgents.get(data.getDataName()).cycle();
+			valueofProposition += this.avtAgents.get(data.getDataName()).getValue();
+			sumWeight += this.avtAgents.get(data.getDataName()).getWeight();
+		}
+
+		this.proposition = valueofProposition / sumWeight;
+
 		this.cav.sendProposition(this.input, this.proposition);
 	}
 
@@ -138,12 +167,12 @@ public class CoalitionAgent implements CompetitiveAgent{
 	private boolean proposeMerging(CoalitionAgent neighbour) {
 		float meanUsefulness = 0.0f;
 		int nbData = 0;
-			for(String data : neighbour.getAllData()) {
-				for(DataAgent agent : this.datas.values()) {
-					meanUsefulness += agent.getUsefulnessForData(data);
-					nbData++;
-				}
+		for(String data : neighbour.getAllData()) {
+			for(DataAgent agent : this.datas.values()) {
+				meanUsefulness += agent.getUsefulnessForData(data);
+				nbData++;
 			}
+		}
 		meanUsefulness = meanUsefulness/nbData;	
 		if(meanUsefulness > SEUIL_MERGE) {
 			for(DataAgent data : this.datas.values()) {
@@ -313,13 +342,13 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	@Override
 	public float getValue() {
-		float meanSum = 0.0f;
+		/*float meanSum = 0.0f;
 		float sumUseful = 0.0f;
 		for(DataAgent agent : this.datasActifs) {
 			meanSum += agent.askMorphUsefulness(this.input)*agent.askMorphedValue(this.input);
 			sumUseful += agent.askMorphUsefulness(this.input);
 		}
-		this.proposition = meanSum / sumUseful;
+		this.proposition = meanSum / sumUseful;*/
 		return this.proposition;
 	}
 
@@ -346,9 +375,15 @@ public class CoalitionAgent implements CompetitiveAgent{
 		return this.name;
 	}
 
-	public void sendValue(Float weightedValue) {
+	public void sendValueFromAVTAgent(Float weightedValue, String dataName) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public void prepareToNegociate() {
+		this.input = null;
+		this.inputConstraint = null;
 	}
 
 
