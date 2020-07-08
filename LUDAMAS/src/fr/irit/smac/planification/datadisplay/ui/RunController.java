@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.datadisplayui;
+package fr.irit.smac.planification.datadisplay.ui;
 
 import java.io.File;
 
