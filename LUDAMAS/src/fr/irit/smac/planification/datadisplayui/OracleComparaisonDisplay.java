@@ -71,6 +71,7 @@ public class OracleComparaisonDisplay {
 	}
 
 	private void buildFirstLigne(int nbCars, int gridType) {
+		
 		for(int i=1; i<=nbCars; i++) {
 			Label labelNumero = new Label(String.valueOf(i));
 			buildBoldLabel(labelNumero);
@@ -83,6 +84,7 @@ public class OracleComparaisonDisplay {
 	}
 	
 	private void buildLigneUn(List<Float> oracles, int gridType) {
+		
 		for(int i=0; i<oracles.size(); i++) {
 			float oracle = oracles.get(i);
 			VBox vbox = new VBox();
@@ -98,6 +100,7 @@ public class OracleComparaisonDisplay {
 	}
 	
 	private void buildLigneVariables(List<List<String>> variables, int gridType) {
+		
 		for(int i=0; i<variables.size(); i++) {
 			List<String> listeVariables = variables.get(i);
 			VBox cellule = new VBox();

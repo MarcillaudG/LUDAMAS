@@ -3,9 +3,14 @@ package fr.irit.smac.planification.datadisplayui;
 import java.io.File;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -17,6 +22,11 @@ public class MainUI extends Application {
 	private File selectedFile;
 	private RunController runController;
 	private FileChooser fileChooser;
+	private Spinner<Integer> spinNbEffector;
+	private Spinner<Integer> spinNbSituations;
+	private Spinner<Integer> spinNbVarEff;
+	private Spinner<Integer> spinNbCopy;
+	private Label textSelectedFile;
 
 	public static void main(String[] args) {
 		Application.launch(args);
@@ -24,7 +34,7 @@ public class MainUI extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		
+
 		this.primaryStage = primaryStage;
 		runController = new RunController();
 		runController.setMainApp(this);
@@ -32,7 +42,7 @@ public class MainUI extends Application {
 	}
 
 	public void initFrame() {
-		
+
 		primaryStage.setTitle("LUDAMAS");
 		VBox root = new VBox();
 		root.setAlignment(Pos.BASELINE_CENTER);
@@ -44,33 +54,81 @@ public class MainUI extends Application {
 		fileChooserButton.setId("fileChooserID");
 		fileChooserButton.setOnAction(runController);
 
-
 		Button runButton = new Button("RUN");
 		runButton.setPadding(new Insets(10, 10, 10, 10));
 		runButton.setPrefSize(75, 40);
 		runButton.setId("runID");
 		runButton.setOnAction(runController);
 
-		root.getChildren().add(fileChooserButton);
+		textSelectedFile = new Label("No data file choosen");
+		Separator separator = new Separator(Orientation.HORIZONTAL);
+		separator.setPadding(new Insets(15, 0, 10, 0));
+
+		spinNbEffector = new Spinner<>();
+		SpinnerValueFactory<Integer> valueFactoryEffector = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 1);
+		spinNbEffector.setValueFactory(valueFactoryEffector);
+
+		spinNbSituations = new Spinner<>();
+		SpinnerValueFactory<Integer> valueFactorySituations = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5,
+				1);
+		spinNbSituations.setValueFactory(valueFactorySituations);
+
+		spinNbVarEff = new Spinner<>();
+		SpinnerValueFactory<Integer> valueFactoryVarEff = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3);
+		spinNbVarEff.setValueFactory(valueFactoryVarEff);
+
+		spinNbCopy = new Spinner<>();
+		SpinnerValueFactory<Integer> valueFactoryCopy = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 3);
+		spinNbCopy.setValueFactory(valueFactoryCopy);
+
+		Label labelNbEffector = new Label("Nombre d'effecteurs");
+		Label labelNbSituations = new Label("Nombre de situations");
+		Label labelNbVarEff = new Label("Nombre Var Eff");
+		Label labelNbCopy = new Label("Nombre de copies");
+
+		root.getChildren().addAll(textSelectedFile, fileChooserButton, separator);
+		root.getChildren().addAll(labelNbEffector, spinNbEffector, labelNbSituations, spinNbSituations, labelNbVarEff,
+				spinNbVarEff, labelNbCopy, spinNbCopy);
 		root.getChildren().add(runButton);
 
 		primaryStage.setScene(new Scene(root, 300, 300));
 		primaryStage.show();
 	}
-	
+
 	public File getSelectedFile() {
 		return selectedFile;
 	}
-	
+
 	public FileChooser getFileChooser() {
 		return fileChooser;
 	}
-	
+
 	public Stage getPrimaryStage() {
 		return primaryStage;
 	}
-	
+
 	public RunController getRunController() {
 		return runController;
 	}
+
+	public Integer getValueSpinEffector() {
+		return spinNbEffector.getValue();
+	}
+
+	public Integer getValueSpinSituations() {
+		return spinNbSituations.getValue();
+	}
+
+	public Integer getValueSpinVarEff() {
+		return spinNbVarEff.getValue();
+	}
+
+	public Integer getValueSpinCopy() {
+		return spinNbCopy.getValue();
+	}
+
+	public Label getTextSelectedLabel() {
+		return textSelectedFile;
+	}
+
 }

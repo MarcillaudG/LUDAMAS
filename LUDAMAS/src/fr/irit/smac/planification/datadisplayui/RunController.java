@@ -6,6 +6,8 @@ import fr.irit.smac.planification.system.CAV;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+
 
 public class RunController implements EventHandler<ActionEvent> {
 
@@ -28,11 +30,17 @@ public class RunController implements EventHandler<ActionEvent> {
 
 		File selectedFile = mainApp.getFileChooser().showOpenDialog(mainApp.getPrimaryStage());
 		filePath = selectedFile.getAbsolutePath();
+		Label textSelectedFile = mainApp.getTextSelectedLabel();
+		textSelectedFile.setText(filePath);
 	}
 
 	private void runHandle() {
 
-		this.cav = new CAV("cavtest", 1, 1, 3, 3, filePath);
+		int nbEffectors = mainApp.getValueSpinEffector();
+		int nbSituations = mainApp.getValueSpinSituations();
+		int nbVarEff = mainApp.getValueSpinVarEff();
+		int nbCopy = mainApp.getValueSpinCopy();
+		this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
 		OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cav);
 		new AgentDisplayChoice();
 
