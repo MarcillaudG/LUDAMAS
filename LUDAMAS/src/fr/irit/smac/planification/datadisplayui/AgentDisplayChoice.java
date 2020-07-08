@@ -1,6 +1,5 @@
 package fr.irit.smac.planification.datadisplayui;
 
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,19 +15,21 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 
 public class AgentDisplayChoice {
-	
-	private Stage primaryStage;
 
-	public AgentDisplayChoice() {
-		primaryStage = new Stage();
+	private Stage primaryStage;
+	private RunController runController;
+
+	public AgentDisplayChoice(RunController runController) {
+		this.primaryStage = new Stage();
+		this.runController = runController;
 		start(primaryStage);
 	}
-	
+
 	public void start(Stage primaryStage) {
 
-		
 		/* DEBUT COMPOSANTS PARTIE SUPERIEURE */
 		primaryStage.setTitle("Data Display Choice");
 		Label labelTitle = new Label("AGENT TYPES");
@@ -78,7 +79,22 @@ public class AgentDisplayChoice {
 		panelRoot.setTop(topBorderPane);
 		panelRoot.setCenter(grid);
 
-		primaryStage.setScene(new Scene(panelRoot, 500, 300));
+		VBox bottomBorderPane = new VBox();
+		Label labelSlider = new Label("Select period between two steps:");
+		labelSlider.setPadding(new Insets(0, 0, 0, 35));
+		Slider periodSlider = new Slider();
+		periodSlider.setMin(0);
+		periodSlider.setMax(1000);
+		periodSlider.setValue(1000);
+		periodSlider.setBlockIncrement(100);
+		periodSlider.setShowTickLabels(true);
+		periodSlider.setPadding(new Insets(0, 30, 30, 30));
+		periodSlider.setShowTickMarks(true);
+		periodSlider.valueProperty().addListener(runController);
+		bottomBorderPane.getChildren().addAll(labelSlider, periodSlider);
+		panelRoot.setBottom(bottomBorderPane);
+
+		primaryStage.setScene(new Scene(panelRoot, 500, 370));
 		primaryStage.show();
 	}
 }

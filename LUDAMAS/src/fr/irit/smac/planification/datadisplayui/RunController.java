@@ -3,17 +3,20 @@ package fr.irit.smac.planification.datadisplayui;
 import java.io.File;
 
 import fr.irit.smac.planification.system.CAV;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 
-public class RunController implements EventHandler<ActionEvent> {
+public class RunController implements EventHandler<ActionEvent>, ChangeListener<Number> {
 
 	private CAV cav;
 	private String filePath;
 	private MainUI mainApp;
+	private int stepPeriod = 1000;
 
 	@Override
 	public void handle(ActionEvent actionEvent) {
@@ -42,7 +45,7 @@ public class RunController implements EventHandler<ActionEvent> {
 		int nbCopy = mainApp.getValueSpinCopy();
 		this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
 		OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cav);
-		new AgentDisplayChoice();
+		new AgentDisplayChoice(this);
 
 		Thread taskThread = new Thread(new Runnable() {
 			@Override
@@ -50,6 +53,12 @@ public class RunController implements EventHandler<ActionEvent> {
 				for (int i = 0; i < 1000; i++) {
 					cav.manageSituation();
 					cav.generateNewValues(i);
+					try {
+						Thread.sleep(stepPeriod);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					System.out.println(i);
 				}
 			}
 		});
@@ -61,6 +70,13 @@ public class RunController implements EventHandler<ActionEvent> {
 			e.printStackTrace();
 		}
 		oracleDisplay.launchView();
+	}
+	
+	
+	@Override 
+	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+		stepPeriod = newValue.intValue();
+		System.out.println("New value slider = " + stepPeriod);
 	}
 
 	public void setCav(CAV cav) {

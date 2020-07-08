@@ -28,6 +28,8 @@ public class OracleComparaisonDisplay {
 	private GridPane gridResultats;
 	private CAV cav;
 	private VBox root;
+	private Label oraclesLabel;
+	private Label resultatsLabel;
 	
 	/* CONSTANTES */
 	private static final Color grey = Color.rgb(100, 100, 100);
@@ -45,8 +47,10 @@ public class OracleComparaisonDisplay {
 		root = new VBox();
 		initGrids();
 		root.setPadding(new Insets(10, 0, 0, 0));
-		root.getChildren().add(gridOracles);
-		root.getChildren().add(gridResultats);
+		oraclesLabel = new Label("Tableau oracles");
+		resultatsLabel = new Label("Tableau résultats");
+		resultatsLabel.setPadding(new Insets(10, 0, 0, 0));
+		root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 		primaryStage.setScene(new Scene(root, 400, 450));
 		primaryStage.show();
 		
@@ -149,8 +153,7 @@ public class OracleComparaisonDisplay {
 						@Override
 						public void run() {
 							/* Destruction des tableaux actuel */
-							root.getChildren().remove(gridOracles);
-							root.getChildren().remove(gridResultats);
+							root.getChildren().removeAll(oraclesLabel, resultatsLabel, gridOracles, gridResultats);
 							gridOracles.setVisible(false);
 							gridResultats.setVisible(false);
 							
@@ -170,8 +173,7 @@ public class OracleComparaisonDisplay {
 							buildFirstLigne(nbResults, 1);
 							buildLigneUn(resultsFloat, 1);
 							
-							root.getChildren().add(gridOracles);
-							root.getChildren().add(gridResultats);
+							root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 						}
 					});
 					try {
