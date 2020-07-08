@@ -1,6 +1,8 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
 import java.io.File;
+
+import fr.irit.smac.planification.datadisplay.controller.RunController;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;

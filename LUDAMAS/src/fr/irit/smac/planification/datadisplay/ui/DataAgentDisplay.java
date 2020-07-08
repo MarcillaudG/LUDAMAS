@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.irit.smac.planification.datadisplay.controller.CloseButtonHandler;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;

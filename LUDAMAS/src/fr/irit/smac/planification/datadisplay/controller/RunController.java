@@ -1,7 +1,10 @@
-package fr.irit.smac.planification.datadisplay.ui;
+package fr.irit.smac.planification.datadisplay.controller;
 
 import java.io.File;
 
+import fr.irit.smac.planification.datadisplay.ui.AgentDisplayChoice;
+import fr.irit.smac.planification.datadisplay.ui.MainUI;
+import fr.irit.smac.planification.datadisplay.ui.OracleComparaisonDisplay;
 import fr.irit.smac.planification.system.CAV;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

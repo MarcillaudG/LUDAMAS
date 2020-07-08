@@ -1,5 +1,9 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
+import fr.irit.smac.planification.datadisplay.controller.OpenChartDisplayHandler;
+import fr.irit.smac.planification.datadisplay.controller.OpenDataMorphDisplayHandler;
+import fr.irit.smac.planification.datadisplay.controller.OpenEffectorDisplayHandler;
+import fr.irit.smac.planification.datadisplay.controller.RunController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

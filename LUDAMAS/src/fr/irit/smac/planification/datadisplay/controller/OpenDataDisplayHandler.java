@@ -1,5 +1,6 @@
-package fr.irit.smac.planification.datadisplay.ui;
+package fr.irit.smac.planification.datadisplay.controller;
 
+import fr.irit.smac.planification.datadisplay.ui.DataAgentDisplay;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
