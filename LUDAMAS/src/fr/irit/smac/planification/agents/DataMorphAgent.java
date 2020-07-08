@@ -20,6 +20,8 @@ import fr.irit.smac.planification.tools.LinearRegression;
 public class DataMorphAgent implements CompetitiveAgent{
 
 
+	private static final int MAX_SIZE_HISTORIC = 100;
+
 	private String dataName;
 
 	private String inputName;
@@ -47,18 +49,23 @@ public class DataMorphAgent implements CompetitiveAgent{
 	private List<CompetitiveAgent> neighbours;
 
 	private LinearRegression lr;
-	
-	private Float a;
-	
-	private Float b;
+
+	private Float a = 1.0f;
+
+	private Float b = 0.0f;
 
 	private final float sensibility = 5.f;
-	
-	private final float accepted_error = 5.f;
+
+	private final float accepted_error = 10.f;
 
 	private float etendu;
-	
+
 	private float error;
+
+	private Float min;
+	private Float max;
+
+	private Float valueForCycle;
 
 	private boolean isActif;
 
@@ -114,7 +121,10 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.value = this.superiorAgent.askValue();
 
 
-		this.morphValue = this.linearRegression();
+		//this.morphValue = this.linearRegression();
+		this.morphingLinear(this.value);
+
+		this.valueForCycle = this.morphingLinear(this.value);
 		// recupere la valeur de son objective si dispo
 		//this.superiorAgent.askValueOfOtherData(this.inputName);
 
@@ -196,13 +206,14 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	public void sendFeedback(Float correctValue, boolean tolerant) {
 		this.value = this.superiorAgent.askValue();
-		this.morphValue = this.linearRegression();
+		//this.morphValue = this.linearRegression();
+		this.morphValue = this.morphingLinear(this.value);
 		this.addMorph(this.value, correctValue);
 		float diffPourcent = this.sensibility+1;
-		
+
 		this.error = this.computeError(correctValue);
 
-		if(lr != null) {
+		/*if(lr != null) {
 			diffPourcent = Math.abs(((correctValue - this.lr.predict(this.value))/this.lr.predict(this.value)*100));
 		}
 		if(this.lr == null) {
@@ -217,7 +228,17 @@ public class DataMorphAgent implements CompetitiveAgent{
 			else {
 				this.usefulness = Math.max(.0f, this.usefulness-0.05f);
 			}
+		}*/
+
+		diffPourcent = Math.abs(((correctValue - this.morphingLinear(this.value))/this.morphingLinear(this.value)*100));
+		if((correctValue == this.morphingLinear(this.value)) 
+				|| this.error <= this.accepted_error) {
+			this.usefulness = Math.min(1.0f, this.usefulness+0.05f);
 		}
+		else {
+			this.usefulness = Math.max(.0f, this.usefulness-0.05f);
+		}
+		this.linearAdaptation(correctValue);
 		this.superiorAgent.updateMatrix(this.inputName,this.dataName,this.usefulness);
 
 	}
@@ -231,6 +252,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 			return Math.abs(Math.abs(this.morphValue-correctValue)/correctValue) *100;
 		}
 	}
+
 
 	private float linearRegression() {
 		double x [] = new double[this.historic.keySet().size()];
@@ -264,17 +286,143 @@ public class DataMorphAgent implements CompetitiveAgent{
 		return morphedValue;
 	}
 
+	/**
+	 * Learn how to morph without LR
+	 */
+	private void linearAdaptation(float feedback) {
+		if(this.historic.keySet().size()>1) {
+			Integer indMaxSup = null;
+			Integer indMaxInf = null;
+			Float maxCritInf = null;
+			Float maxCritSup = null;
 
+
+			Integer indSecondSup = null;
+			Integer indSecondInf = null;
+
+			// look for the most critic historic
+			for(Integer i : this.historic.keySet()) {
+				float crit = this.morphingLinear(this.historic.get(i).getLeft()) - this.historic.get(i).getRight(); 
+
+
+				if(indMaxSup != null && indSecondSup == null && crit >= 0) {
+					indSecondSup = i.intValue();
+				}
+				if(indMaxInf != null && indSecondInf == null && crit <= 0) {
+					indSecondInf = i.intValue();
+				}
+				if(indMaxSup == null || (crit >= 0 && crit > maxCritSup)) {
+					if(indMaxSup != null) {
+						indSecondSup = indMaxSup.intValue();
+					}
+					indMaxSup = i.intValue();
+					maxCritSup = crit;
+				}
+				if(indMaxInf == null || (crit <= 0 && crit < maxCritInf)) {
+					if(indMaxInf != null) {
+						indSecondInf = indMaxInf.intValue();
+					}
+					indMaxInf = i.intValue();
+					maxCritInf = crit;
+				}
+
+			}
+
+			// Deux plus critique sup
+			if(maxCritInf > 0 ) {
+				adaptCoeff(indMaxSup, indSecondSup, maxCritSup, 0);
+			}else {
+				// Deux plus critique inf
+				if(maxCritSup < 0 ) {
+					adaptCoeff(indMaxInf, indSecondInf, maxCritInf, 0);
+				}
+				else {
+
+					if(indMaxSup.intValue() != indMaxInf.intValue()) {
+						adaptCoeff(indMaxSup, indMaxInf, maxCritSup, maxCritInf);
+					}
+					else {
+						if(!this.dataName.equals(this.inputName)) {
+							System.out.println("NORMALEMENT NON");
+						}
+					}
+				}
+			}
+
+		}
+
+	}
+
+	private void adaptCoeff(Integer indMaxSup, Integer indMaxInf, float critFirst, float critSecond) {
+		float y1 = this.historic.get(indMaxSup).getRight();
+		float y2 = this.historic.get(indMaxInf).getRight();
+		float x1 = this.historic.get(indMaxSup).getLeft();
+		float x2 = this.historic.get(indMaxInf).getLeft();
+
+		if(this.historic.keySet().size() > 2) {
+			if(Math.abs(critFirst) > Math.abs(critSecond)) {
+				float newa = (y2 - y1)/(x2 -x1);
+				float newb = y1 - (y2-y1)/(x2-x1) * x1;
+				this.a = (this.a + newa) / 2;
+				this.b = (this.b + newb) / 2;
+			}
+			else {
+				this.a = (y2 - y1)/(x2 -x1);
+				this.b = y1 - (y2-y1)/(x2-x1) * x1;
+			}
+		}
+	}
+
+	/**
+	 * Morph the value into a more adequate one
+	 * 
+	 * @return the value morphed
+	 */
+	public float morphingLinear(float value) {
+		return value * this.a + this.b;
+	}
+
+	/**
+	 * Add a feedback to the historic
+	 * 
+	 * If there is too much feedback, remove the less critical
+	 * 
+	 * @param myValue
+	 * 		The value of my dataAgent
+	 * 
+	 * @param otherValue
+	 * 		The real value I aim to become
+	 */
 	public void addMorph(Float myValue, Float otherValue) {
 		if(otherValue !=0)
 			this.distribution.put(myValue, myValue/otherValue);
 		else
 			this.distribution.put(myValue, 0.f);
 
-		this.historic.put(this.historic.keySet().size(), Pair.of(myValue, otherValue));
+		// Remove the less critical historic
+		if(this.historic.keySet().size() > MAX_SIZE_HISTORIC) {
+			Float minDiff = Math.abs(this.morphingLinear(myValue) - otherValue);
+			Integer indMin = -1;
+			int indMax = -1;
+			for(Integer i : this.historic.keySet()) {
+				float diff  = Math.abs(this.morphingLinear(this.historic.get(i).getLeft())- this.historic.get(i).getRight());
+				if(diff < minDiff) {
+					minDiff = diff;
+					indMin = i;
+				}
+				if(i > indMax) {
+					indMax = i;
+				}
+			}
+			if(indMin != -1) {
+				this.historic.remove(indMin);
+				this.historic.put(indMax+1, Pair.of(myValue, otherValue));
+			}
+		}
+		else {
+			this.historic.put(this.historic.keySet().size(), Pair.of(myValue, otherValue));
+		}
 
-		Float max = null;
-		Float min = null;
 		if(this.historic.keySet().size()>1) {
 			for(Pair<Float,Float> p : this.historic.values()) {
 				if(max == null || p.getRight() > max) {
@@ -290,16 +438,6 @@ public class DataMorphAgent implements CompetitiveAgent{
 		}
 	}
 
-	public static void main(String args[]) {
-		DataMorphAgent morphling = new DataMorphAgent("Data", "Input");
-		for(int i =0; i < 10; i++) {
-			morphling.addMorph(10.f*(i+1), 15.f*(i+1)+i*10);
-		}
-		morphling.value = 35.f;
-		//morphling.act();
-		morphling.linearRegression();
-		//System.out.println(morphling.morphValue);
-	}
 
 	public String getData() {
 		return this.dataName;
@@ -315,7 +453,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.decide();
 		this.act();
 	}
-	
+
 	@Override
 	public void prepareToNegociate() {
 		this.inputConstraint = null;
@@ -441,11 +579,13 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	@Override
 	public float getValue() {
-		this.morphValue = this.linearRegression();
+		//this.morphValue = this.linearRegression();
+		this.morphValue = this.morphingLinear(this.value);
 		float valueToSend = this.value;
-		if(this.lr != null) {
+		valueToSend = this.morphValue;
+		/*if(this.lr != null) {
 			valueToSend = this.morphValue;
-		}
+		}*/
 		return valueToSend;
 	}
 
@@ -453,7 +593,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 	public String getCompetitiveName() {
 		return this.dataName;
 	}
-	
+
 	public float getError() {
 		return this.error;
 	}
@@ -465,6 +605,10 @@ public class DataMorphAgent implements CompetitiveAgent{
 		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(this)) {
 			this.inputConstraint.removeOffer(this);
 		}
+	}
+
+	public String getLinearFormula() {
+		return this.a +"x + " + this.b;
 	}
 
 }

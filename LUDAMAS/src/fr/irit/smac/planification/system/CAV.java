@@ -32,6 +32,7 @@ import fr.irit.smac.planification.agents.EffectorAgent;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Matrix;
+import fr.irit.smac.planification.matrix.Offer;
 import fr.irit.smac.planification.ui.MatrixUI;
 import fr.irit.smac.planification.ui.MatrixUITable;
 import fr.irit.smac.planification.ui.VisuEffector;
@@ -375,8 +376,8 @@ public class CAV {
 	private void initDatasetCoalition() {
 		System.out.println("Init");
 
-		this.links = new Links(this.name,false,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
-		this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+		//this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.deleteExperiment(name);
 
 		// Init the collections
@@ -755,6 +756,8 @@ public class CAV {
 			for(DataMorphAgent morph : this.allDataAgents.get(data).getAllMorphs()) {
 				snap.getEntity(data).addOneAttribute("USEFULNESS", morph.getInput(), morph.getUsefulness());
 				snap.getEntity(data).addOneAttribute("MORPH", morph.getInput(), morph.morph(this.environment.getValueOfVariableWithName(data)));
+				snap.getEntity(data).addOneAttribute("ADAPTLIN", morph.getInput(), morph.morphingLinear(this.environment.getValueOfVariableWithName(data)));
+				snap.getEntity(data).addOneAttribute("Formula", morph.getInput(), morph.getLinearFormula());
 				snap.getEntity(data).addOneAttribute("ERROR", morph.getInput(), morph.getError());
 			}
 		}
@@ -873,6 +876,11 @@ public class CAV {
 		List<InputConstraint> inputConstrActive = new ArrayList<>();
 		for(String input : this.getInputInSituation()) {
 			inputConstrActive.add(this.inputConstraints.get(input));
+			for(Offer offer : this.inputConstraints.get(input).getOffers()) {
+				if(!allCompets.contains(offer.getAgent())) {
+					this.inputConstraints.get(input).removeOffer(offer);
+				}
+			}
 		}
 
 
