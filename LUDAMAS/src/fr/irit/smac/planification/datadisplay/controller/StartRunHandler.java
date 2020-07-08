@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.datadisplay.ui;
+package fr.irit.smac.planification.datadisplay.controller;
 
 import fr.irit.smac.planification.system.CAV;
 import javafx.event.ActionEvent;

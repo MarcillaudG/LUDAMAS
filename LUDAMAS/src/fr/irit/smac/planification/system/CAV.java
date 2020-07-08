@@ -118,6 +118,10 @@ public class CAV {
 	private Planing lastPlaning;
 
 	private Planing myPlaning;
+	
+	private Planing planingSituation;
+	
+	private Planing truePlaning;
 
 	private Matrix matrix;
 
@@ -616,7 +620,7 @@ public class CAV {
 		this.currentTime = 0;
 		boolean over = false;
 		this.lastPlaning = null;
-		Planing planingSituation = new Planing();
+		this.planingSituation = new Planing();
 		this.nbReplaning =0;
 		this.dataPerceivedInSituation.clear();
 
@@ -663,7 +667,7 @@ public class CAV {
 				nbReplaning++;
 				//this.linksManagement(this.name+"IN SITU");
 			}
-			planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
+			this.planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
 
 			//System.out.println("END STEP");
 
@@ -683,13 +687,13 @@ public class CAV {
 
 		//System.out.println("REAL PLANING");
 		// Look at the real planing
-		Planing truePlaning = new Planing();
+		this.truePlaning = new Planing();
 		for(int i = 0 ; i < this.currentSituation.getTime();i++) {
 			float res = 0.0f;
 			for(String effect : this.planningSubProcess.keySet()) {
 				res += this.planningSubProcess.get(effect).getResAtTime(i).getValue();
 			}
-			truePlaning.addRes(new Result(i, res));
+			this.truePlaning.addRes(new Result(i, res));
 		}
 
 		// TODO visu Difference
@@ -706,8 +710,8 @@ public class CAV {
 
 
 		LxPlot.getChart("NBReplan").add(cycle, this.nbReplaning);
-		LxPlot.getChart("MEANDiff").add(cycle,truePlaning.computeMeanDifference(planingSituation));
-		LxPlot.getChart("MAxDiff").add(cycle, truePlaning.computeMaxDifference(planingSituation));
+		LxPlot.getChart("MEANDiff").add(cycle,this.truePlaning.computeMeanDifference(this.planingSituation));
+		LxPlot.getChart("MAxDiff").add(cycle, this.truePlaning.computeMaxDifference(this.planingSituation));
 
 
 
@@ -1220,6 +1224,13 @@ public class CAV {
 
 	public Planing getMyPlaning() {
 		return this.myPlaning;
+	}
+	public Planing getTruePlaning() {
+		return this.truePlaning;
+	}
+	
+	public Planing getPlaningSituation() {
+		return this.planingSituation;
 	}
 
 
