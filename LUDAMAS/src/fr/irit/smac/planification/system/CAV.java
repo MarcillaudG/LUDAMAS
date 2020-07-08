@@ -1218,5 +1218,9 @@ public class CAV {
 		return this.environment.getValueForFeedbackWithName(input);
 	}
 
+	public Planing getMyPlaning() {
+		return this.myPlaning;
+	}
+
 
 }

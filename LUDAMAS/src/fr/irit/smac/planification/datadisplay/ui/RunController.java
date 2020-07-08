@@ -51,7 +51,7 @@ public class RunController implements EventHandler<ActionEvent>, ChangeListener<
 			@Override
 			public void run() {
 				for (int i = 0; i < 1000; i++) {
-					cav.manageSituation();
+					cav.manageSituation(i);
 					cav.generateNewValues(i);
 					try {
 						Thread.sleep(stepPeriod);

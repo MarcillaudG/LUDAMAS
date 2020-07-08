@@ -13,7 +13,7 @@ public class StartRunHandler implements EventHandler<ActionEvent> {
 		this.cav = new CAV("cavtest", 1, 1, 3, 3, "C:\\Users\\shino\\Desktop\\dataset_mock_20_enhanced_Noise.csv");
 		int i=0;
 		while(i<1000) {
-			cav.manageSituation();
+			cav.manageSituation(i);
 			cav.generateNewValues(i);
 			i++;
 		}
