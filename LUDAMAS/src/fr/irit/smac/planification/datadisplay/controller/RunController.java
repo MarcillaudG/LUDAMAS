@@ -19,7 +19,6 @@ public class RunController implements EventHandler<ActionEvent> {
 	private CAV cav;
 	private String filePath;
 	private MainUI mainApp;
-	private int stepPeriod = 1000;
 
 	public RunController() {
 		this.cavModel = new CAVModel();
@@ -51,35 +50,13 @@ public class RunController implements EventHandler<ActionEvent> {
 		int nbVarEff = mainApp.getValueSpinVarEff();
 		int nbCopy = mainApp.getValueSpinCopy();
 		this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
-		cavModel.setCav(cav);
+		this.cavModel.setCav(cav);
 		
 		OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cavModel);
 		cavModel.addModifiables(oracleDisplay);
 		new AgentDisplayChoice(cavModel);
 
-		Thread taskThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				for (int i = 0; i < 1000; i++) {
-					cav.manageSituation(i);
-					cav.generateNewValues(i);
-					cavModel.updateFrames();
-					try {
-						Thread.sleep(stepPeriod);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-		taskThread.start();
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		oracleDisplay.update();
+		cavModel.runExperiment();
 	}
 	
 	
