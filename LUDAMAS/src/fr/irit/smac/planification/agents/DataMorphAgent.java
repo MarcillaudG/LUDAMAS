@@ -40,6 +40,8 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private Map<Integer, Pair<Float,Float>> historic;
 
+	private List<Historic> historiques;
+
 	private Map<Float,Float> distribution;
 
 	private InputConstraint inputConstraint;
@@ -64,6 +66,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private Float min;
 	private Float max;
+	private int cycle;
 
 	private Float valueForCycle;
 
@@ -79,41 +82,15 @@ public class DataMorphAgent implements CompetitiveAgent{
 			this.usefulness = 1.0f;
 		}
 		this.etendu = 1.0f;
-
-
-		this.name = inputName+":"+dataName;
-		this.historic = new TreeMap<>();
-		this.distribution = new TreeMap<>();
-		this.neighbours = new ArrayList<>();
-	}
-
-	public DataMorphAgent(String dataName, String inputName) {
-		this.dataName = dataName;
-		this.inputName = inputName;
-		this.morphValue = 1.0f;
-		this.usefulness = 0.5f;
-		if(dataName.equals(inputName)) {
-			this.usefulness = 1.0f;
-		}
-		this.etendu = 1.0f;
-		this.historic = new TreeMap<>();
-		this.distribution = new TreeMap<>();
-	}
-
-	public DataMorphAgent(String dataName, String inputName, DataAgent agent, Matrix mat, float value) {
-		this.dataName = dataName;
-		this.inputName = inputName;
-		this.superiorAgent = agent;
-		//this.matrix = mat;
-		this.morphValue = 1.0f;
-		this.usefulness = value;
-		this.etendu = 1.0f;
+		this.cycle = 0;
 
 		this.name = inputName+":"+dataName;
 		this.historic = new TreeMap<>();
 		this.distribution = new TreeMap<>();
 		this.neighbours = new ArrayList<>();
+		this.historiques = new ArrayList<>();
 	}
+
 
 	public void perceive() {
 		this.value = null;
@@ -163,7 +140,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 						//Remove less crit
 						this.inputConstraint.removeOffer(agentNegociating);
 						this.dataConstraint.removeOffer(this.inputConstraint);
-						
+
 						//Add mine which is better
 						this.inputConstraint.addOffer(myOffer);
 						this.dataConstraint.addOffer(dataOffer);
@@ -173,7 +150,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 				// Cas remove
 				if(!this.inputConstraint.isSatisfied() && this.dataConstraint.hasMyOffer(this)) {
 					if(!this.dataConstraint.isOfferBetter(dataOffer) || !this.inputConstraint.isOfferBetter(myOffer)) {
-						
+
 						this.dataConstraint.removeOffer(this);
 						this.inputConstraint.removeOffer(agentNegociating);
 					}
@@ -318,7 +295,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 	 * Learn how to morph without LR
 	 */
 	private void linearAdaptation(float feedback) {
-		if(this.historic.keySet().size()>1) {
+		if(this.historiques.size()>1) {
 			Integer indMaxSup = null;
 			Integer indMaxInf = null;
 			Float maxCritInf = null;
@@ -329,7 +306,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 			Integer indSecondInf = null;
 
 			// look for the most critic historic
-			for(Integer i : this.historic.keySet()) {
+			/*for(Integer i : this.historic.keySet()) {
 				float crit = this.morphingLinear(this.historic.get(i).getLeft()) - this.historic.get(i).getRight(); 
 
 
@@ -354,9 +331,55 @@ public class DataMorphAgent implements CompetitiveAgent{
 					maxCritInf = crit;
 				}
 
+			}*/
+			boolean end = false;
+			int i = 0;
+			while(i < this.historiques.size() && !end) {
+				Historic histo = this.historiques.get(i);
+				if(histo.valueData < histo.valueInput) {
+					if(indMaxInf == null) {
+						indMaxInf = i;
+						maxCritInf = histo.crit;
+					}else {
+						if(indSecondInf == null) {
+							indSecondInf = i;
+						}
+					}
+				}
+				else {
+					if(indMaxSup == null) {
+						indMaxSup = i;
+						maxCritSup = histo.crit;
+					}else {
+						if(indSecondSup == null) {
+							indSecondSup = i;
+						}
+					}
+				}
+				end = indMaxSup != null && indMaxInf != null;
+				i++;
 			}
 
-			// Deux plus critique sup
+			if(end) {
+				adaptCoeff(indMaxSup, indMaxInf, maxCritSup, maxCritInf);
+			}
+			else {
+				if(indMaxSup != null) {
+					adaptCoeff(indMaxSup, indSecondSup, maxCritSup, 0);
+				}
+				else {
+					if(indMaxInf != null ) {
+						adaptCoeff(indMaxInf, indSecondInf, maxCritInf, 0);
+					}
+					else {
+						if(!this.dataName.equals(this.inputName)) {
+							System.out.println("NORMALEMENT NON");
+						}
+					}
+				}
+			}
+
+			/*// Deux plus critique sup
 			if(maxCritInf > 0 ) {
 				adaptCoeff(indMaxSup, indSecondSup, maxCritSup, 0);
 			}else {
@@ -375,14 +398,14 @@ public class DataMorphAgent implements CompetitiveAgent{
 						}
 					}
 				}
-			}
+			}*/
 
 		}
 
 	}
 
 	private void adaptCoeff(Integer indMaxSup, Integer indMaxInf, float critFirst, float critSecond) {
-		float y1 = this.historic.get(indMaxSup).getRight();
+		/*float y1 = this.historic.get(indMaxSup).getRight();
 		float y2 = this.historic.get(indMaxInf).getRight();
 		float x1 = this.historic.get(indMaxSup).getLeft();
 		float x2 = this.historic.get(indMaxInf).getLeft();
@@ -399,6 +422,30 @@ public class DataMorphAgent implements CompetitiveAgent{
 				this.b = y1 - (y2-y1)/(x2-x1) * x1;
 			}
 		}
+		 */
+		float y1 = this.historiques.get(indMaxSup).valueInput;
+		float y2 = this.historiques.get(indMaxInf).valueInput;
+		float x1 = this.historiques.get(indMaxSup).valueData;
+		float x2 = this.historiques.get(indMaxInf).valueData;
+
+		if(this.historiques.size() > 2) {
+			if(Math.abs(critFirst) > Math.abs(critSecond)) {
+				float newa = (y2 - y1)/(x2 -x1);
+				float newb = y1 - (y2-y1)/(x2-x1) * x1;
+				this.a = (this.a + newa) / 2;
+				this.b = (this.b + newb) / 2;
+			}
+			else {
+				this.a = (y2 - y1)/(x2 -x1);
+				this.b = y1 - (y2-y1)/(x2-x1) * x1;
+			}
+		}
+
+
+		for(Historic histo : this.historiques) {
+			histo.computeCrit(a, b);
+		}
+		Collections.sort(this.historiques);
 	}
 
 	/**
@@ -427,12 +474,18 @@ public class DataMorphAgent implements CompetitiveAgent{
 		else
 			this.distribution.put(myValue, 0.f);
 
+		//OBJET HISTO
+		Historic histo = new Historic(this.cycle,myValue,otherValue);
+		histo.computeCrit(this.a, this.b);
+
+
 		// Remove the less critical historic
-		if(this.historic.keySet().size() > MAX_SIZE_HISTORIC) {
-			Float minDiff = Math.abs(this.morphingLinear(myValue) - otherValue);
+		if(this.historiques.size() > MAX_SIZE_HISTORIC) {
+			/*Float minDiff = Math.abs(this.morphingLinear(myValue) - otherValue);
 			Integer indMin = -1;
 			int indMax = -1;
 			for(Integer i : this.historic.keySet()) {
+				//Trouver le moins critique
 				float diff  = Math.abs(this.morphingLinear(this.historic.get(i).getLeft())- this.historic.get(i).getRight());
 				if(diff < minDiff) {
 					minDiff = diff;
@@ -445,25 +498,32 @@ public class DataMorphAgent implements CompetitiveAgent{
 			if(indMin != -1) {
 				this.historic.remove(indMin);
 				this.historic.put(indMax+1, Pair.of(myValue, otherValue));
+			}*/
+			if(this.historiques.get(MAX_SIZE_HISTORIC-1).crit < histo.crit) {
+				this.historiques.remove(MAX_SIZE_HISTORIC-1);
+				this.historiques.add(histo);
 			}
 		}
 		else {
-			this.historic.put(this.historic.keySet().size(), Pair.of(myValue, otherValue));
+			//this.historic.put(this.historic.keySet().size(), Pair.of(myValue, otherValue));
+			this.historiques.add(histo);
 		}
 
-		if(this.historic.keySet().size()>1) {
-			for(Pair<Float,Float> p : this.historic.values()) {
-				if(max == null || p.getRight() > max) {
-					max = p.getRight();
-				}
-				if(min == null || p.getRight() < min) {
-					min = p.getRight();
-				}
-			}
+
+		// Compute the max and the min
+		if(min == null || this.min > otherValue) {
+			this.min = otherValue;
 		}
+		if(this.max == null || this.max < otherValue) {
+			this.max = otherValue;
+		}
+
+
 		if(min != null && max != null) {
 			this.etendu = max -min;
 		}
+		Collections.sort(this.historiques);
+		this.cycle++;
 	}
 
 
@@ -656,6 +716,51 @@ public class DataMorphAgent implements CompetitiveAgent{
 	 */
 	public String getLinearFormula() {
 		return this.a +"x + " + this.b;
+	}
+
+	private class Historic implements Comparable<Object>{
+
+		private int cycle;
+
+		private float valueData;
+
+		private float valueInput;
+
+		private float crit;
+
+		public Historic(int cycle, float valueData, float valueInput) {
+			this.cycle = cycle;
+			this.valueData = valueData;
+			this.valueInput = valueInput;
+		}
+
+		public void computeCrit(float a , float b) {
+			this.crit = Math.abs(this.valueData * a +b - valueInput);
+		}
+
+		@Override
+		public int compareTo(Object other) {
+			Historic oth = (Historic) other;
+			// TODO Auto-generated method stub
+			if(this.crit < oth.crit) {
+				return 1;
+			}
+			if(this.crit > oth.crit) {
+				return -1;
+			}
+			return 0;
+		}
+
+
+
+
+
+		@Override
+		public String toString() {
+			return "Historic [cycle=" + cycle + ", crit=" + crit + "]";
+		}
+
+
 	}
 
 }
