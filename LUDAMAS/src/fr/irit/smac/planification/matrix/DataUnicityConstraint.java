@@ -125,5 +125,25 @@ public class DataUnicityConstraint {
 		}
 		this.offers.remove(toRemove);
 	}
+
+	public Offer getOfferFrom(CompetitiveAgent agent) {
+		Offer res = null;
+		for(Offer offer : this.offers) {
+			if(offer.getAgent().equals(agent)) {
+				res = offer;
+			}
+		}
+		return res;
+	}
+
+	public void removeOffer(InputConstraint inputConstraint) {
+		Offer toRemove = null;
+		for(Offer offer : this.offers) {
+			if(offer.getInputConstraint().equals(inputConstraint)) {
+				toRemove = offer;
+			}
+		}
+		this.offers.remove(toRemove);
+	}
 	
 }

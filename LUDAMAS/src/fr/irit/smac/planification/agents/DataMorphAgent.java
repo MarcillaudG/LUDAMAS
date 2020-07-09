@@ -140,43 +140,67 @@ public class DataMorphAgent implements CompetitiveAgent{
 	public void decide() {
 		// si valeur != null
 		if(this.value !=null) {
-			Offer myOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentTime(),this.usefulness, this.morphValue);
-			if(!this.dataConstraint.hasMyOffer(this) && !this.inputConstraint.hasMyOffer(this)) {
-				if(this.dataConstraint.isOfferBetter(myOffer) && this.inputConstraint.isOfferBetter(myOffer)) {
-					this.dataConstraint.addOffer(myOffer);
+			Offer myOffer =null;
+			CompetitiveAgent agentNegociating = null;
+			if(this.superiorAgent.getCoalition() != null) {
+				agentNegociating = this.superiorAgent.getCoalition(); 
+			}
+			else {
+				agentNegociating = this;
+			}
+			myOffer =  new Offer(agentNegociating,this.inputConstraint,this.superiorAgent.getCurrentTime(),this.usefulness, this.morphValue);
+			Offer dataOffer = new Offer(this,this.inputConstraint,this.superiorAgent.getCurrentTime(),this.usefulness, this.morphValue);
+
+			if(!this.dataConstraint.hasMyOffer(this) && !this.inputConstraint.hasMyOffer(agentNegociating)) {
+				if(this.dataConstraint.isOfferBetter(dataOffer) && this.inputConstraint.isOfferBetter(myOffer)) {
+					this.dataConstraint.addOffer(dataOffer);
 					this.inputConstraint.addOffer(myOffer);
 				}
 			}
 			else {
+				if(this.inputConstraint.hasMyOffer(agentNegociating)) {
+					if(this.inputConstraint.isOfferBetter(myOffer)) {
+						this.inputConstraint.removeOffer(agentNegociating);
+						this.dataConstraint.removeOffer(this.inputConstraint);
+						this.inputConstraint.addOffer(myOffer);
+						this.dataConstraint.addOffer(dataOffer);
+					}
+				}
+
 				// Cas remove
 				if(!this.inputConstraint.isSatisfied()) {
-					if(!this.dataConstraint.isOfferBetter(myOffer) || !this.inputConstraint.isOfferBetter(myOffer)) {
-						this.dataConstraint.removeOffer(myOffer);
-						this.inputConstraint.removeOffer(myOffer);
+					if(!this.dataConstraint.isOfferBetter(dataOffer) || !this.inputConstraint.isOfferBetter(myOffer)) {
+						this.dataConstraint.removeOffer(this);
+						this.inputConstraint.removeOffer(agentNegociating);
 					}
 					else {
-						System.out.println("MERDEs");
+						System.out.println(myOffer);
+						System.out.println(this.dataConstraint.getOffers());
+						System.out.println(this.inputConstraint.getOffers());
+						System.out.println("MERDE");
 					}
 				}
 				if(!this.dataConstraint.isSatisfied()) {
-					if(!this.inputConstraint.isSatisfied()) {
-						this.dataConstraint.removeOffer(myOffer);
-						this.inputConstraint.removeOffer(myOffer);
-					}
-					else {
-						// SOLVE SNC
-						CompetitiveAgent oth = null;
-						for(CompetitiveAgent agent: this.neighbours) {
-							if(agent.isAvailable()) {
-								if(oth == null || agent.getUsefulness() > oth.getUsefulness()) {
-									oth = agent;
+					if(!this.dataConstraint.isOfferBetter(dataOffer)) {
+						if(!this.inputConstraint.isSatisfied()) {
+							this.dataConstraint.removeOffer(this);
+							this.inputConstraint.removeOffer(agentNegociating);
+						}
+						else {
+							// SOLVE SNC
+							CompetitiveAgent oth = null;
+							for(CompetitiveAgent agent: this.neighbours) {
+								if(agent.isAvailable()) {
+									if(oth == null || agent.getUsefulness() > oth.getUsefulness()) {
+										oth = agent;
+									}
 								}
 							}
-						}
-						if(oth != null) {
-							this.dataConstraint.removeOffer(myOffer);
-							this.inputConstraint.removeOffer(myOffer);
-							oth.cycleOffer();
+							if(oth != null) {
+								this.dataConstraint.removeOffer(this);
+								this.inputConstraint.removeOffer(agentNegociating);
+								oth.cycleOffer();
+							}
 						}
 					}
 				}
@@ -589,6 +613,13 @@ public class DataMorphAgent implements CompetitiveAgent{
 		return valueToSend;
 	}
 
+
+
+	@Override
+	public void cycleValue(String input) {
+		this.morphValue = this.morphingLinear(this.superiorAgent.askValue());
+	}
+
 	@Override
 	public String getCompetitiveName() {
 		return this.dataName;
@@ -598,15 +629,27 @@ public class DataMorphAgent implements CompetitiveAgent{
 		return this.error;
 	}
 
+	/**
+	 * Clear both offer
+	 */
 	public void clearOffer() {
+		CompetitiveAgent agent = this;
+		if(this.superiorAgent.getCoalition() != null) {
+			agent = this.superiorAgent.getCoalition();
+		}
 		if(this.dataConstraint != null && this.dataConstraint.hasMyOffer(this)) {
 			this.dataConstraint.removeOffer(this);
 		}
-		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(this)) {
-			this.inputConstraint.removeOffer(this);
+		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(agent)) {
+			this.inputConstraint.removeOffer(agent);
 		}
 	}
 
+	/**
+	 * Return a String corresponding of the linear formula
+	 * 
+	 * @return
+	 */
 	public String getLinearFormula() {
 		return this.a +"x + " + this.b;
 	}

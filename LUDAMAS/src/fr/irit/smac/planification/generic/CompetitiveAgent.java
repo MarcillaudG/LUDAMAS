@@ -1,5 +1,6 @@
 package fr.irit.smac.planification.generic;
 
+import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.Offer;
 
 public interface CompetitiveAgent {
@@ -60,5 +61,12 @@ public interface CompetitiveAgent {
 	public String getCompetitiveName();
 
 	public void prepareToNegociate();
+	
+	
+	/**
+	 * Choose the value for this cycle
+	 */
+	public void cycleValue(String input);
+
 
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import fr.irit.smac.planification.generic.CompetitiveAgent;
+import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Offer;
 import fr.irit.smac.planification.system.CAV;
@@ -31,6 +32,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 	private Map<String,AVTAgent> avtAgents;
 
 	private InputConstraint inputConstraint;
+
+	private DataUnicityConstraint dataConstraint;
 
 	private static final float SEUIL_REJECT = 0.2f;
 
@@ -59,9 +62,27 @@ public class CoalitionAgent implements CompetitiveAgent{
 		this.datasActifs = new ArrayList<>();
 	}
 
+	public CoalitionAgent(int id, CAV cav, DataAgent data1) {
+		this.id = id;
+		this.cav = cav;
+		this.name = "COALITION: "+this.id;
+		this.datas = new TreeMap<>();
+		this.avtAgents = new TreeMap<>();
+		this.datas.put(data1.getDataName(),data1);
+
+		this.dataConstraint = new DataUnicityConstraint(data1.getDataName());
+		data1.bindToCoalition(this);
+
+		this.avtAgents.put(data1.getDataName(), new AVTAgent(this, data1));
+
+		this.datasActifs = new ArrayList<>();
+	}
+
 	public void addData(DataAgent data) {
 		this.datas.put(data.getDataName(),data);
-		this.avtAgents.put(data.getDataName(), new AVTAgent(this, data));
+		if(!this.avtAgents.containsKey(data.getDataName())) {
+			this.avtAgents.put(data.getDataName(), new AVTAgent(this, data));
+		}
 	}
 
 
@@ -76,7 +97,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 	}
 
 	public void decide() {
-		if(this.datasActifs.size()>0) {
+		/*if(this.datasActifs.size()>0) {
 			float meanSum = 0.0f;
 			float sumUseful = 0.0f;
 			float maxUseful = -1.0f;
@@ -112,19 +133,21 @@ public class CoalitionAgent implements CompetitiveAgent{
 			this.sendOffer(myOffer);
 			//this.inputConstraint.addOffer(new Offer(this, inputConstraint, this.cav.getCurrentStep(), maxUseful+ADVANTAGE));
 		}
-	}
-
-
-	public void act() {
+		 */
 		float valueofProposition = 0.0f;
 		float sumWeight = 0.0f;
 		for(DataAgent data : this.datasActifs) {
+			data.computeValueForInput(this.input);
 			this.avtAgents.get(data.getDataName()).cycle();
 			valueofProposition += this.avtAgents.get(data.getDataName()).getValue();
 			sumWeight += this.avtAgents.get(data.getDataName()).getWeight();
 		}
 
 		this.proposition = valueofProposition / sumWeight;
+	}
+
+
+	public void act() {
 
 		this.cav.sendProposition(this.input, this.proposition);
 	}
@@ -138,18 +161,22 @@ public class CoalitionAgent implements CompetitiveAgent{
 		for(CoalitionAgent neighbour : this.cav.getOtherCoalitionAgent(this)) {
 			float meanUsefulness = 0.0f;
 			int nbData = 0;
-			if(neighbour.isInCompetitionWithMe(this.input)) {
-				for(String data : neighbour.getAllData()) {
-					for(DataAgent agent : this.datas.values()) {
+			//if(neighbour.isInCompetitionWithMe(this.input)) {
+			for(String data : neighbour.getAllData()) {
+				for(DataAgent agent : this.datas.values()) {
+					if(agent.hasMorphForData(data)) {
 						meanUsefulness += agent.getUsefulnessForData(data);
 						nbData++;
 					}
 				}
 			}
-			meanUsefulness = meanUsefulness/nbData;
-			if(coal == null || meanUsefulness > maxMeanUsefulness) {
-				coal = neighbour;
-				maxMeanUsefulness = meanUsefulness;
+			//}
+			if(nbData > 0) {
+				meanUsefulness = meanUsefulness/nbData;
+				if(coal == null || meanUsefulness > maxMeanUsefulness) {
+					coal = neighbour;
+					maxMeanUsefulness = meanUsefulness;
+				}
 			}
 		}
 		if(coal != null && maxMeanUsefulness > SEUIL_MERGE) {
@@ -177,6 +204,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 		if(meanUsefulness > SEUIL_MERGE) {
 			for(DataAgent data : this.datas.values()) {
 				data.mergeToCoalition(neighbour);
+				//data.removeAllOffer();
 			}
 			this.datas.clear();
 			this.cav.coalitionDestroyed(this);
@@ -192,6 +220,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 */
 	private boolean isInCompetitionWithMe(String input2) {
 		if(this.input == null) {
+			return false;
 		}
 		return this.input.equals(input2);
 	}
@@ -230,9 +259,12 @@ public class CoalitionAgent implements CompetitiveAgent{
 		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(this)) {
 			this.inputConstraint.removeOffer(this);
 		}
+		dataAgent.removeAllOffer();
 		dataAgent.RemoveFromCoalition();
 		this.datas.remove(dataAgent.getDataName());
-		if(this.datas.size() < 2) {
+		
+		//TEST
+		if(this.datas.size() < 1) {
 			destroy();
 		}
 	}
@@ -313,6 +345,12 @@ public class CoalitionAgent implements CompetitiveAgent{
 	}
 
 	@Override
+	public void cycleValue(String input) {
+		this.input = input;
+		this.cycle();
+	}
+
+	@Override
 	public float getUsefulness() {
 		float maxUseful = 0.0f;
 		for(DataAgent agent : this.datasActifs) {
@@ -328,7 +366,17 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	@Override
 	public void cycleOffer() {
-		this.cycle();
+		//this.cycle();
+		this.datasActifs.clear();
+		for(DataAgent data : this.datas.values()) {
+			if(data.isActif()) {
+				this.datasActifs.add(data);
+			}
+		}
+		Collections.shuffle(datasActifs);
+		for(DataAgent data : this.datasActifs) {
+			data.cycleOffer();
+		}
 	}
 
 	public void cycle() {
@@ -375,6 +423,9 @@ public class CoalitionAgent implements CompetitiveAgent{
 	public Collection<? extends String> getAllData() {
 		return this.datas.keySet();
 	}
+	public Collection<? extends DataAgent> getDataActifs() {
+		return this.datasActifs;
+	}
 
 	@Override
 	public String getCompetitiveName() {
@@ -409,10 +460,12 @@ public class CoalitionAgent implements CompetitiveAgent{
 		for(DataAgent data : this.datasActifs) {
 			this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
 		}
-		
+
 	}
 
-
+	public DataUnicityConstraint getConstraint() {
+		return this.dataConstraint;
+	}
 
 
 }
