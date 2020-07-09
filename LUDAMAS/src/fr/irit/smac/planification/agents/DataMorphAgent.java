@@ -58,7 +58,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private final float sensibility = 5.f;
 
-	private final float accepted_error = 10.f;
+	private final float accepted_error = 15.f;
 
 	private float etendu;
 
@@ -423,6 +423,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 			}
 		}
 		 */
+		float maxi = critFirst > critSecond ? critFirst : critSecond;
 		float y1 = this.historiques.get(indMaxSup).valueInput;
 		float y2 = this.historiques.get(indMaxInf).valueInput;
 		float x1 = this.historiques.get(indMaxSup).valueData;
@@ -440,12 +441,25 @@ public class DataMorphAgent implements CompetitiveAgent{
 				this.b = y1 - (y2-y1)/(x2-x1) * x1;
 			}
 		}
-
-
+		/*if(this.dataName.contains(this.inputName)) {
+			System.out.println("BEFORE ->>>>" +this.dataName +" ->>> "+this.inputName);
+			System.out.println("SUP  ->>>> "+ this.historiques.get(indMaxSup).crit);
+			System.out.println("INF  ->>>> "+ this.historiques.get(indMaxInf).crit);
+		}*/
 		for(Historic histo : this.historiques) {
 			histo.computeCrit(a, b);
-		}
+		}/*
+		if(this.dataName.contains(this.inputName)) {
+			System.out.println("AFTER"+this.dataName +" ->>> "+this.inputName);
+			System.out.println("SUP  ->>>> "+ this.historiques.get(indMaxSup).crit);
+			System.out.println("INF  ->>>> "+ this.historiques.get(indMaxInf).crit);
+			Collections.sort(this.historiques);
+			System.out.println("NEW MAX : "+this.historiques.get(0).crit);
+		}*/
 		Collections.sort(this.historiques);
+		if(maxi < this.historiques.get(0).crit) {
+			this.usefulness = Math.min(this.usefulness +0.05f, 1.0f);
+		}
 	}
 
 	/**
