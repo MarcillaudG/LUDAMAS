@@ -160,16 +160,20 @@ public class DataMorphAgent implements CompetitiveAgent{
 			else {
 				if(this.inputConstraint.hasMyOffer(agentNegociating)) {
 					if(this.inputConstraint.isOfferBetter(myOffer)) {
+						//Remove less crit
 						this.inputConstraint.removeOffer(agentNegociating);
 						this.dataConstraint.removeOffer(this.inputConstraint);
+						
+						//Add mine which is better
 						this.inputConstraint.addOffer(myOffer);
 						this.dataConstraint.addOffer(dataOffer);
 					}
 				}
 
 				// Cas remove
-				if(!this.inputConstraint.isSatisfied()) {
+				if(!this.inputConstraint.isSatisfied() && this.dataConstraint.hasMyOffer(this)) {
 					if(!this.dataConstraint.isOfferBetter(dataOffer) || !this.inputConstraint.isOfferBetter(myOffer)) {
+						
 						this.dataConstraint.removeOffer(this);
 						this.inputConstraint.removeOffer(agentNegociating);
 					}
@@ -180,7 +184,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 						System.out.println("MERDE");
 					}
 				}
-				if(!this.dataConstraint.isSatisfied()) {
+				if(!this.dataConstraint.isSatisfied() && this.dataConstraint.hasMyOffer(this)) {
 					if(!this.dataConstraint.isOfferBetter(dataOffer)) {
 						if(!this.inputConstraint.isSatisfied()) {
 							this.dataConstraint.removeOffer(this);

@@ -149,6 +149,17 @@ public class InputConstraint {
 		return res;
 	}
 
+	public void keepOnlyTheBest() {
+		Offer best = null;
+		for(Offer offer : this.offers) {
+			if(best == null || best.getCrit() < offer.getCrit()) {
+				best = offer;
+			}
+		}
+		this.offers.clear();
+		this.offers.add(best);
+	}
+
 
 
 }

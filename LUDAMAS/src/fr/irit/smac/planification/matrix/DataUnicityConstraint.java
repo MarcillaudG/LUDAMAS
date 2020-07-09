@@ -102,11 +102,13 @@ public class DataUnicityConstraint {
 		return this.offers.size();
 	}
 
+	
+	
+
 	@Override
 	public String toString() {
-		return "DataUnicityConstraint [, data=" + data + "]";
+		return "DataUnicityConstraint [data=" + data + ", offers=" + offers + "]";
 	}
-	
 
 	public List<Offer> getOffers() {
 		return this.offers;

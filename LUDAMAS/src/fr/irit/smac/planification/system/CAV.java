@@ -900,7 +900,7 @@ public class CAV {
 			compet.prepareToNegociate();
 		}
 
-		while(!satisfied) {
+		//while(!satisfied) {
 			for(CompetitiveAgent compet : allCompets) {
 				compet.cycleOffer();
 			}
@@ -922,7 +922,6 @@ public class CAV {
 						System.out.println(constr.getOffers());
 						for(Offer offer : constr.getOffers()) {
 							System.out.println(offer.getAgent());
-							System.out.println(((CoalitionAgent)offer.getAgent()).getDataActifs());
 							for(String data : ((CoalitionAgent)offer.getAgent()).getAllData()) {
 								System.out.println(this.allDataAgents.get(data).getCoalition());
 								System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint());
@@ -955,10 +954,10 @@ public class CAV {
 					e.printStackTrace();
 				}
 			}
-		}
-
+		//}
 
 		for(InputConstraint constr : inputConstrActive) {
+			constr.keepOnlyTheBest();
 			constr.getOffers().get(0).getAgent().cycleValue(constr.getInput());
 		}
 	}
