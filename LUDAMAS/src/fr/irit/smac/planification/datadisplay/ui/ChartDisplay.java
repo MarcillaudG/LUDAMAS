@@ -11,7 +11,7 @@ import javafx.scene.chart.XYChart.Series;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class ChartDisplay {
+public class ChartDisplay implements Modifiable{
 	
 	private Stage primaryStage;
 
@@ -71,6 +71,11 @@ public class ChartDisplay {
 			}
 		});
 		taskThread.start();
+	}
+	
+	public void update() {
+		//TODO update method
+		System.out.println("update method called from ChartDisplay");
 	}
 	
 }

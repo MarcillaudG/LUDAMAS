@@ -125,10 +125,10 @@ public class MainUI extends JFrame {
 
 		JLabel picLabel = new JLabel();
 		picLabel.setBounds(280, 11, 184, 78);
-	Image dimg = image.getScaledInstance(picLabel.getWidth(), picLabel.getHeight(),
-				Image.SCALE_SMOOTH);
-		ImageIcon imageIcon = new ImageIcon(dimg);
-		picLabel.setIcon(imageIcon);
+	//Image dimg = image.getScaledInstance(picLabel.getWidth(), picLabel.getHeight(),
+				//Image.SCALE_SMOOTH);
+		//ImageIcon imageIcon = new ImageIcon(dimg);
+		//picLabel.setIcon(imageIcon);
 		getContentPane().add(picLabel);
 
 		JButton btnRunSynthetic = new JButton("Run Synthetic");

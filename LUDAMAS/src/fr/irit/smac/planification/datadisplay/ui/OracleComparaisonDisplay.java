@@ -21,7 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class OracleComparaisonDisplay {
+public class OracleComparaisonDisplay implements Modifiable{
 	
 	private Stage primaryStage;
 	private GridPane gridOracles;
@@ -186,5 +186,9 @@ public class OracleComparaisonDisplay {
 		});
 		taskThread.start();
 	}
-
+	
+	public void update() {
+		//TODO update method
+		System.out.println("Update method called from OracleComparaisonDisplay");
+	}
 }

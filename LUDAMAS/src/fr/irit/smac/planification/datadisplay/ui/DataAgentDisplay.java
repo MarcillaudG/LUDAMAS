@@ -27,7 +27,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class DataAgentDisplay {
+public class DataAgentDisplay implements Modifiable{
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	private GridPane grid;
@@ -304,5 +304,10 @@ public class DataAgentDisplay {
 			
 		});
 		taskThread.start();
+	}
+	
+	public void update() {
+		//TODO update method
+		System.out.println("Update method called from DataAgentDisplay");
 	}
 }

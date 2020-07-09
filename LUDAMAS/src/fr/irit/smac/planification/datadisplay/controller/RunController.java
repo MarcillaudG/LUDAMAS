@@ -2,6 +2,7 @@ package fr.irit.smac.planification.datadisplay.controller;
 
 import java.io.File;
 
+import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.AgentDisplayChoice;
 import fr.irit.smac.planification.datadisplay.ui.MainUI;
 import fr.irit.smac.planification.datadisplay.ui.OracleComparaisonDisplay;
@@ -15,12 +16,17 @@ import javafx.scene.control.Label;
 
 
 public class RunController implements EventHandler<ActionEvent>, ChangeListener<Number> {
-
+	
+	private CAVModel cavModel;
 	private CAV cav;
 	private String filePath;
 	private MainUI mainApp;
 	private int stepPeriod = 1000;
 
+	public RunController() {
+		this.cavModel = new CAVModel();
+	}
+	
 	@Override
 	public void handle(ActionEvent actionEvent) {
 
@@ -47,7 +53,9 @@ public class RunController implements EventHandler<ActionEvent>, ChangeListener<
 		int nbVarEff = mainApp.getValueSpinVarEff();
 		int nbCopy = mainApp.getValueSpinCopy();
 		this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
+		
 		OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cav);
+		cavModel.addModifiables(oracleDisplay);
 		new AgentDisplayChoice(this);
 
 		Thread taskThread = new Thread(new Runnable() {
@@ -56,12 +64,12 @@ public class RunController implements EventHandler<ActionEvent>, ChangeListener<
 				for (int i = 0; i < 1000; i++) {
 					cav.manageSituation(i);
 					cav.generateNewValues(i);
+					cavModel.updateFrames();
 					try {
 						Thread.sleep(stepPeriod);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					System.out.println(i);
 				}
 			}
 		});
@@ -79,7 +87,10 @@ public class RunController implements EventHandler<ActionEvent>, ChangeListener<
 	@Override 
 	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 		stepPeriod = newValue.intValue();
-		System.out.println("New value slider = " + stepPeriod);
+	}
+	
+	public CAVModel getCavModel() {
+		return cavModel;
 	}
 
 	public void setCav(CAV cav) {
