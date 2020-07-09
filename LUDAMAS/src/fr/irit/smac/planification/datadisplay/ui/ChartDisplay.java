@@ -2,6 +2,7 @@ package fr.irit.smac.planification.datadisplay.ui;
 
 import java.util.Random;
 
+import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
@@ -13,9 +14,11 @@ import javafx.stage.Stage;
 
 public class ChartDisplay implements Modifiable{
 	
+	private CAVModel cavModel;
 	private Stage primaryStage;
-
-	public ChartDisplay() {
+	private Series<Number, Number> series;
+	
+	public ChartDisplay(CAVModel cavModel) {
 		primaryStage = new Stage();
 		start();
 	}
@@ -29,7 +32,7 @@ public class ChartDisplay implements Modifiable{
 		yAxis.setLabel("Donnée");
 		LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
 		lineChart.setTitle("Graphique données");
-		Series<Number, Number> series = new XYChart.Series<>();
+		series = new XYChart.Series<>();
 		series.setName("Données TEST");
 		series.getData().add(new XYChart.Data<>(30, 20));
 		series.getData().add(new XYChart.Data<>(20, 15));
@@ -43,39 +46,40 @@ public class ChartDisplay implements Modifiable{
 		primaryStage.setScene(new Scene(root, 500, 300));
 		primaryStage.show();
 		
-		ajoutPeriodique(series);
+		update();
 	}
 	
 	
-	public void ajoutPeriodique(Series<Number, Number> series) {
+	public void update() {
 		Thread taskThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				for(int i=0; i<20; i++) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						System.out.println("Exception interruption wait");
-					}
-					
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							Random rnd = new Random();
-							int nextX = rnd.nextInt(20);
-							int nextY = rnd.nextInt(20);
-							series.getData().add(new XYChart.Data<>(nextX, nextY));
-						}
-					});
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					System.out.println("Exception interruption wait");
 				}
+					
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						Random rnd = new Random();
+						int nextX = rnd.nextInt(20);
+						int nextY = rnd.nextInt(20);
+						series.getData().add(new XYChart.Data<>(nextX, nextY));
+					}
+				});
 			}
 		});
 		taskThread.start();
 	}
 	
-	public void update() {
-		//TODO update method
-		System.out.println("update method called from ChartDisplay");
+	public void setCavModel(CAVModel cavModel) {
+		this.cavModel = cavModel;
+	}
+	
+	public CAVModel getCavModel() {
+		return cavModel;
 	}
 	
 }

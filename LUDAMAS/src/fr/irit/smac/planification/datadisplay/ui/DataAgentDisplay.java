@@ -6,8 +6,10 @@ import javafx.geometry.Pos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-import fr.irit.smac.planification.datadisplay.controller.CloseButtonHandler;
+import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
+import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
@@ -27,12 +29,28 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class DataAgentDisplay implements Modifiable{
+public class DataAgentDisplay implements Modifiable {
+	
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	private GridPane grid;
+	private VBox root;
+	private int agentType;
+	private CAVModel cavModel;
+	
+	/* TESTS ONLY */
+	private List<AgentPersonTest> personnes;
 
-	public void buildWindow(int agentType) {
+	public DataAgentDisplay(int agentType) {
+		this.agentType = agentType;
+	}
+	
+	public DataAgentDisplay(int agentType, CAVModel cavModel) {
+		this.agentType = agentType;
+		this.cavModel = cavModel;
+	}
+	
+	public void buildWindow() {
 
 		String agentTypeName;
 		switch (agentType) {
@@ -43,7 +61,7 @@ public class DataAgentDisplay implements Modifiable{
 			agentTypeName = "DataMorphAgents";
 			break;
 		case 3:
-			agentTypeName = "EffectorAgents";
+			agentTypeName = "CoallitionAgents";
 			break;
 		default:
 			agentTypeName = "unknown";
@@ -56,7 +74,7 @@ public class DataAgentDisplay implements Modifiable{
 		AgentPersonTest personTest1 = new AgentPersonTest("name", "prenom", 5);
 		AgentPersonTest personTest2 = new AgentPersonTest("name", "prenom", 5);
 		AgentPersonTest personTest3 = new AgentPersonTest("name", "prenom", 5);
-		List<AgentPersonTest> personnes = new ArrayList<>();
+		personnes = new ArrayList<>();
 		personnes.add(personTest1);
 		personnes.add(personTest2);
 		personnes.add(personTest3);
@@ -84,34 +102,31 @@ public class DataAgentDisplay implements Modifiable{
 		default:
 			System.out.println("Unknown agent type");
 		}
-		
 
 		Button closeButton = new Button();
 		closeButton.setText("CLOSE");
+		closeButton.setId("closeID");
 		closeButton.setPrefSize(70, 30);
 		closeButton.setStyle(BOLDSTYLE);
-		closeButton.setOnAction(new CloseButtonHandler());
-		
+		closeButton.setOnAction(new DataAgentDisplayController(cavModel));
+
 		Button refreshButton = new Button();
 		refreshButton.setText("REFRESH");
 		refreshButton.setPrefSize(70, 30);
 		refreshButton.setStyle(BOLDSTYLE);
-		refreshButton.setOnAction(new CloseButtonHandler());
-		
+		refreshButton.setOnAction(new DataAgentDisplayController(cavModel));
+
 		HBox hboxButtons = new HBox();
 		hboxButtons.setSpacing(50.0);
-		hboxButtons.setPadding(new Insets(10,  0, 20, 0));
+		hboxButtons.setPadding(new Insets(10, 0, 20, 0));
 		hboxButtons.getChildren().addAll(closeButton, refreshButton);
 		hboxButtons.setAlignment(Pos.CENTER);
 
-
 		/* SCENE GRAPHS PARAMETRAGES */
-		VBox root = new VBox();
+		root = new VBox();
 		root.setPadding(new Insets(15, 15, 15, 15));
 		root.getChildren().add(hboxButtons);
 		root.getChildren().add(grid);
-
-		
 
 		StackPane stack = new StackPane();
 		stack.getChildren().add(root);
@@ -126,9 +141,9 @@ public class DataAgentDisplay implements Modifiable{
 
 		primaryStage.setScene(new Scene(scrollPane, 645, 500));
 		primaryStage.show();
-		
+
 		/* TESTS DE MOFICIATION DU GRIDPANE */
-		modificationPeriodique(agentType, personnes, root);
+		update();
 	}
 
 	private void buildCellule(VBox box) {
@@ -139,14 +154,15 @@ public class DataAgentDisplay implements Modifiable{
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
-	
+
 	private void buildBoldLabel(Label label) {
-		
+
 		label.setAlignment(Pos.CENTER);
 		label.setStyle(BOLDSTYLE);
 		label.setPrefSize(75, 40);
-		label.setBorder(new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
-							BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
+		label.setBorder(
+				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
+						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
 
 	// A CHANGER EN FONCTION DES ATTRIBUTS A AFFICHER
@@ -158,7 +174,7 @@ public class DataAgentDisplay implements Modifiable{
 			grid.add(labelProperty, i + 1, 0);
 		}
 	}
-	
+
 	private void buildFirstLigneDataMorphAgent(GridPane grid) {
 
 		for (int i = 0; i < 8; i++) {
@@ -167,7 +183,7 @@ public class DataAgentDisplay implements Modifiable{
 			grid.add(labelProperty, i + 1, 0);
 		}
 	}
-	
+
 	private void buildFirstLigneEffectorAgent(GridPane grid) {
 
 		for (int i = 0; i < 8; i++) {
@@ -210,7 +226,7 @@ public class DataAgentDisplay implements Modifiable{
 			grid.add(celluleAge, 4, j + 1);
 		}
 	}
-	
+
 	private void buildLignesDataMorphAgent(GridPane grid, List<AgentPersonTest> data) {
 
 		for (int j = 0; j < 15; j++) {
@@ -232,7 +248,7 @@ public class DataAgentDisplay implements Modifiable{
 		}
 
 	}
-	
+
 	private void buildLignesEffectorAgent(GridPane grid, List<AgentPersonTest> data) {
 
 		for (int j = 0; j < 15; j++) {
@@ -253,61 +269,63 @@ public class DataAgentDisplay implements Modifiable{
 			grid.add(celluleAge, 4, j + 1);
 		}
 	}
-	
-	
-	public void modificationPeriodique(int agentType, List<AgentPersonTest> personnes, VBox root) {
-		
+
+	public void update() {
+
 		Thread taskThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				for(int i=0; i<10; i++) {
-					personnes.get(0).setAge(i);
-					
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					
-					Platform.runLater(new Runnable() {
-			            @Override
-			            public void run() {
-			            	root.getChildren().remove(grid);
-			            	grid.setVisible(false);
-			            	GridPane newGrid = new GridPane();
-			        		newGrid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
-			        				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
-			        				null, new BorderWidths(0.5), null)));
-			            	
-			            	switch (agentType) {
-			        		case 1:
-			        			buildFirstLigneDataAgent(newGrid);
-			        			buildLignesDataAgent(newGrid, personnes);
-			        			break;
-			        		case 2:
-			        			buildFirstLigneDataMorphAgent(newGrid);
-			        			buildLignesDataMorphAgent(newGrid, personnes);
-			        			break;
-			        		case 3:
-			        			buildFirstLigneEffectorAgent(newGrid);
-			        			buildLignesEffectorAgent(newGrid, personnes);
-			        			break;
-			        		default:
-			        			System.out.println("Unknown agent type");
-			        		}
-			            	root.getChildren().add(newGrid);
-			            	grid = newGrid;
-			            }
-			       });
+				Random rnd = new Random();
+				personnes.get(0).setAge(rnd.nextInt(50));
+
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
+
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						root.getChildren().remove(grid);
+						grid.setVisible(false);
+						GridPane newGrid = new GridPane();
+						newGrid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK,
+								Color.BLACK, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
+								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
+
+						switch (agentType) {
+						case 1:
+							buildFirstLigneDataAgent(newGrid);
+							buildLignesDataAgent(newGrid, personnes);
+							break;
+						case 2:
+							buildFirstLigneDataMorphAgent(newGrid);
+							buildLignesDataMorphAgent(newGrid, personnes);
+							break;
+						case 3:
+							buildFirstLigneEffectorAgent(newGrid);
+							buildLignesEffectorAgent(newGrid, personnes);
+							break;
+						default:
+							System.out.println("Unknown agent type");
+						}
+						root.getChildren().add(newGrid);
+						grid = newGrid;
+					}
+				});
 			}
-			
+
 		});
 		taskThread.start();
 	}
 	
-	public void update() {
-		//TODO update method
-		System.out.println("Update method called from DataAgentDisplay");
+	public void setCavModel(CAVModel cavModel) {
+		this.cavModel = cavModel;
 	}
+	
+	public CAVModel getCavModel() {
+		return cavModel;	
+	}
+
 }
