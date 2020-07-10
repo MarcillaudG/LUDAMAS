@@ -1,8 +1,11 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
-import java.util.Random;
 
+import fr.irit.smac.planification.Planing;
+import fr.irit.smac.planification.datadisplay.model.CAVModel;
+import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -11,11 +14,15 @@ import javafx.scene.chart.XYChart.Series;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class ChartDisplay {
+public class ChartDisplay implements Modifiable{
 	
+	private CAVModel cavModel;
 	private Stage primaryStage;
-
-	public ChartDisplay() {
+	private Series<Number, Number> seriesMeanDiff;
+	private Series<Number, Number> seriesMaxDiff;
+	
+	public ChartDisplay(CAVModel cavModel) {
+		this.cavModel = cavModel;
 		primaryStage = new Stage();
 		start();
 	}
@@ -23,54 +30,66 @@ public class ChartDisplay {
 	public void start() {
 		primaryStage.setTitle("Affichage graphique");
 		
-		NumberAxis xAxis = new NumberAxis();
-		NumberAxis yAxis = new NumberAxis();
-		xAxis.setLabel("Étape");
-		yAxis.setLabel("Donnée");
-		LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
-		lineChart.setTitle("Graphique données");
-		Series<Number, Number> series = new XYChart.Series<>();
-		series.setName("Données TEST");
-		series.getData().add(new XYChart.Data<>(30, 20));
-		series.getData().add(new XYChart.Data<>(20, 15));
-		series.getData().add(new XYChart.Data<>(45, 25));
-		series.getData().add(new XYChart.Data<>(50, 5));
-		series.getData().add(new XYChart.Data<>(100, 10));
-		lineChart.getData().add(series);
+		/* MEAN DIFF CHART */
+		NumberAxis xAxisMeanDiff = new NumberAxis();
+		NumberAxis yAxisMeanDiff = new NumberAxis();
+		xAxisMeanDiff.setLabel("Cycle");
+		yAxisMeanDiff.setLabel("MeanDiff");
+		LineChart<Number, Number> lineChartMeanDiff = new LineChart<>(xAxisMeanDiff, yAxisMeanDiff);
+		seriesMeanDiff = new XYChart.Series<>();
+		seriesMeanDiff.setName("MeanDiff every cycle");
+		lineChartMeanDiff.getData().add(seriesMeanDiff);
+		lineChartMeanDiff.setPadding(new Insets(10, 0, 0, 0));
+		
+		/* MAX DIFF CHART */
+		NumberAxis xAxisMaxDiff = new NumberAxis();
+		NumberAxis yAxisMaxDiff = new NumberAxis();
+		xAxisMaxDiff.setLabel("Cycle");
+		yAxisMaxDiff.setLabel("MaxDiff");
+		LineChart<Number, Number> lineChartMaxDiff = new LineChart<>(xAxisMaxDiff, yAxisMaxDiff);
+		seriesMaxDiff = new XYChart.Series<>();
+		seriesMaxDiff.setName("MaxDiffEveryCycle");
+		lineChartMaxDiff.getData().add(seriesMaxDiff);	
 		
 		VBox root = new VBox();
-		root.getChildren().add(lineChart);
-		primaryStage.setScene(new Scene(root, 500, 300));
+		root.getChildren().addAll(lineChartMeanDiff, lineChartMaxDiff);
+		primaryStage.setScene(new Scene(root, 700, 500));
 		primaryStage.show();
 		
-		ajoutPeriodique(series);
+		update();
 	}
 	
-	
-	public void ajoutPeriodique(Series<Number, Number> series) {
+	public void update() {
+		
 		Thread taskThread = new Thread(new Runnable() {
+			
 			@Override
 			public void run() {
-				for(int i=0; i<20; i++) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						System.out.println("Exception interruption wait");
+				
+				Platform.runLater(new Runnable() {
+					@Override 
+					public void run() {
+						CAV cav = cavModel.getCav();
+						int cycle = cavModel.getCycle();
+						Planing truePlaning = cav.getTruePlaning();
+						Planing situationPlaning = cav.getPlaningSituation();
+						float meanDiff = truePlaning.computeMeanDifference(situationPlaning);
+						float maxDiff = truePlaning.computeMaxDifference(situationPlaning);
+						seriesMeanDiff.getData().add(new XYChart.Data<>(cycle, meanDiff));
+						seriesMaxDiff.getData().add(new XYChart.Data<>(cycle, maxDiff));
 					}
-					
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							Random rnd = new Random();
-							int nextX = rnd.nextInt(20);
-							int nextY = rnd.nextInt(20);
-							series.getData().add(new XYChart.Data<>(nextX, nextY));
-						}
-					});
-				}
+				});
 			}
 		});
 		taskThread.start();
+	}
+	
+	public void setCavModel(CAVModel cavModel) {
+		this.cavModel = cavModel;
+	}
+	
+	public CAVModel getCavModel() {
+		return cavModel;
 	}
 	
 }

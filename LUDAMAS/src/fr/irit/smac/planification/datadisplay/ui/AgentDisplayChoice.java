@@ -1,9 +1,7 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
-import fr.irit.smac.planification.datadisplay.controller.OpenChartDisplayHandler;
-import fr.irit.smac.planification.datadisplay.controller.OpenDataMorphDisplayHandler;
-import fr.irit.smac.planification.datadisplay.controller.OpenEffectorDisplayHandler;
-import fr.irit.smac.planification.datadisplay.controller.RunController;
+import fr.irit.smac.planification.datadisplay.controller.AgentDisplayChoiceController;
+import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -24,11 +22,11 @@ import javafx.scene.control.Slider;
 public class AgentDisplayChoice {
 
 	private Stage primaryStage;
-	private RunController runController;
-
-	public AgentDisplayChoice(RunController runController) {
+	private CAVModel cavModel;
+	
+	public AgentDisplayChoice(CAVModel cavModel) {
 		this.primaryStage = new Stage();
-		this.runController = runController;
+		this.cavModel = cavModel;
 		start(primaryStage);
 	}
 
@@ -43,23 +41,27 @@ public class AgentDisplayChoice {
 		/* DEBUT COMPOSANTS PARTIE INFERIEURE */
 		Button agentTypeOne = new Button();
 		agentTypeOne.setText("DataAgent");
+		agentTypeOne.setId("dataDisplay1ID");
 		agentTypeOne.setPrefSize(120, 70);
-		agentTypeOne.setOnAction(new OpenDataMorphDisplayHandler());
+		agentTypeOne.setOnAction(new AgentDisplayChoiceController(cavModel));
 
 		Button agentTypeTwo = new Button();
 		agentTypeTwo.setText("DataMorphAgent");
+		agentTypeTwo.setId("dataDisplay2ID");
 		agentTypeTwo.setPrefSize(120, 70);
-		agentTypeTwo.setOnAction(new OpenDataMorphDisplayHandler());
+		agentTypeTwo.setOnAction(new AgentDisplayChoiceController(cavModel));
 
 		Button agentTypeThree = new Button();
-		agentTypeThree.setText("EffectorAgent");
+		agentTypeThree.setText("CoallitionAgent");
+		agentTypeThree.setId("dataDisplay3ID");
 		agentTypeThree.setPrefSize(120, 70);
-		agentTypeThree.setOnAction(new OpenEffectorDisplayHandler());
+		agentTypeThree.setOnAction(new AgentDisplayChoiceController(cavModel));
 
 		Button agentTypeFour = new Button();
 		agentTypeFour.setText("Chart Display");
+		agentTypeFour.setId("chartDisplayID");
 		agentTypeFour.setPrefSize(120, 70);
-		agentTypeFour.setOnAction(new OpenChartDisplayHandler());
+		agentTypeFour.setOnAction(new AgentDisplayChoiceController(cavModel));
 
 		/* CONFIGURATION SCENE GRAPHS */
 		GridPane grid = new GridPane();
@@ -94,11 +96,20 @@ public class AgentDisplayChoice {
 		periodSlider.setShowTickLabels(true);
 		periodSlider.setPadding(new Insets(0, 30, 30, 30));
 		periodSlider.setShowTickMarks(true);
-		periodSlider.valueProperty().addListener(runController);
+		//periodSlider.valueProperty().addListener(controller);
 		bottomBorderPane.getChildren().addAll(labelSlider, periodSlider);
 		panelRoot.setBottom(bottomBorderPane);
 
 		primaryStage.setScene(new Scene(panelRoot, 500, 370));
 		primaryStage.show();
 	}
+	
+	public void setCavModel(CAVModel cavModel) {
+		this.cavModel = cavModel;
+	}
+	
+	public CAVModel getCavModel() {
+		return cavModel;
+	}
+	
 }
