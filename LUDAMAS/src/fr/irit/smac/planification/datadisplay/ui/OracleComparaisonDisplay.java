@@ -3,9 +3,7 @@ package fr.irit.smac.planification.datadisplay.ui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
@@ -57,6 +55,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 		root = new VBox();
 		initGrids();
 		root.setPadding(new Insets(10, 0, 0, 0));
+		root.setAlignment(Pos.BASELINE_CENTER);
 		oraclesLabel = new Label("Tableau oracles");
 		resultatsLabel = new Label("Tableau résultats");
 		resultatsLabel.setPadding(new Insets(10, 0, 0, 0));
@@ -64,6 +63,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 		Button pauseButton = new Button("PAUSE");
 		pauseButton.setId("pauseID");
 		pauseButton.setPrefSize(120, 70);
+		pauseButton.setPadding(new Insets(20, 0, 0, 0));
 		pauseButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
 		
 		root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
@@ -123,7 +123,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 	}
 	
 	//TODO remove string list parameter (will be accessible from result)
-	private void buildColumn(int step, Result result, List<String> variables, int gridType) {
+	private void buildColumn(int step, Result result, int gridType) {
 		
 		/* first line: step */
 		Label labelStep = new Label(String.valueOf(step));
@@ -146,7 +146,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 		}
 		
 		/* last line: result variables */
-		//List<String> variables = result.getVariables();
+		List<String> variables = result.getDataChosen();
 		buildVariablesCell(variables, gridType);
 	}
 	
@@ -184,72 +184,24 @@ public class OracleComparaisonDisplay implements Modifiable {
 						gridResultats.setVisible(false);
 						nbColumnUsedOracles=0;
 						nbColumnUsedResults=0;
-
-						/* OLD ----------------------------------------------------
+						initGrids();
+						
 						CAV cav = cavModel.getCav();
 						Planing truePlaning = cav.getTruePlaning();
 						Planing situationPlaning = cav.getPlaningSituation();
 						List<Result> trueResults = truePlaning.getPlan();
 						List<Result> situationResults = situationPlaning.getPlan();
-						int nbTrueResults = trueResults.size();
-						int nbSituationResults = situationResults.size();
+						System.out.println(trueResults);
 						
-						List<Float> trueFloats = new ArrayList<>();
-						for (Result res : trueResults) {
-							trueFloats.add(res.getValue());
-						}
-						List<Float> situationFloats = new ArrayList<>();
-						for (Result res : situationResults) {
-							situationFloats.add(res.getValue());
+						for(int i=0; i<truePlaning.getNbRes(); i++){
+							Result result = trueResults.get(i);
+							buildColumn(i, result, 0);
 						}
 						
-						System.out.println("Variables truePlaning");
-						for(String key : truePlaning.getExteroChosen().keySet()) {
-							System.out.println(key + " : " + truePlaning.getExteroChosen().get(key));
+						for(int i=0; i<situationPlaning.getNbRes(); i++) {
+							Result result = situationResults.get(i);
+							buildColumn(i, result, 1);
 						}
-						
-						System.out.println("Variables situationPlaning");
-						for(String key : situationPlaning.getExteroChosen().keySet()) {
-							System.out.println(key + " : " + situationPlaning.getExteroChosen().get(key));
-						}
-						*/
-						
-						/* NEW----------------------------------------------------
-						CAV cav = cavModel.getCav();
-						List<Result> truePlaning = cav.getTruePlaning();
-						List<Result> situationPlaning = cav.getPlaningSituation();
-						for(int i=0; i<truePlaning.size(); i++){
-							Result trueResult = truePlaning.get(i);
-							buildColumn(i, trueResult, 0);
-							Result situationResult = situationPlaning.get(i);
-							buildColumn(i, situationResult, 1);
-						}
-						 */
-						
-						Random rnd = new Random();
-						List<String> stringList = new ArrayList<>();
-						String var1 = "var1"; stringList.add(var1);
-						String var2 = "var2"; stringList.add(var2);
-						String var3 = "var3"; stringList.add(var3);
-						String var4 = "var4"; stringList.add(var4);
-						List<Result> results = new ArrayList<>();
-						for(int i=0; i<5; i++) {
-							Result res = new Result(i, rnd.nextFloat());
-							results.add(res);
-						}
-						
-						//int nbTrueResults = results.size();
-						//int nbSituationResults = nbTrueResults;
-						initGrids();
-						for(int i=0; i< results.size(); i++) {
-							buildColumn(i, results.get(i), stringList, 0);
-							buildColumn(i, results.get(i), stringList, 1);
-						}
-						
-//						buildFirstLigne(nbTrueResults, 0);
-//						buildLigneUn(trueFloats, 0);
-//						buildFirstLigne(nbSituationResults, 1);
-//						buildLigneUn(situationFloats, 1);
 
 						root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 					}
