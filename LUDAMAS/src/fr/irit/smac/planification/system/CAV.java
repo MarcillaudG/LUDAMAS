@@ -675,6 +675,9 @@ public class CAV {
 				//this.linksManagement(this.name+"IN SITU");
 			}
 			this.planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
+			for(String input : this.getInputInSituation()) {
+				this.planingSituation.getResAtTime(this.getCurrentTime()).addData(this.inputConstraints.get(input).getOffers().get(0).getAgent().toString());
+			}
 
 			//System.out.println("END STEP");
 

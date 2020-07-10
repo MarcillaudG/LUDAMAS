@@ -13,24 +13,24 @@ public class Planing {
 	List<Result> plan;
 	private Integer nbRes;
 
-	private Map<String,String> exteroChosen;
+	//private Map<String,String> exteroChosen;
 
 	private final float tolerance = 50.f;
 	
 
 	public Planing() {
 		plan = new ArrayList<Result>();
-		this.exteroChosen = new TreeMap<>();
+		//this.exteroChosen = new TreeMap<>();
 		this.nbRes = 0;
 	}
 
 	public Planing(Planing other) {
 		this.plan = new ArrayList<>(other.plan);
 		this.nbRes = this.plan.size();
-		this.exteroChosen = new TreeMap<>();
+		/*this.exteroChosen = new TreeMap<>();
 		for(String s : other.exteroChosen.keySet()) {
 			this.exteroChosen.put(s, other.exteroChosen.get(s));
-		}
+		}*/
 	}
 
 	public void addRes(Result res) {
@@ -94,9 +94,9 @@ public class Planing {
 		return this.plan.get(this.plan.size()-1);
 	}
 
-	public void addExteroData(String data, String extero) {
+	/*public void addExteroData(String data, String extero) {
 		this.exteroChosen.put(data, extero);
-	}
+	}*/
 
 	public List<Result> getPlan() {
 		return plan;
@@ -106,9 +106,9 @@ public class Planing {
 		return nbRes;
 	}
 
-	public Map<String, String> getExteroChosen() {
+	/*public Map<String, String> getExteroChosen() {
 		return exteroChosen;
-	}
+	}*/
 
 	public boolean isIdenticalToLast(Planing other) {
 		if(other == null) {
@@ -160,13 +160,13 @@ public class Planing {
 		System.out.println(p1.isIdenticalToLast(p2));
 	}
 
-	public void setExteroChosen(String input, String data) {
+	/*public void setExteroChosen(String input, String data) {
 		this.exteroChosen.put(input, data);
 	}
 
 	public boolean isUnderstandedInput(String in) {
 		return this.exteroChosen.get(in).equals(in);
-	}
+	}*/
 
 	/**
 	 * Compute the mean difference between two planing

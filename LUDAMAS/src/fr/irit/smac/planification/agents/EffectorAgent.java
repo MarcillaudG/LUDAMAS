@@ -240,7 +240,7 @@ public class EffectorAgent {
 			if(this.inputsConstraints.get(input).getOffers().isEmpty()) {
 				//System.out.println(input);
 			}
-			this.myPlaning.setExteroChosen(input, this.inputsConstraints.get(input).getOffers().get(0).getAgent().getData());
+			//this.myPlaning.setExteroChosen(input, this.inputsConstraints.get(input).getOffers().get(0).getAgent().getData());
 		}
 
 
@@ -305,23 +305,23 @@ public class EffectorAgent {
 
 
 	private void learn() {
-		for(String in: this.myPlaning.getExteroChosen().keySet()) {
+		/*for(String in: this.myPlaning.getExteroChosen().keySet()) {
 			if(!this.myPlaning.getExteroChosen().get(in).equals(this.lastPlaning.getExteroChosen().get(in)) && this.myPlaning.isUnderstandedInput(in)) {
 				float valueNew = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
 				float valueOld = this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in));
 				//if(this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in)) != this.cav.getValueOfData(this.lastPlaning.getExteroChosen().get(in))){
-				/*if(valueNew != valueOld) {
+				if(valueNew != valueOld) {
 					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 0.0f);
 				}
 				else {
 					this.myMatrix.setWeight(in, this.lastPlaning.getExteroChosen().get(in), 1.0f);
-				}*/
+				}
 				MorphingAgent worst = null;
 				MorphingAgent best = null;
 				Float worstValue = null;
 				Float bestValue = null;
 				float correctValue = this.cav.getValueOfData(this.myPlaning.getExteroChosen().get(in));
-				/*for(MorphingAgent morph : this.morphlings.get(in)) {
+				for(MorphingAgent morph : this.morphlings.get(in)) {
 					if(morph.getData().equals(this.lastPlaning.getExteroChosen().get(in))) {
 						morph.sendFeedback(correctValue, this.myPlaning.isTolerant(this.lastPlaning));
 					}
@@ -336,7 +336,7 @@ public class EffectorAgent {
 							worst = morph;
 						}
 					}
-				}*/
+				}
 				for(MorphingAgent morph : this.morphlings.get(in)) {
 					if(this.morphActifs.contains(morph)) {
 						float valueMorph = morph.getPredict();
@@ -351,7 +351,7 @@ public class EffectorAgent {
 						}
 					}
 				}
-				/*if(best != null) {
+				if(best != null) {
 					System.out.println("BEST:"+best+" for "+in);
 					System.out.println();
 					best.increaseUsefull();
@@ -359,9 +359,9 @@ public class EffectorAgent {
 				if(worst != null) {
 					System.out.println("WORST:"+worst+" for "+in);
 					worst.decreaseUsefull();
-				}*/
+				}
 			}
-		}
+		}*/
 	}
 
 
