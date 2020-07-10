@@ -94,7 +94,7 @@ public class AVTAgent {
 	 * 			The value of the coalition
 	 */
 	public void sendFeedback(int feed, float value) {
-		if(feed < 0) {
+		if(feed > 0) {
 			if(value > this.currentValue) {
 				this.historic[this.indHisto] = Feedback.UP;
 			}
@@ -102,7 +102,7 @@ public class AVTAgent {
 				this.historic[this.indHisto] = Feedback.DOWN;
 			}
 		}
-		if(feed > 0) {
+		if(feed < 0) {
 			if(value < this.currentValue) {
 				this.historic[this.indHisto] = Feedback.UP;
 			}
@@ -113,7 +113,6 @@ public class AVTAgent {
 		if(feed == 0) {
 			this.historic[this.indHisto] = Feedback.EQUALS;
 		}
-		
 		this.adaptWeight();
 	}
 

@@ -467,5 +467,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 		return this.dataConstraint;
 	}
 
-
+	public AVTAgent getAVTAgent(String dataInCoal) {
+		return this.avtAgents.get(dataInCoal);
+	}
 }

@@ -538,5 +538,10 @@ public class DataAgent {
 		}
 	}
 
+	public void startSituation() {
+		this.actif = false;
+		this.myValue = null;
+	}
+
 
 }

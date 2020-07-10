@@ -381,7 +381,7 @@ public class CAV {
 		System.out.println("Init");
 
 		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
-		//this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+		this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.deleteExperiment(name);
 
 		// Init the collections
@@ -532,7 +532,10 @@ public class CAV {
 		for(Effector eff: this.effectors.values()) {
 			eff.initSituation();
 		}
-
+		
+		for(DataAgent agent : this.allDataAgents.values()) {
+			agent.startSituation();
+		}
 
 		for(InputConstraint constr : this.inputConstraints.values()) {
 			constr.restart();
@@ -781,8 +784,10 @@ public class CAV {
 
 		for(CoalitionAgent coal : this.allCoalitions) {
 			snap.addEntity(coal.getName(), "COALITION");
+			snap.getEntity(coal.getName()).addOneAttribute("VALUE", "value", coal.getValue());
 			for(String dataInCoal : coal.getAllData()) {
 				snap.addRelation(dataInCoal, coal.getName(), dataInCoal +" submissed to "+ coal.getName(),true, "SUBMISSED");
+				snap.getEntity(coal.getName()).addOneAttribute("AVTAGENT", dataInCoal, coal.getAVTAgent(dataInCoal).getWeight());
 			}
 		}
 
@@ -790,7 +795,7 @@ public class CAV {
 			snap.addEntity(eff.getName(), "EFFECTOR");
 			int i = 0;
 			for(String inpu : eff.getDecisionProcess(this.currentSituation).getExtero()) {
-				snap.getEntity(eff.getName()).addOneAttribute("INPUTS", "input"+i, inpu);
+				snap.getEntity(eff.getName()).addOneAttribute("INPUTS", "input -> " +inpu, this.getTrueValueForInput(inpu));
 				//snap.getEntity(eff.getName()).addOneAttribute("ValueOFInput", inpu, this.getTrueValueForInput(inpu));
 				String nameData = this.inputConstraints.get(inpu).getOffers().get(0).getAgent().getCompetitiveName();
 				snap.addRelation(nameData, eff.getName(), nameData + "used for "+ inpu, true, "USED");
