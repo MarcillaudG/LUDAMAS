@@ -9,11 +9,13 @@ import java.util.Random;
 
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
+import fr.irit.smac.planification.datadisplay.controller.OracleComparaisonDisplayController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -58,6 +60,12 @@ public class OracleComparaisonDisplay implements Modifiable {
 		oraclesLabel = new Label("Tableau oracles");
 		resultatsLabel = new Label("Tableau résultats");
 		resultatsLabel.setPadding(new Insets(10, 0, 0, 0));
+		
+		Button pauseButton = new Button("PAUSE");
+		pauseButton.setId("pauseID");
+		pauseButton.setPrefSize(120, 70);
+		pauseButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
+		
 		root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 		
 		StackPane stack = new StackPane();
@@ -94,56 +102,6 @@ public class OracleComparaisonDisplay implements Modifiable {
 		gridResultats = newGridResultats;
 	}
 
-	private void buildFirstLigne(int nbCars, int gridType) {
-
-		for (int i = 1; i <= nbCars; i++) {
-			Label labelNumero = new Label(String.valueOf(i));
-			buildBoldLabel(labelNumero);
-			if (gridType == 0) {
-				gridOracles.add(labelNumero, i - 1, 0);
-			} else {
-				gridResultats.add(labelNumero, i - 1, 0);
-			}
-		}
-	}
-
-	private void buildLigneUn(List<Float> oracles, int gridType) {
-
-		for (int i = 0; i < oracles.size(); i++) {
-			float oracle = oracles.get(i);
-			VBox vbox = new VBox();
-			buildCellule(vbox);
-			Label labelData = new Label(String.valueOf(oracle));
-			vbox.getChildren().add(labelData);
-			if (gridType == 0) {
-				gridOracles.add(vbox, i, 1);
-			} else {
-				gridResultats.add(vbox, i, 1);
-			}
-		}
-	}
-
-	// TODO Change to private
-	public void buildLigneVariables(List<List<String>> variables, int gridType) {
-
-		for (int i = 0; i < variables.size(); i++) {
-			List<String> listeVariables = variables.get(i);
-			VBox cellule = new VBox();
-			buildCellule(cellule);
-			cellule.setAlignment(Pos.BASELINE_LEFT);
-			for (String variable : listeVariables) {
-				Label labelVariable = new Label(variable);
-				labelVariable.setPadding(new Insets(0, 5, 5, 5));
-				cellule.getChildren().add(labelVariable);
-			}
-			if (gridType == 0) {
-				gridOracles.add(cellule, i, 2);
-			} else {
-				gridResultats.add(cellule, i, 2);
-			}
-		}
-	}
-
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(105, 40);
@@ -165,7 +123,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 	}
 	
 	//TODO remove string list parameter (will be accessible from result)
-	public void buildColumn(int step, Result result, List<String> variables, int gridType) {
+	private void buildColumn(int step, Result result, List<String> variables, int gridType) {
 		
 		/* first line: step */
 		Label labelStep = new Label(String.valueOf(step));
@@ -188,6 +146,12 @@ public class OracleComparaisonDisplay implements Modifiable {
 		}
 		
 		/* last line: result variables */
+		//List<String> variables = result.getVariables();
+		buildVariablesCell(variables, gridType);
+	}
+	
+	private void buildVariablesCell(List<String> variables, int gridType) {
+		
 		VBox cellule = new VBox();
 		buildCellule(cellule);
 		cellule.setAlignment(Pos.BASELINE_LEFT);
@@ -221,7 +185,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 						nbColumnUsedOracles=0;
 						nbColumnUsedResults=0;
 
-						/* 
+						/* OLD ----------------------------------------------------
 						CAV cav = cavModel.getCav();
 						Planing truePlaning = cav.getTruePlaning();
 						Planing situationPlaning = cav.getPlaningSituation();
@@ -249,6 +213,18 @@ public class OracleComparaisonDisplay implements Modifiable {
 							System.out.println(key + " : " + situationPlaning.getExteroChosen().get(key));
 						}
 						*/
+						
+						/* NEW----------------------------------------------------
+						CAV cav = cavModel.getCav();
+						List<Result> truePlaning = cav.getTruePlaning();
+						List<Result> situationPlaning = cav.getPlaningSituation();
+						for(int i=0; i<truePlaning.size(); i++){
+							Result trueResult = truePlaning.get(i);
+							buildColumn(i, trueResult, 0);
+							Result situationResult = situationPlaning.get(i);
+							buildColumn(i, situationResult, 1);
+						}
+						 */
 						
 						Random rnd = new Random();
 						List<String> stringList = new ArrayList<>();
