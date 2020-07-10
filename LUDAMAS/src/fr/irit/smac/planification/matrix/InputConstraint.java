@@ -16,7 +16,7 @@ public class InputConstraint {
 	private String input;
 
 	private List<Offer> offers;
-	
+
 	private boolean offerChanged;
 
 	/*public InputConstraint(EffectorAgent eff, String input) {
@@ -29,7 +29,7 @@ public class InputConstraint {
 		this.input = input;
 		this.offers = new ArrayList<>();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -120,7 +120,7 @@ public class InputConstraint {
 	public void newCycleOffer() {
 		this.offerChanged = false;
 	}
-	
+
 	public boolean hasChanged() {
 		return this.offerChanged;
 	}
@@ -133,6 +133,31 @@ public class InputConstraint {
 			}
 		}
 		this.offers.remove(toRemove);
+	}
+
+	public String getInput() {
+		return this.input;
+	}
+
+	public Offer getOfferFrom(CompetitiveAgent agent) {
+		Offer res = null;
+		for(Offer offer : this.offers) {
+			if(offer.getAgent().equals(agent)) {
+				res = offer;
+			}
+		}
+		return res;
+	}
+
+	public void keepOnlyTheBest() {
+		Offer best = null;
+		for(Offer offer : this.offers) {
+			if(best == null || best.getCrit() < offer.getCrit()) {
+				best = offer;
+			}
+		}
+		this.offers.clear();
+		this.offers.add(best);
 	}
 
 

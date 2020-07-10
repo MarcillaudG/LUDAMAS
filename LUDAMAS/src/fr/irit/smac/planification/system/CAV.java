@@ -118,9 +118,9 @@ public class CAV {
 	private Planing lastPlaning;
 
 	private Planing myPlaning;
-	
+
 	private Planing planingSituation;
-	
+
 	private Planing truePlaning;
 
 	private Matrix matrix;
@@ -381,7 +381,7 @@ public class CAV {
 		System.out.println("Init");
 
 		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
-		//this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+		this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.deleteExperiment(name);
 
 		// Init the collections
@@ -415,6 +415,8 @@ public class CAV {
 		for(String s : variablesAvailable) {
 			this.allDataAgents.put(s, new DataAgent(this, s, variablesAvailable));
 			this.inputConstraints.put(s,new InputConstraint(s));
+			CoalitionAgent coal = new CoalitionAgent(this.allCoalitions.size(), this, this.allDataAgents.get(s));
+			this.allCoalitions.add(coal);
 		}
 
 
@@ -530,7 +532,10 @@ public class CAV {
 		for(Effector eff: this.effectors.values()) {
 			eff.initSituation();
 		}
-
+		
+		for(DataAgent agent : this.allDataAgents.values()) {
+			agent.startSituation();
+		}
 
 		for(InputConstraint constr : this.inputConstraints.values()) {
 			constr.restart();
@@ -545,6 +550,8 @@ public class CAV {
 	}
 
 	private void planificationEffectors() {
+
+
 		List<Effector> effShuffle = new ArrayList<Effector>(this.effectors.values());
 		Collections.shuffle(effShuffle);
 		Iterator<Effector> it = effShuffle.iterator();
@@ -720,6 +727,7 @@ public class CAV {
 		learnFromSituation();
 
 
+		this.linksManagement(this.name);
 		//System.out.println("COAL MERGE");
 		// Coalition seek to merge
 		for(CoalitionAgent coal : this.allCoalitions) {
@@ -730,7 +738,6 @@ public class CAV {
 			this.allCoalitions.remove(coal);
 		}
 		this.coalitionsToRemove.clear();
-		this.linksManagement(this.name);
 
 
 		System.out.println("END CYCLE");
@@ -777,8 +784,10 @@ public class CAV {
 
 		for(CoalitionAgent coal : this.allCoalitions) {
 			snap.addEntity(coal.getName(), "COALITION");
+			snap.getEntity(coal.getName()).addOneAttribute("VALUE", "value", coal.getValue());
 			for(String dataInCoal : coal.getAllData()) {
 				snap.addRelation(dataInCoal, coal.getName(), dataInCoal +" submissed to "+ coal.getName(),true, "SUBMISSED");
+				snap.getEntity(coal.getName()).addOneAttribute("AVTAGENT", dataInCoal, coal.getAVTAgent(dataInCoal).getWeight());
 			}
 		}
 
@@ -786,7 +795,7 @@ public class CAV {
 			snap.addEntity(eff.getName(), "EFFECTOR");
 			int i = 0;
 			for(String inpu : eff.getDecisionProcess(this.currentSituation).getExtero()) {
-				snap.getEntity(eff.getName()).addOneAttribute("INPUTS", "input"+i, inpu);
+				snap.getEntity(eff.getName()).addOneAttribute("INPUTS", "input -> " +inpu, this.getTrueValueForInput(inpu));
 				//snap.getEntity(eff.getName()).addOneAttribute("ValueOFInput", inpu, this.getTrueValueForInput(inpu));
 				String nameData = this.inputConstraints.get(inpu).getOffers().get(0).getAgent().getCompetitiveName();
 				snap.addRelation(nameData, eff.getName(), nameData + "used for "+ inpu, true, "USED");
@@ -827,7 +836,7 @@ public class CAV {
 			if(this.dataPerceivedInSituation.contains(data.getDataName()))
 				data.sendFeedBackToMorphs(true);
 		}
-		
+
 		// learn how to trust each other
 		for(String input : this.getInputInSituation()) {
 			if(this.inputConstraints.get(input).getOffers().get(0).getAgent() instanceof CoalitionAgent) {
@@ -896,7 +905,7 @@ public class CAV {
 			compet.prepareToNegociate();
 		}
 
-		while(!satisfied) {
+		//while(!satisfied) {
 			for(CompetitiveAgent compet : allCompets) {
 				compet.cycleOffer();
 			}
@@ -915,11 +924,34 @@ public class CAV {
 			if(i > 20) {
 				for(InputConstraint constr : inputConstrActive) {
 					if(!constr.isSatisfied()) {
-						System.out.println(constr + " offers : "+constr.getOffers());
+						System.out.println(constr.getOffers());
+						for(Offer offer : constr.getOffers()) {
+							System.out.println(offer.getAgent());
+							for(String data : ((CoalitionAgent)offer.getAgent()).getAllData()) {
+								System.out.println(this.allDataAgents.get(data).getCoalition());
+								System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint());
+							}
+						}
 					}
 				}
-			}
-			if(i > 30) {
+
+				for(String data: dataAgentsActives) {
+					if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
+						System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint().getOffers());
+
+					}
+				}
+				for(String data: dataAgentsActives) {
+					if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
+						System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint().getOffers());
+						for(Offer offer : this.allDataAgents.get(data).getDataUnicityConstraint().getOffers()) {
+							System.out.println(offer.getInputConstraint().getOffers());
+						}
+					}
+				}
+				for(CoalitionAgent coal : this.allCoalitions) {
+					System.out.println(coal.getID());
+				}
 				try {
 					Thread.sleep(200000);
 				} catch (InterruptedException e) {
@@ -927,6 +959,11 @@ public class CAV {
 					e.printStackTrace();
 				}
 			}
+		//}
+
+		for(InputConstraint constr : inputConstrActive) {
+			constr.keepOnlyTheBest();
+			constr.getOffers().get(0).getAgent().cycleValue(constr.getInput());
 		}
 	}
 
@@ -943,6 +980,8 @@ public class CAV {
 			missingData.removeAll(this.allDataAgents.keySet());
 			for(String missing : missingData) {
 				this.allDataAgents.put(missing,new DataAgent(this, missing, this.allInputs));
+				CoalitionAgent coal = new CoalitionAgent(this.allCoalitions.get(this.allCoalitions.size()-1).getID()+1, this, this.allDataAgents.get(missing));
+				this.allCoalitions.add(coal);
 			}
 		}
 
@@ -1118,6 +1157,7 @@ public class CAV {
 		this.coalitionsToRemove.add(coal);
 		this.allCoalitions.remove(coal);
 		for(String agent : agentToDecide) {
+			this.allDataAgents.get(agent).RemoveFromCoalition();
 			this.allDataAgents.get(agent).cycle();
 		}
 	}
@@ -1228,10 +1268,17 @@ public class CAV {
 	public Planing getTruePlaning() {
 		return this.truePlaning;
 	}
-	
+
 	public Planing getPlaningSituation() {
 		return this.planingSituation;
 	}
+
+	public void createOwnCoalition(String dataName) {
+		CoalitionAgent coal = new CoalitionAgent(this.allCoalitions.get(this.allCoalitions.size()-1).getID()+1, this, this.allDataAgents.get(dataName));
+		this.allCoalitions.add(coal);
+	}
+
+
 
 
 }

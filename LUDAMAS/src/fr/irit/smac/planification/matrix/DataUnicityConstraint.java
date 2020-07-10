@@ -102,11 +102,13 @@ public class DataUnicityConstraint {
 		return this.offers.size();
 	}
 
+	
+	
+
 	@Override
 	public String toString() {
-		return "DataUnicityConstraint [, data=" + data + "]";
+		return "DataUnicityConstraint [data=" + data + ", offers=" + offers + "]";
 	}
-	
 
 	public List<Offer> getOffers() {
 		return this.offers;
@@ -120,6 +122,26 @@ public class DataUnicityConstraint {
 		Offer toRemove = null;
 		for(Offer offer : this.offers) {
 			if(offer.getAgent().equals(agent)) {
+				toRemove = offer;
+			}
+		}
+		this.offers.remove(toRemove);
+	}
+
+	public Offer getOfferFrom(CompetitiveAgent agent) {
+		Offer res = null;
+		for(Offer offer : this.offers) {
+			if(offer.getAgent().equals(agent)) {
+				res = offer;
+			}
+		}
+		return res;
+	}
+
+	public void removeOffer(InputConstraint inputConstraint) {
+		Offer toRemove = null;
+		for(Offer offer : this.offers) {
+			if(offer.getInputConstraint().equals(inputConstraint)) {
 				toRemove = offer;
 			}
 		}
