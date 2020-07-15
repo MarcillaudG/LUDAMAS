@@ -678,7 +678,8 @@ public class CAV {
 			}
 			this.planingSituation.addRes(this.myPlaning.getResAtTime(this.getCurrentTime()));
 			for(String input : this.getInputInSituation()) {
-				this.planingSituation.getResAtTime(this.getCurrentTime()).addData(this.inputConstraints.get(input).getOffers().get(0).getAgent().toString());
+				//this.planingSituation.getResAtTime(this.getCurrentTime()).addData(this.inputConstraints.get(input).getOffers().get(0).getAgent().toString());
+				this.planingSituation.getResAtTime(this.getCurrentTime()).addData(buildStringForPlaning(this.inputConstraints.get(input).getOffers().get(0).getAgent()));
 			}
 
 			//System.out.println("END STEP");
@@ -758,7 +759,20 @@ public class CAV {
 		}*/
 	}
 
+	
+	private String buildStringForPlaning(CompetitiveAgent competitiveAgent) {
+		
+		StringBuilder resultat = new StringBuilder();
+		CoalitionAgent coalitionAgent = (CoalitionAgent) competitiveAgent;
+		resultat.append(coalitionAgent.getData()+ " value: " + coalitionAgent.getValue() + " input: " + coalitionAgent.getInput() +"    DATA: ");
+		Collection<? extends String> datas = coalitionAgent.getAllData();
+		for(String data : datas) {
+			resultat.append(data + "  ");
+		}
+		return resultat.toString();
+	}
 
+	
 	/**
 	 * Manage links
 	 */

@@ -93,7 +93,7 @@ public class MainUI extends Application {
 				spinNbVarEff, labelNbCopy, spinNbCopy);
 		root.getChildren().add(runButton);
 
-		primaryStage.setScene(new Scene(root, 300, 350));
+		primaryStage.setScene(new Scene(root, 270, 320));
 		primaryStage.show();
 	}
 

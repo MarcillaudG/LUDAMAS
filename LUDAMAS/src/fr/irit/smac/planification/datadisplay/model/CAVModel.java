@@ -12,7 +12,7 @@ public class CAVModel {
 	private List<Modifiable> modifiables;
 	private int stepPeriod = 1000;
 	private int cycle = 0;
-	private boolean pause;
+	private boolean pause = false;
 	
 	public CAVModel() {
 		this.modifiables = new ArrayList<>();
@@ -30,20 +30,22 @@ public class CAVModel {
 	}
 	
 	public void runExperiment() {
+		
 		Thread taskThread = new Thread(new Runnable() {
+			
 			@Override
 			public void run() {
-				if(!pause) {
-					while(cycle<1000) {
+				while(cycle<1000) {
+					if(!pause) {
 						cav.manageSituation(cycle);
 						cav.generateNewValues(cycle);
 						updateFrames();
-						try {
-							Thread.sleep(stepPeriod);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
 						cycle++;
+					}
+					try {
+						Thread.sleep(stepPeriod);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -53,6 +55,10 @@ public class CAVModel {
 	
 	public void addModifiables(Modifiable modifiable) {
 		modifiables.add(modifiable);
+	}
+	
+	public void removeModifiables(Modifiable modifiable) {
+		modifiables.remove(modifiable);
 	}
 	
 	public List<Modifiable> getModifiables() {
@@ -71,8 +77,8 @@ public class CAVModel {
 		return cycle;
 	}
 	
-	public void setPause() {
-		this.pause = !this.pause;
+	public void setPause(boolean value) {
+		this.pause = value;
 	}
 	
 	public boolean getPaused() {

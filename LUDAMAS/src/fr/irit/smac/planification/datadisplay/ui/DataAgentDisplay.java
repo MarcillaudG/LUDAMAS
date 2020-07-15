@@ -148,7 +148,7 @@ public class DataAgentDisplay implements Modifiable {
 
 	private void buildCellule(VBox box) {
 
-		box.setPrefSize(75, 40);
+		box.setPrefSize(120, 40);
 		box.setAlignment(Pos.CENTER);
 		box.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -159,7 +159,7 @@ public class DataAgentDisplay implements Modifiable {
 
 		label.setAlignment(Pos.CENTER);
 		label.setStyle(BOLDSTYLE);
-		label.setPrefSize(75, 40);
+		label.setPrefSize(120, 40);
 		label.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
@@ -176,12 +176,22 @@ public class DataAgentDisplay implements Modifiable {
 	}
 
 	private void buildFirstLigneDataMorphAgent(GridPane grid) {
-
-		for (int i = 0; i < 8; i++) {
-			Label labelProperty = new Label("Label " + i);
-			buildBoldLabel(labelProperty);
-			grid.add(labelProperty, i + 1, 0);
-		}
+		
+		Label labelId = new Label("Name");
+		buildBoldLabel(labelId);
+		grid.add(labelId, 0,  0);
+		Label labelValue = new Label("Value");
+		buildBoldLabel(labelValue);
+		grid.add(labelValue, 1,  0);
+		Label labelUsefulness = new Label("Usefulness");
+		buildBoldLabel(labelUsefulness);
+		grid.add(labelUsefulness, 2,  0);
+		Label labelLinearFormula = new Label("Linear formula");
+		buildBoldLabel(labelLinearFormula);
+		grid.add(labelLinearFormula, 3,  0);
+		Label labelMorphValue = new Label("Morph value");
+		buildBoldLabel(labelMorphValue);
+		grid.add(labelMorphValue, 4,  0);
 	}
 
 	private void buildFirstLigneEffectorAgent(GridPane grid) {
