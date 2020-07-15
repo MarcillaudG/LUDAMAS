@@ -133,6 +133,8 @@ public class CAV {
 
 	private float nbReplaning;
 
+	private int cycle;
+
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
 		this.currentTime = 0;
@@ -621,7 +623,7 @@ public class CAV {
 	 * The global method use to pass a situation
 	 */
 	public void manageSituation(int cycle) {
-
+		this.cycle = cycle;
 		//this.computeObjective();
 		this.startSituation();
 		this.currentTime = 0;
@@ -719,9 +721,9 @@ public class CAV {
 		//System.out.println(truePlaning);
 
 
-		LxPlot.getChart("NBReplan").add(cycle, this.nbReplaning);
+		/*LxPlot.getChart("NBReplan").add(cycle, this.nbReplaning);
 		LxPlot.getChart("MEANDiff").add(cycle,this.truePlaning.computeMeanDifference(this.planingSituation));
-		LxPlot.getChart("MAxDiff").add(cycle, this.truePlaning.computeMaxDifference(this.planingSituation));
+		LxPlot.getChart("MAxDiff").add(cycle, this.truePlaning.computeMaxDifference(this.planingSituation));*/
 
 
 
@@ -1279,6 +1281,10 @@ public class CAV {
 	public void createOwnCoalition(String dataName) {
 		CoalitionAgent coal = new CoalitionAgent(this.allCoalitions.get(this.allCoalitions.size()-1).getID()+1, this, this.allDataAgents.get(dataName));
 		this.allCoalitions.add(coal);
+	}
+
+	public int getCycle() {
+		return this.cycle;
 	}
 
 

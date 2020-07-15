@@ -543,5 +543,9 @@ public class DataAgent {
 		this.myValue = null;
 	}
 
+	public int getCurrentCycle() {
+		return this.cav.getCycle();
+	}
+
 
 }

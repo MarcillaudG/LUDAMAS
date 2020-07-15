@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import fr.irit.smac.lxplot.LxPlot;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.Input;
@@ -413,6 +414,8 @@ public class DataMorphAgent implements CompetitiveAgent{
 		}
 		 */
 		float maxi = critFirst > critSecond ? critFirst : critSecond;
+		int indMaxi = critFirst > critSecond ? indMaxSup : indMaxInf;
+		Historic mostCrit = this.historiques.get(indMaxi);
 		float y1 = this.historiques.get(indMaxSup).valueInput;
 		float y2 = this.historiques.get(indMaxInf).valueInput;
 		float x1 = this.historiques.get(indMaxSup).valueData;
@@ -441,8 +444,33 @@ public class DataMorphAgent implements CompetitiveAgent{
 			if(maxi > this.historiques.get(0).crit) {
 				this.usefulness = Math.min(this.usefulness +0.05f, 1.0f);
 			}
-			this.usefulness = 1.0f - this.historiques.get(0).crit / this.etendu;
+			else {
+				this.usefulness = Math.max(this.usefulness -0.05f, .0f);
+			}
+			
+
 			int ind = this.dataName.indexOf(':');
+			if(ind != -1) {
+				String subStr = this.dataName.substring(0, ind);
+				if(subStr.equals(this.inputName)){
+					LxPlot.getChart(this.name).add("Crit", this.superiorAgent.getCurrentCycle(), this.historiques.get(0).crit/this.etendu);
+				}
+			}
+			/*else {
+				int ind = this.dataName.indexOf(':');
+				if(ind != -1) {
+					String subStr = this.dataName.substring(0, ind);
+					if(subStr.equals(this.inputName) && Math.abs(this.historiques.get(0).crit) > this.etendu) {
+						System.out.println(this.name);
+						System.out.println(this.getLinearFormula());
+						System.out.println(this.historiques.get(0).getValueData());
+						System.out.println(this.historiques.get(0).getValueInput());
+						System.out.println(this.historiques.get(0).crit);
+						System.out.println("LAST : "+mostCrit + " ->>> "+maxi);
+						System.out.println("Current "+this.historiques.get(0));
+					}
+				}
+			}*/
 			/*if(ind != -1) {
 				String subStr = this.dataName.substring(0, ind);
 				if(subStr.equals(this.inputName) && Math.abs(this.historiques.get(0).crit) > this.etendu) {
@@ -458,8 +486,19 @@ public class DataMorphAgent implements CompetitiveAgent{
 					System.out.println(this.a * this.historiques.get(0).getValueData() + this.b);
 					System.out.println(this.historiques.get(0).getValueInput());
 				}
+				
 			}*/
 		}
+		else {
+			if(this.historiques.size() == 2) {
+				this.a = (y2 - y1)/(x2 -x1);
+				this.b = y1 - (y2-y1)/(x2-x1) * x1;
+			}
+			for(Historic histo : this.historiques) {
+				histo.computeCrit(this.a, this.b);
+			}
+		}
+		//this.usefulness = 1.0f - this.historiques.get(0).crit / this.etendu;
 		
 	}
 
@@ -774,15 +813,15 @@ public class DataMorphAgent implements CompetitiveAgent{
 			return 0;
 		}
 
-
-
-
-
 		@Override
 		public String toString() {
-			return "Historic [cycle=" + cycle + ", crit=" + crit + "]";
+			return "Historic [cycle=" + cycle + ", valueData=" + valueData + ", valueInput=" + valueInput + ", crit="
+					+ crit + "]";
 		}
 
+
+
+		
 
 	}
 
