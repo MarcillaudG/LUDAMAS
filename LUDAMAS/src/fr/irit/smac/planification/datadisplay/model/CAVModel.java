@@ -37,7 +37,6 @@ public class CAVModel {
 			public void run() {
 				while(cycle<1000) {
 					if(!pause) {
-						System.out.println("Cycle " + cycle);
 						cav.manageSituation(cycle);
 						cav.generateNewValues(cycle);
 						updateFrames();

@@ -3,6 +3,7 @@ package fr.irit.smac.planification.datadisplay.ui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import java.util.Collection;
 import java.util.List;
 
 import fr.irit.smac.planification.Planing;
@@ -37,8 +38,8 @@ public class OracleComparaisonDisplay implements Modifiable{
 	private VBox root;
 	private Label oraclesLabel;
 	private Label resultatsLabel;
-	private int nbColumnUsedOracles = 1;
-	private int nbColumnUsedResults = 1;
+	private int nbLineUsedOracles = 1;
+	private int nbLineUsedResults = 1;
 
 	/* CONSTANTES */
 	private static final Color grey = Color.rgb(100, 100, 100);
@@ -49,13 +50,14 @@ public class OracleComparaisonDisplay implements Modifiable{
 		this.primaryStage = new Stage();
 		start();
 	}
+	
 
 	public void start() {
 
 		primaryStage.setTitle("Planings comparaison");
 		root = new VBox();
 		initGrids();
-		//buildFirstLigneOracle();
+		buildFirstLigneOracle();
 		buildFirstLigneResultats();
 		oraclesLabel = new Label("Tableau oracles");
 		resultatsLabel = new Label("Tableau résultats");
@@ -79,9 +81,9 @@ public class OracleComparaisonDisplay implements Modifiable{
 		periodSlider.setValue(1000);
 		periodSlider.setBlockIncrement(100);
 		periodSlider.setShowTickLabels(true);
-		periodSlider.setPadding(new Insets(30, 60, 0, 60));
+		periodSlider.setPadding(new Insets(30, 100, 0, 100));
 		periodSlider.setShowTickMarks(true);
-		periodSlider.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel));
+		periodSlider.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel, periodSlider));
 		
 		Label labelStepSpeedSlider = new Label("Select step speed:");
 		labelStepSpeedSlider.setPadding(new Insets(20, 0, 0, 60));
@@ -93,13 +95,11 @@ public class OracleComparaisonDisplay implements Modifiable{
 		stepSpeed.setValue(0);
 		stepSpeed.setBlockIncrement(100);
 		stepSpeed.setShowTickLabels(true);
-		stepSpeed.setPadding(new Insets(30, 60, 10, 60));
+		stepSpeed.setPadding(new Insets(30, 100, 10, 100));
 		stepSpeed.setShowTickMarks(true);
-		//stepSpeed.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel));
+		stepSpeed.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel, stepSpeed));
 		
-		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, vboxButton, resultatsLabel, gridResultats, oraclesLabel, gridOracles);
-		
-		
+		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, vboxButton, oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 		
 		StackPane stack = new StackPane();
 		stack.getChildren().addAll(root);
@@ -112,9 +112,10 @@ public class OracleComparaisonDisplay implements Modifiable{
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
 
-		primaryStage.setScene(new Scene(scrollPane, 1070, 700));
+		primaryStage.setScene(new Scene(scrollPane, 970, 700));
 		primaryStage.show();
 	}
+	
 
 	private void initGrids() {
 
@@ -134,6 +135,7 @@ public class OracleComparaisonDisplay implements Modifiable{
 		gridResultats = newGridResultats;
 	}
 
+	
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(105, 50);
@@ -141,8 +143,8 @@ public class OracleComparaisonDisplay implements Modifiable{
 		box.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
-		//box.setPadding(new Insets(0, 5, 5, 5));
 	}
+	
 
 	private void buildBoldLabel(Label label) {
 
@@ -155,57 +157,40 @@ public class OracleComparaisonDisplay implements Modifiable{
 	}
 	
 
-	private void buildColumn(int step, Result result, Result oracleRes, int gridType) {
+	private void buildResultLine(int step, Result result, Result oracleRes) {
 		
 		/* step*/
 		Label labelStep = new Label(String.valueOf(step));
 		buildBoldLabel(labelStep);
-		if(gridType==0) {
-			gridOracles.add(labelStep, 0, nbColumnUsedOracles);
-		} else {
-			gridResultats.add(labelStep, 0, nbColumnUsedResults);
-		}
+		gridResultats.add(labelStep, 0, nbLineUsedResults);
 		
 		/* result float */
 		VBox vbox = new VBox();
 		buildCellule(vbox);
 		Label labelData = new Label(String.valueOf("SITU: " + result.getValue() + "\nTRUE: " + String.valueOf(oracleRes.getValue())));
 		vbox.getChildren().add(labelData);
-		if (gridType==0) {
-			gridOracles.add(vbox, 1, nbColumnUsedOracles);
-		} else {
-			gridResultats.add(vbox, 1, nbColumnUsedResults);
-		}
+		gridResultats.add(vbox, 1, nbLineUsedResults);
 		
 		/* result variables */
 		List<String> variables = result.getDataChosen();
-		buildVariablesCell(variables, gridType);
-	}
-	
-	private void buildVariablesCell(List<String> variables, int gridType) {
-		
 		VBox cellule = new VBox();
 		buildCellule(cellule);
-		cellule.setPrefSize(800, 50);
+		cellule.setPrefSize(700, 50);
 		for (String variable : variables) {
 			Label labelVariable = new Label("- " + variable);
 			labelVariable.setPadding(new Insets(0, 5, 5, 5));
 			cellule.getChildren().add(labelVariable);
 		}
-		if (gridType == 0) {
-			gridOracles.add(cellule, 2, nbColumnUsedOracles);
-			nbColumnUsedOracles++;
-		} else {
-			gridResultats.add(cellule, 2, nbColumnUsedResults);
-			nbColumnUsedResults++;
-		}
+		gridResultats.add(cellule, 2, nbLineUsedResults);
+		nbLineUsedResults++;
 	}
+	
 	
 	private void buildFirstLigneResultats() {
 		
 		VBox vboxNum = new VBox();
 		buildCellule(vboxNum);
-		Label labelNum = new Label("Number");
+		Label labelNum = new Label("Step");
 		buildBoldLabel(labelNum);
 		vboxNum.getChildren().add(labelNum);
 		gridResultats.add(vboxNum, 0, 0);
@@ -222,28 +207,55 @@ public class OracleComparaisonDisplay implements Modifiable{
 	
 		Label labelVariables = new Label("Variables");
 		buildBoldLabel(labelVariables);
-		labelVariables.setPrefSize(800, 50);
+		labelVariables.setPrefSize(700, 50);
 		vboxVariables.getChildren().add(labelVariables);
 		gridResultats.add(vboxVariables, 2, 0);
 	}
 	
-//	private void buildFirstLigneOracle() {
-//		
-//		VBox vboxNum = new VBox();
-//		buildCellule(vboxNum);
-//		Label labelNum = new Label("Number");
-//		buildBoldLabel(labelNum);
-//		vboxNum.getChildren().add(labelNum);
-//		gridOracles.add(vboxNum, 0, 0);
-//		
-//		VBox vboxValue = new VBox();
-//		buildCellule(vboxValue);
-//		Label labelValue = new Label("Value");
-//		buildBoldLabel(labelValue);
-//		vboxValue.getChildren().add(labelValue);
-//		gridOracles.add(vboxValue, 1, 0);
-//	}
+	
+	private void buildFirstLigneOracle() {
+		
+		VBox vboxValue = new VBox();
+		buildCellule(vboxValue);
+		vboxValue.setPrefWidth(700);
+		Label labelValue = new Label("Value");
+		buildBoldLabel(labelValue);
+		labelValue.setPrefWidth(700);
+		vboxValue.getChildren().add(labelValue);
+		gridOracles.add(vboxValue, 1, 0);
+		
+		VBox vboxVariables = new VBox();
+		buildCellule(vboxVariables);
+		Label labelVariables = new Label("Variable");
+		buildBoldLabel(labelVariables);
+		labelVariables.setPrefSize(210, 50);
+		vboxVariables.getChildren().add(labelVariables);
+		gridOracles.add(vboxVariables, 0, 0);
+	}
+	
+	
+	private void buildOracleLine(int step, float value, String data) {
+		
+		/* oracle float */
+		VBox vbox = new VBox();
+		buildCellule(vbox);
+		vbox.setPrefWidth(700);
+		Label labelData = new Label(String.valueOf(value));
+		vbox.getChildren().add(labelData);
+		gridOracles.add(vbox, 1, nbLineUsedOracles);
 
+		
+		/* oracle variables */
+		VBox vboxVar = new VBox();
+		buildCellule(vboxVar);		
+		vboxVar.setPrefSize(210, 50);
+		Label labelVar = new Label(data);
+		vboxVar.getChildren().add(labelVar);
+		gridOracles.add(vboxVar, 0, nbLineUsedOracles);
+		nbLineUsedOracles++;
+	}
+
+	
 	public void update() {
 
 		Thread taskThread = new Thread(new Runnable() {
@@ -258,11 +270,12 @@ public class OracleComparaisonDisplay implements Modifiable{
 						root.getChildren().removeAll(oraclesLabel, resultatsLabel, gridOracles, gridResultats);
 						gridOracles.setVisible(false);
 						gridResultats.setVisible(false);
-						nbColumnUsedOracles=1;
-						nbColumnUsedResults=1;
+						nbLineUsedOracles=1;
+						nbLineUsedResults=1;
 						initGrids();
-						buildFirstLigneResultats();
 						
+						/* Resultats */
+						buildFirstLigneResultats();
 						CAV cav = cavModel.getCav();
 						Planing truePlaning = cav.getTruePlaning();
 						Planing situationPlaning = cav.getPlaningSituation();
@@ -272,10 +285,20 @@ public class OracleComparaisonDisplay implements Modifiable{
 						
 						for(int i=0; i<situationPlaning.getNbRes(); i++) {
 							Result result = situationResults.get(i);
-							buildColumn(i, result, trueResults.get(i), 1);
+							buildResultLine(i, result, trueResults.get(i));
 						}
-
-						root.getChildren().addAll(resultatsLabel, gridResultats, oraclesLabel, gridOracles);
+						
+						/* Oracles */
+						buildFirstLigneOracle();
+						Collection<? extends String> datas = cav.getInputInSituation();
+						int step = 0;
+						for(String data : datas) {
+							//System.out.println(data + " ----- " + cav.getTrueValueForInput(data));
+							buildOracleLine(step, cav.getTrueValueForInput(data), data);
+							step++;
+						}
+						
+						root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 					}
 				});
 			}
