@@ -137,6 +137,14 @@ public class DataAgent {
 				}
 			}
 		}
+		
+		if(!this.morphs.keySet().containsAll(this.cav.getInputInSituation())) {
+			for(String other : this.cav.getInputInSituation()) {
+				if(!this.morphs.containsKey(other) && !other.equals(this.dataName)) {
+					this.morphs.put(other, new DataMorphAgent(this.dataName, other, this));
+				}
+			}
+		}
 
 		this.wantToCoal = false;
 		this.morphActifs.clear();

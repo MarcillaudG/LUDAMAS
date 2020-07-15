@@ -113,7 +113,17 @@ public class AVTAgent {
 		if(feed == 0) {
 			this.historic[this.indHisto] = Feedback.EQUALS;
 		}
-		this.adaptWeight();
+		//this.adaptWeightAVT();
+		this.adaptWeight(value);
+	}
+
+	public void sendFeedback(Float trueValueForInput) {
+		this.adaptWeight(trueValueForInput);
+		
+	}
+
+	private void adaptWeight(float value) {
+		this.weight = 1.0f - Math.abs((this.currentValue - value)) / value;
 	}
 
 	/**
@@ -127,7 +137,7 @@ public class AVTAgent {
 	 * Use AVT to adapt the weight and delta
 	 * Yes I know, it is a long method, I hate it too
 	 */
-	public void adaptWeight() {
+	public void adaptWeightAVT() {
 		if(this.historic[this.indHisto] != null) {
 			if(this.historic[this.advanceIndHisto()] != null) {
 				switch(this.historic[this.indHisto]) {
@@ -209,5 +219,6 @@ public class AVTAgent {
 	public float getValue() {
 		return this.weightedValue;
 	}
+
 
 }

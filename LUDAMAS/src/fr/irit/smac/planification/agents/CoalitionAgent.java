@@ -458,7 +458,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 			feed = 1;
 		}
 		for(DataAgent data : this.datasActifs) {
-			this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
+			//this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
+			this.avtAgents.get(data.getDataName()).sendFeedback(trueValueForInput);
 		}
 
 	}

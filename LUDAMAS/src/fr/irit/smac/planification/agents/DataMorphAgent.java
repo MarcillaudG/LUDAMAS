@@ -444,18 +444,15 @@ public class DataMorphAgent implements CompetitiveAgent{
 			if(maxi > this.historiques.get(0).crit) {
 				this.usefulness = Math.min(this.usefulness +0.05f, 1.0f);
 			}
-			else {
-				this.usefulness = Math.max(this.usefulness -0.05f, .0f);
-			}
 			
 
 			int ind = this.dataName.indexOf(':');
-			if(ind != -1) {
+			/*if(ind != -1) {
 				String subStr = this.dataName.substring(0, ind);
 				if(subStr.equals(this.inputName)){
 					LxPlot.getChart(this.name).add("Crit", this.superiorAgent.getCurrentCycle(), this.historiques.get(0).crit/this.etendu);
 				}
-			}
+			}*/
 			/*else {
 				int ind = this.dataName.indexOf(':');
 				if(ind != -1) {

@@ -529,7 +529,7 @@ public class CAV {
 		int idSituation = rand.nextInt(this.nbSituation);
 		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
-		this.currentSituation.startSituation2();
+		this.currentSituation.startSituationOneCopyMinimum();
 
 		for(Effector eff: this.effectors.values()) {
 			eff.initSituation();
@@ -640,6 +640,9 @@ public class CAV {
 			//System.out.println("PERCE");
 			//Perception
 			this.senseData();
+			if(this.currentTime == 0) {
+				System.out.println(this.dataPerceivedInSituation);
+			}
 
 
 			//System.out.println("ValuesEffect");

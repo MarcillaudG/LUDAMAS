@@ -138,6 +138,49 @@ public class Situation {
 	
 	/**
 	 * Initialise les slice dans lesquelles les inforamtions sont disponibles
+	 */
+	public void startSituationOneCopyMinimum() {
+		// Decoupage des informations disponibles
+		Random rand = new Random();
+		int slice = (int) (this.nbStep / nbDecoupage);
+		//System.out.println("SLICE:"+slice);
+		List<String> informationTmp = new ArrayList<String>(this.informationAvailable.keySet());
+		Collections.shuffle(informationTmp);
+		List<String> goodData = new ArrayList<String>();
+		for(String s : this.informationAvailable.keySet()) {
+			if(!s.contains("copy")) {
+				goodData.add(s);
+			}
+		}
+		informationTmp.removeAll(goodData);
+		List<String> alreadyDone = new ArrayList<>();
+		List<String> toRemove = new ArrayList<>();
+		for(String s : informationTmp) {
+			String subStr = s.substring(0,s.indexOf(':'));
+			if(!alreadyDone.contains(subStr)) {
+				this.informationAvailable.put(s, 0*slice);
+				alreadyDone.add(subStr);
+				toRemove.add(s);
+			}
+		}
+		for(String s : toRemove) {
+			informationTmp.remove(s);
+		}
+		
+		/*for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
+			this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), 0*slice);
+		}*/
+		informationTmp.addAll(goodData);
+		for(int i = 1; i <= nbDecoupage;i++) {
+			for(int j = 0; j < informationAvailable.size()/nbDecoupage +1 && informationTmp.size()>0; j++) {
+				this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), i*slice);
+			}
+		}
+		//System.out.println("SITU :"+this.informationAvailable);
+	}
+	
+	/**
+	 * Initialise les slice dans lesquelles les inforamtions sont disponibles
 	 * 
 	 * @param nbNotPerceivedInit
 	 * 		The number of internalData that the CAV is not able to perceived at step 0
@@ -259,7 +302,7 @@ public class Situation {
 	}
 
 	public Integer getTime() {
-		return this.nbStep;
+		return this.nbStep+1;
 	}
 
 

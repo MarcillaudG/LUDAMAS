@@ -35,12 +35,13 @@ public class CAVModel {
 			
 			@Override
 			public void run() {
+				cav.generateNewValues(cycle);
 				while(cycle<1000) {
 					if(!pause) {
 						cav.manageSituation(cycle);
-						cav.generateNewValues(cycle);
-						updateFrames();
 						cycle++;
+						updateFrames();
+						cav.generateNewValues(cycle);
 					}
 					try {
 						Thread.sleep(stepPeriod);
