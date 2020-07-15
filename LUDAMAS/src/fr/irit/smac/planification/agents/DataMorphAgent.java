@@ -196,17 +196,6 @@ public class DataMorphAgent implements CompetitiveAgent{
 		//System.out.println(valueToSend);
 	}
 
-	public void sendFeedback(float correctValue) {
-		this.value = this.superiorAgent.askValue();
-		this.addMorph(this.value, correctValue);
-		if(correctValue == this.value * this.morphValue || (this.lr != null && correctValue == this.lr.predict(this.value))) {
-			this.usefulness = Math.min(1.0f, this.usefulness+0.1f);
-		}
-		else {
-			this.usefulness = Math.max(.0f, this.usefulness-0.1f);
-		}
-
-	}
 
 
 	public void sendFeedback(Float correctValue, boolean tolerant) {
@@ -430,7 +419,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 		float x2 = this.historiques.get(indMaxInf).valueData;
 
 		if(this.historiques.size() > 2) {
-			if(Math.abs(critFirst) > Math.abs(critSecond)) {
+			/*if(Math.abs(critFirst) > Math.abs(critSecond)) {
 				float newa = (y2 - y1)/(x2 -x1);
 				float newb = y1 - (y2-y1)/(x2-x1) * x1;
 				this.a = (this.a + newa) / 2;
@@ -439,27 +428,39 @@ public class DataMorphAgent implements CompetitiveAgent{
 			else {
 				this.a = (y2 - y1)/(x2 -x1);
 				this.b = y1 - (y2-y1)/(x2-x1) * x1;
+			}*/
+
+			float newa = (y2 - y1)/(x2 -x1);
+			float newb = y1 - (y2-y1)/(x2-x1) * x1;
+			this.a = (this.a + newa) / 2;
+			this.b = (this.b + newb) / 2;
+			for(Historic histo : this.historiques) {
+				histo.computeCrit(this.a, this.b);
 			}
-		}
-		/*if(this.dataName.contains(this.inputName)) {
-			System.out.println("BEFORE ->>>>" +this.dataName +" ->>> "+this.inputName);
-			System.out.println("SUP  ->>>> "+ this.historiques.get(indMaxSup).crit);
-			System.out.println("INF  ->>>> "+ this.historiques.get(indMaxInf).crit);
-		}*/
-		for(Historic histo : this.historiques) {
-			histo.computeCrit(a, b);
-		}/*
-		if(this.dataName.contains(this.inputName)) {
-			System.out.println("AFTER"+this.dataName +" ->>> "+this.inputName);
-			System.out.println("SUP  ->>>> "+ this.historiques.get(indMaxSup).crit);
-			System.out.println("INF  ->>>> "+ this.historiques.get(indMaxInf).crit);
 			Collections.sort(this.historiques);
-			System.out.println("NEW MAX : "+this.historiques.get(0).crit);
-		}*/
-		Collections.sort(this.historiques);
-		if(maxi < this.historiques.get(0).crit) {
-			this.usefulness = Math.min(this.usefulness +0.05f, 1.0f);
+			if(maxi > this.historiques.get(0).crit) {
+				this.usefulness = Math.min(this.usefulness +0.05f, 1.0f);
+			}
+			this.usefulness = 1.0f - this.historiques.get(0).crit / this.etendu;
+			int ind = this.dataName.indexOf(':');
+			/*if(ind != -1) {
+				String subStr = this.dataName.substring(0, ind);
+				if(subStr.equals(this.inputName) && Math.abs(this.historiques.get(0).crit) > this.etendu) {
+					System.out.println(this.name);
+					System.out.println(this.getLinearFormula());
+					System.out.println(this.historiques.get(0).getValueData());
+					System.out.println(this.historiques.get(0).getValueInput());
+				}
+			}*/
+			/*if(this.dataName.contains(this.inputName)) {
+				if(Math.abs(this.historiques.get(0).crit) > this.etendu) {
+					System.out.println(this.name);
+					System.out.println(this.a * this.historiques.get(0).getValueData() + this.b);
+					System.out.println(this.historiques.get(0).getValueInput());
+				}
+			}*/
 		}
+		
 	}
 
 	/**
@@ -494,7 +495,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 
 		// Remove the less critical historic
-		if(this.historiques.size() > MAX_SIZE_HISTORIC) {
+		if(this.historiques.size() >= MAX_SIZE_HISTORIC) {
 			/*Float minDiff = Math.abs(this.morphingLinear(myValue) - otherValue);
 			Integer indMin = -1;
 			int indMax = -1;
@@ -748,8 +749,16 @@ public class DataMorphAgent implements CompetitiveAgent{
 			this.valueInput = valueInput;
 		}
 
+		public float getValueInput() {
+			return this.valueInput;
+		}
+
+		public float getValueData() {
+			return this.valueData;
+		}
+
 		public void computeCrit(float a , float b) {
-			this.crit = Math.abs(this.valueData * a +b - valueInput);
+			this.crit = Math.abs(this.valueData * a + b - valueInput);
 		}
 
 		@Override
