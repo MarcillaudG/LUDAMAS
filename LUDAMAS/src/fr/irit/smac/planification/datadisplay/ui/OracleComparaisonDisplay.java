@@ -157,7 +157,7 @@ public class OracleComparaisonDisplay implements Modifiable{
 
 	private void buildColumn(int step, Result result, Result oracleRes, int gridType) {
 		
-		/* first line: step */
+		/* step*/
 		Label labelStep = new Label(String.valueOf(step));
 		buildBoldLabel(labelStep);
 		if(gridType==0) {
@@ -166,7 +166,7 @@ public class OracleComparaisonDisplay implements Modifiable{
 			gridResultats.add(labelStep, 0, nbColumnUsedResults);
 		}
 		
-		/* second line: result float */
+		/* result float */
 		VBox vbox = new VBox();
 		buildCellule(vbox);
 		Label labelData = new Label(String.valueOf("SITU: " + result.getValue() + "\nTRUE: " + String.valueOf(oracleRes.getValue())));
@@ -177,7 +177,7 @@ public class OracleComparaisonDisplay implements Modifiable{
 			gridResultats.add(vbox, 1, nbColumnUsedResults);
 		}
 		
-		/* last line: result variables */
+		/* result variables */
 		List<String> variables = result.getDataChosen();
 		buildVariablesCell(variables, gridType);
 	}
