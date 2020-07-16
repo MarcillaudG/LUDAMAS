@@ -1,6 +1,7 @@
 package fr.irit.smac.planification.datadisplay.controller;
 
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
+import fr.irit.smac.planification.datadisplay.ui.DataMorphAgentDisplay;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
@@ -18,8 +19,13 @@ public class DataAgentDisplayController implements EventHandler<ActionEvent>{
 	public void handle(ActionEvent actionEvent) {
 		Button sourceButton = (Button) actionEvent.getSource();
 		String idButton = sourceButton.getId();
+		/* cas du bouton close */
 		if (idButton.equals("closeID")) {
 			closeAction(sourceButton);
+		/* cas des boutons dataMorph */
+		} else {
+			DataMorphAgentDisplay morphAgentDisplay = new DataMorphAgentDisplay(cavModel, idButton);
+			cavModel.addModifiables(morphAgentDisplay);
 		}
 	}
 

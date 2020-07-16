@@ -32,7 +32,7 @@ public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 	
 	
 	private void runAgentDisplay(int agentType) {
-		DataAgentDisplay agentDisplay = new DataAgentDisplay(agentType);
+		DataAgentDisplay agentDisplay = new DataAgentDisplay(agentType, cavModel);
 		cavModel.addModifiables(agentDisplay);
 		agentDisplay.buildWindow();
 	}

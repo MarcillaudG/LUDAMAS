@@ -5,11 +5,16 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
+import fr.irit.smac.planification.agents.DataAgent;
+import fr.irit.smac.planification.agents.DataMorphAgent;
 import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
+import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
@@ -37,6 +42,8 @@ public class DataAgentDisplay implements Modifiable {
 	private VBox root;
 	private int agentType;
 	private CAVModel cavModel;
+	private int usedLines = 1;
+	private DataAgentDisplayController controller;
 	
 	/* TESTS ONLY */
 	private List<AgentPersonTest> personnes;
@@ -48,6 +55,7 @@ public class DataAgentDisplay implements Modifiable {
 	public DataAgentDisplay(int agentType, CAVModel cavModel) {
 		this.agentType = agentType;
 		this.cavModel = cavModel;
+		this.controller = new DataAgentDisplayController(cavModel);
 	}
 	
 	public void buildWindow() {
@@ -108,18 +116,12 @@ public class DataAgentDisplay implements Modifiable {
 		closeButton.setId("closeID");
 		closeButton.setPrefSize(70, 30);
 		closeButton.setStyle(BOLDSTYLE);
-		closeButton.setOnAction(new DataAgentDisplayController(cavModel));
-
-		Button refreshButton = new Button();
-		refreshButton.setText("REFRESH");
-		refreshButton.setPrefSize(70, 30);
-		refreshButton.setStyle(BOLDSTYLE);
-		refreshButton.setOnAction(new DataAgentDisplayController(cavModel));
+		closeButton.setOnAction(controller);
 
 		HBox hboxButtons = new HBox();
 		hboxButtons.setSpacing(50.0);
 		hboxButtons.setPadding(new Insets(10, 0, 20, 0));
-		hboxButtons.getChildren().addAll(closeButton, refreshButton);
+		hboxButtons.getChildren().addAll(closeButton);
 		hboxButtons.setAlignment(Pos.CENTER);
 
 		/* SCENE GRAPHS PARAMETRAGES */
@@ -141,9 +143,6 @@ public class DataAgentDisplay implements Modifiable {
 
 		primaryStage.setScene(new Scene(scrollPane, 645, 500));
 		primaryStage.show();
-
-		/* TESTS DE MOFICIATION DU GRIDPANE */
-		update();
 	}
 
 	private void buildCellule(VBox box) {
@@ -154,25 +153,31 @@ public class DataAgentDisplay implements Modifiable {
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
-
-	private void buildBoldLabel(Label label) {
-
+	
+	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
-		label.setStyle(BOLDSTYLE);
 		label.setPrefSize(120, 40);
 		label.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
 
+	private void buildBoldLabel(Label label) {
+
+		buildLabel(label);
+		label.setStyle(BOLDSTYLE);
+	}
+
 	// A CHANGER EN FONCTION DES ATTRIBUTS A AFFICHER
 	private void buildFirstLigneDataAgent(GridPane grid) {
 
-		for (int i = 0; i < 8; i++) {
-			Label labelProperty = new Label("Label " + i);
-			buildBoldLabel(labelProperty);
-			grid.add(labelProperty, i + 1, 0);
-		}
+		Label labelId = new Label("Agent Name");
+		buildBoldLabel(labelId);
+		grid.add(labelId, 0, 0);
+		Label labelDataMorph = new Label("DataMorphAgents");
+		buildBoldLabel(labelDataMorph);
+		grid.add(labelDataMorph, 1, 0);
+		//TODO la suite ....
 	}
 
 	private void buildFirstLigneDataMorphAgent(GridPane grid) {
@@ -217,45 +222,93 @@ public class DataAgentDisplay implements Modifiable {
 
 	// A CHANGER EN FONCTION DES ATTRIBUTS A AFFICHER
 	private void buildLignesDataAgent(GridPane grid, List<AgentPersonTest> data) {
-
-		for (int j = 0; j < 15; j++) {
-			VBox celluleAgentName = new VBox();
-			buildCellule(celluleAgentName);
-
-			Label labelAgentName = new Label("AName " + j);
+		
+		CAV cav = cavModel.getCav();
+		Map<String, DataAgent> mapDataAgents = cav.getAllDataAgent();
+		Collection<String> keysDataAgent = mapDataAgents.keySet();
+		
+		for(String key : keysDataAgent) {
+			VBox labelNameBox = new VBox();
+			buildCellule(labelNameBox);
+			DataAgent dataAgent = mapDataAgents.get(key);
+			Label labelAgentName = new Label(dataAgent.getDataName());
 			labelAgentName.setStyle(BOLDSTYLE);
-			celluleAgentName.getChildren().add(labelAgentName);
-
-			VBox celluleNom = buildNewCellule(data.get(0).getNom(), data.get(0).getNom());
-			VBox cellulePrenom = buildNewCellule(data.get(0).getPrenom(), data.get(0).getPrenom());
-			VBox celluleAge = buildNewCellule(data.get(0).getAge(), data.get(0).getAge());
-
-			grid.add(celluleAgentName, 1, j + 1);
-			grid.add(celluleNom, 2, j + 1);
-			grid.add(cellulePrenom, 3, j + 1);
-			grid.add(celluleAge, 4, j + 1);
+			labelNameBox.getChildren().add(labelAgentName);
+			VBox buttonBox = new VBox();
+			buildCellule(buttonBox);
+			Button buttonOpenDataMorph = new Button("DataMorph");
+			buttonOpenDataMorph.setPrefSize(70, 30);
+			buttonOpenDataMorph.setId(key);
+			buttonBox.getChildren().add(buttonOpenDataMorph);
+			buttonOpenDataMorph.setOnAction(controller);
+			grid.add(labelNameBox, 0, usedLines);
+			grid.add(buttonBox, 1, usedLines);
+			usedLines++;
 		}
 	}
 
 	private void buildLignesDataMorphAgent(GridPane grid, List<AgentPersonTest> data) {
-
-		for (int j = 0; j < 15; j++) {
+		
+		CAV cav = cavModel.getCav();
+		Map<String, DataAgent> allDataAgents = cav.getAllDataAgent();
+		Collection<DataAgent> dataAgentValues = allDataAgents.values();
+		List<DataMorphAgent> dataMorphAgents = new ArrayList<>();
+		
+		for(DataAgent dataAgent : dataAgentValues) {
+			Collection<? extends DataMorphAgent> morphAgents = dataAgent.getAllMorphs();
+			dataMorphAgents.addAll(morphAgents);
+		}
+		
+		
+//		for(String key : dataAgentsKeys) {
+//			DataAgent dataAgent = allDataAgents.get(key);
+//			Collection<? extends DataMorphAgent> morphAgents =  dataAgent.getAllMorphs();
+//			for(DataMorphAgent DMAgent : morphAgents) {
+//				if(!dataMorphAgents.contains(DMAgent)) {
+//					dataMorphAgents.add(DMAgent);
+//				}
+//			}
+//			
+//		}
+		//System.out.println(dataMorphAgents.size());
+		
+		for(DataMorphAgent dataMorphAgent : dataMorphAgents) {
+			/* Name */
 			VBox celluleAgentName = new VBox();
 			buildCellule(celluleAgentName);
-
-			Label labelAgentName = new Label("AName " + j);
+			Label labelAgentName = new Label(dataMorphAgent.getData());
 			labelAgentName.setStyle(BOLDSTYLE);
 			celluleAgentName.getChildren().add(labelAgentName);
-
-			VBox celluleNom = buildNewCellule(data.get(0).getNom(), data.get(0).getNom());
-			VBox cellulePrenom = buildNewCellule(data.get(0).getPrenom(), data.get(0).getPrenom());
-			VBox celluleAge = buildNewCellule(data.get(0).getAge(), data.get(0).getAge());
-
-			grid.add(celluleAgentName, 1, j + 1);
-			grid.add(celluleNom, 2, j + 1);
-			grid.add(cellulePrenom, 3, j + 1);
-			grid.add(celluleAge, 4, j + 1);
+			grid.add(celluleAgentName, 0, usedLines);
+			/* usefulness */
+			Label labelUsefulness = new Label(String.valueOf(dataMorphAgent.getUsefulness()));
+			grid.add(labelUsefulness, 1, usedLines);
+			/* linear formula */
+			Label labelLinearFormula = new Label(dataMorphAgent.getMorphLRFormula());
+			grid.add(labelLinearFormula, 2, usedLines);
+			/* morph value */
+			Label labelMorphValue = new Label(String.valueOf(dataMorphAgent.getMorphValue()));
+			grid.add(labelMorphValue, 3, usedLines);
+			usedLines++;
 		}
+
+//		for (int j = 0; j < 15; j++) {
+//			VBox celluleAgentName = new VBox();
+//			buildCellule(celluleAgentName);
+//
+//			Label labelAgentName = new Label("AName " + j);
+//			labelAgentName.setStyle(BOLDSTYLE);
+//			celluleAgentName.getChildren().add(labelAgentName);
+//
+//			VBox celluleNom = buildNewCellule(data.get(0).getNom(), data.get(0).getNom());
+//			VBox cellulePrenom = buildNewCellule(data.get(0).getPrenom(), data.get(0).getPrenom());
+//			VBox celluleAge = buildNewCellule(data.get(0).getAge(), data.get(0).getAge());
+//
+//			grid.add(celluleAgentName, 1, j + 1);
+//			grid.add(celluleNom, 2, j + 1);
+//			grid.add(cellulePrenom, 3, j + 1);
+//			grid.add(celluleAge, 4, j + 1);
+//		}
 
 	}
 
@@ -285,6 +338,7 @@ public class DataAgentDisplay implements Modifiable {
 		Thread taskThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				
 				Random rnd = new Random();
 				personnes.get(0).setAge(rnd.nextInt(50));
 
@@ -303,7 +357,7 @@ public class DataAgentDisplay implements Modifiable {
 						newGrid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK,
 								Color.BLACK, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
-
+						usedLines = 1;
 						switch (agentType) {
 						case 1:
 							buildFirstLigneDataAgent(newGrid);

@@ -36,11 +36,16 @@ public class RunController implements EventHandler<ActionEvent> {
 	}
 
 	private void fileChoosing() {
-
-		File selectedFile = mainApp.getFileChooser().showOpenDialog(mainApp.getPrimaryStage());
-		filePath = selectedFile.getAbsolutePath();
-		Label textSelectedFile = mainApp.getTextSelectedLabel();
-		textSelectedFile.setText(filePath);
+		
+		try {
+			File selectedFile = mainApp.getFileChooser().showOpenDialog(mainApp.getPrimaryStage());
+			filePath = selectedFile.getAbsolutePath();
+			Label textSelectedFile = mainApp.getTextSelectedLabel();
+			textSelectedFile.setText(filePath);
+		} catch(NullPointerException e) {
+			//TODO: label text: "please select a file"
+			System.out.println("Please select a file");
+		}
 	}
 
 	private void runHandle() {
@@ -49,14 +54,14 @@ public class RunController implements EventHandler<ActionEvent> {
 		int nbSituations = mainApp.getValueSpinSituations();
 		int nbVarEff = mainApp.getValueSpinVarEff();
 		int nbCopy = mainApp.getValueSpinCopy();
-		this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
-		this.cavModel.setCav(cav);
-		
-		OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cavModel);
-		cavModel.addModifiables(oracleDisplay);
-		new AgentDisplayChoice(cavModel);
-
-		cavModel.runExperiment();
+		if(filePath!=null) {
+			this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
+			this.cavModel.setCav(cav);
+			OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cavModel);
+			cavModel.addModifiables(oracleDisplay);
+			new AgentDisplayChoice(cavModel);
+			cavModel.runExperiment();
+		}
 	}
 	
 	

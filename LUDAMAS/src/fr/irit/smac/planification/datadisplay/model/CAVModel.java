@@ -30,28 +30,29 @@ public class CAVModel {
 	}
 	
 	public void runExperiment() {
-		
-		Thread taskThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				while(cycle<1000) {
-					if(!pause) {
-						cav.manageSituation(cycle);
-						cav.generateNewValues(cycle);
-						updateFrames();
-						cycle++;
-					}
-					try {
-						Thread.sleep(stepPeriod);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-		taskThread.start();
-	}
+
+        Thread taskThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                cav.generateNewValues(cycle);
+                while(cycle<1000) {
+                    if(!pause) {
+                        cav.manageSituation(cycle);
+                        cycle++;
+                        updateFrames();
+                        cav.generateNewValues(cycle);
+                    }
+                    try {
+                        Thread.sleep(stepPeriod);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        taskThread.start();
+    }
 	
 	public void addModifiables(Modifiable modifiable) {
 		modifiables.add(modifiable);
