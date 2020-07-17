@@ -20,21 +20,16 @@ public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 		Button buttonSource = (Button) actionEvent.getSource();
 		String idButton = buttonSource.getId();
 		if (idButton.equals("dataDisplay1ID")) {
-			runAgentDisplay(1);
-		} else if (idButton.equals("dataDisplay2ID")) {
-			runAgentDisplay(2);
-		} else if (idButton.equals("dataDisplay3ID")) {
-			runAgentDisplay(3);
+			runAgentDisplay();
 		} else if (idButton.equals("chartDisplayID")) {
 			runChartDisplay();
 		}
 	}
 	
 	
-	private void runAgentDisplay(int agentType) {
-		DataAgentDisplay agentDisplay = new DataAgentDisplay(agentType, cavModel);
+	private void runAgentDisplay() {
+		DataAgentDisplay agentDisplay = new DataAgentDisplay(cavModel);
 		cavModel.addModifiables(agentDisplay);
-		agentDisplay.buildWindow();
 	}
 	
 	private void runChartDisplay() {

@@ -37,13 +37,10 @@ public class CAVModel {
             public void run() {
                 cav.generateNewValues(cycle);
                 while(cycle<1000) {
-                    if(!pause) {
-                        cav.manageSituation(cycle);
-                        cycle++;
-                        updateFrames();
-                        cav.generateNewValues(cycle);
-                    }
-                    try {
+                	if(!pause) {
+                        oneCycle();
+                	}
+                	try {
                         Thread.sleep(stepPeriod);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -53,6 +50,17 @@ public class CAVModel {
         });
         taskThread.start();
     }
+	
+	/* Pour executer un cycle:
+	 * Si not paused -> mettre sur pause et attendre la fin d'un cycle
+	 * Si paused -> executer le cycle
+	 */
+	public void oneCycle() {
+        cav.manageSituation(cycle);
+        cycle++;
+        updateFrames();
+        cav.generateNewValues(cycle);
+	}
 	
 	public void addModifiables(Modifiable modifiable) {
 		modifiables.add(modifiable);

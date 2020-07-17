@@ -1,12 +1,7 @@
-package fr.irit.smac.planification.datadisplay.ui;
+package fr.irit.smac.planification.datadisplay.controller;
 
-import java.util.Collection;
-import java.util.Map;
-
-import fr.irit.smac.planification.agents.DataAgent;
-import fr.irit.smac.planification.agents.DataMorphAgent;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
-import fr.irit.smac.planification.system.CAV;
+import fr.irit.smac.planification.datadisplay.ui.Modifiable;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -25,32 +20,30 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class DataMorphAgentDisplay implements Modifiable {
-	
+public class CoalitionAgentDisplay implements Modifiable {
+
 	private int usedLines = 1;
 	private CAVModel cavModel;
+	private GridPane grid;
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
-	private GridPane grid;
 	private VBox root;
-	private String dataAgentName;
 	private Stage primaryStage;
-	
-	public DataMorphAgentDisplay(CAVModel cavModel, String dataAgentName) {
-		this.primaryStage = new Stage();
+
+	public CoalitionAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
-		this.dataAgentName = dataAgentName;
+		this.primaryStage = new Stage();
 		start();
 	}
-	
+
 	public void start() {
-		primaryStage.setTitle(dataAgentName + ": DataMorphAgents");
+		primaryStage.setTitle("CoalitionAgentsDisplay");
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 				null, new BorderWidths(0.5), null)));
-		
-		buildFirstLigneDataMorphAgent(grid);
+
+		buildFirstLigneCoalitionAgent(grid);
 
 		root = new VBox();
 		root.setPadding(new Insets(15, 15, 15, 15));
@@ -70,30 +63,30 @@ public class DataMorphAgentDisplay implements Modifiable {
 		primaryStage.setScene(new Scene(scrollPane, 645, 500));
 		primaryStage.show();
 	}
-	
-	private void buildFirstLigneDataMorphAgent(GridPane grid) {
-		
+
+	private void buildFirstLigneCoalitionAgent(GridPane grid) {
+
 		Label labelId = new Label("Name");
 		buildBoldLabel(labelId);
-		grid.add(labelId, 0,  0);
+		grid.add(labelId, 0, 0);
 		Label labelValue = new Label("Value");
 		buildBoldLabel(labelValue);
-		grid.add(labelValue, 1,  0);
+		grid.add(labelValue, 1, 0);
 		Label labelUsefulness = new Label("Usefulness");
 		buildBoldLabel(labelUsefulness);
-		grid.add(labelUsefulness, 2,  0);
+		grid.add(labelUsefulness, 2, 0);
 		Label labelLinearFormula = new Label("Linear formula");
 		buildBoldLabel(labelLinearFormula);
-		grid.add(labelLinearFormula, 3,  0);
+		grid.add(labelLinearFormula, 3, 0);
 		Label labelMorphValue = new Label("Morph value");
 		buildBoldLabel(labelMorphValue);
-		grid.add(labelMorphValue, 4,  0);
-		Label labelTrueValue = new Label("True value");
-		buildBoldLabel(labelTrueValue);
-		grid.add(labelTrueValue, 5,  0);
+		grid.add(labelMorphValue, 4, 0);
 	}
 
-	
+	private void buildLignesCoalitionAgent(GridPane grid) {
+		// TODO
+	}
+
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(120, 40);
@@ -116,63 +109,17 @@ public class DataMorphAgentDisplay implements Modifiable {
 		buildLabel(label);
 		label.setStyle(BOLDSTYLE);
 	}
-	
-	
-	private void buildLignesDataMorphAgent(GridPane grid) {
-		
-		CAV cav = cavModel.getCav();
-		Map<String, DataAgent> allDataAgents = cav.getAllDataAgent();
-		DataAgent dataAgent = allDataAgents.get(dataAgentName);
-		Collection<? extends DataMorphAgent> dataMorphAgents = dataAgent.getAllMorphs();
-		
-		for(DataMorphAgent dataMorphAgent : dataMorphAgents) {
-			/* Name */
-			VBox celluleAgentName = new VBox();
-			buildCellule(celluleAgentName);
-			Label labelAgentName = new Label(dataMorphAgent.getName());
-			labelAgentName.setStyle(BOLDSTYLE);
-			celluleAgentName.getChildren().add(labelAgentName);
-			grid.add(celluleAgentName, 0, usedLines);
-			/* value */
-			Label labelValue = new Label();
-			try {
-				labelValue.setText(String.valueOf(dataMorphAgent.getValue()));
-			} catch(NullPointerException e) {
-				labelValue.setText("No value");
-			}
-			buildLabel(labelValue);
-			grid.add(labelValue, 1,  usedLines);
-			/* usefulness */
-			Label labelUsefulness = new Label(String.valueOf(dataMorphAgent.getUsefulness()));
-			buildLabel(labelUsefulness);
-			grid.add(labelUsefulness, 2, usedLines);
-			/* linear formula */
-			Label labelLinearFormula = new Label(dataMorphAgent.getLinearFormula());
-			buildLabel(labelLinearFormula);
-			grid.add(labelLinearFormula, 3, usedLines);
-			/* morph value */
-			Label labelMorphValue = new Label(String.valueOf(dataMorphAgent.getMorphValue()));
-			buildLabel(labelMorphValue);
-			grid.add(labelMorphValue, 4, usedLines);
-			
-			Label labelTrueValue = new Label(String.valueOf(cav.getTrueValueForInput(dataMorphAgent.getInput())));
-			buildLabel(labelTrueValue);
-			grid.add(labelTrueValue, 5, usedLines);
-			usedLines++;
-		}
-	}
-	
+
 	@Override
 	public void update() {
-		
 		Thread taskThread = new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
-				
+
 				Platform.runLater(new Runnable() {
-					
-					@Override 
+
+					@Override
 					public void run() {
 						root.getChildren().remove(grid);
 						grid.setVisible(false);
@@ -181,8 +128,8 @@ public class DataMorphAgentDisplay implements Modifiable {
 								Color.BLACK, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 						usedLines = 1;
-						buildFirstLigneDataMorphAgent(newGrid);
-						buildLignesDataMorphAgent(newGrid);
+//						buildFirstLigneDataMorphAgent(newGrid);
+//						buildLignesDataMorphAgent(newGrid);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
 					}
@@ -191,5 +138,4 @@ public class DataMorphAgentDisplay implements Modifiable {
 		});
 		taskThread.start();
 	}
-
 }

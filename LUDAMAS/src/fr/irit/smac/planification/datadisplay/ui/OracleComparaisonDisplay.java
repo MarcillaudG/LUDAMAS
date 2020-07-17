@@ -41,7 +41,6 @@ public class OracleComparaisonDisplay implements Modifiable{
 	private int nbLineUsedOracles = 1;
 	private int nbLineUsedResults = 1;
 
-	/* CONSTANTES */
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 
@@ -69,7 +68,13 @@ public class OracleComparaisonDisplay implements Modifiable{
 		pauseButton.setId("pauseID");
 		pauseButton.setPrefSize(90, 60);
 		pauseButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
-		vboxButton.getChildren().add(pauseButton);
+		
+		Button oneCycleButton = new Button("ONE CYCLE");
+		oneCycleButton.setId("oneCycleID");
+		oneCycleButton.setPrefSize(90, 60);
+		oneCycleButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
+		vboxButton.getChildren().addAll(pauseButton, oneCycleButton);
+		
 		
 		Label labelSliderPeriod = new Label("Select period between two steps:");
 		labelSliderPeriod.setPadding(new Insets(20, 0, 0, 60));
