@@ -2,6 +2,7 @@ package fr.irit.smac.planification.datadisplay.controller;
 
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.ChartDisplay;
+import fr.irit.smac.planification.datadisplay.ui.CoalitionAgentDisplay;
 import fr.irit.smac.planification.datadisplay.ui.DataAgentDisplay;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,6 +22,8 @@ public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 		String idButton = buttonSource.getId();
 		if (idButton.equals("dataDisplay1ID")) {
 			runAgentDisplay();
+		} else if (idButton.equals("coalitionAgentDisplayID")) {
+			runCoalitionAgentDisplay();
 		} else if (idButton.equals("chartDisplayID")) {
 			runChartDisplay();
 		}
@@ -30,6 +33,11 @@ public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 	private void runAgentDisplay() {
 		DataAgentDisplay agentDisplay = new DataAgentDisplay(cavModel);
 		cavModel.addModifiables(agentDisplay);
+	}
+	
+	private void runCoalitionAgentDisplay() {
+		CoalitionAgentDisplay coalitionDisplay = new CoalitionAgentDisplay(cavModel);
+		cavModel.addModifiables(coalitionDisplay);
 	}
 	
 	private void runChartDisplay() {

@@ -53,7 +53,7 @@ public class AgentDisplayChoice {
 
 		Button agentTypeThree = new Button();
 		agentTypeThree.setText("CoallitionAgent");
-		agentTypeThree.setId("dataDisplay3ID");
+		agentTypeThree.setId("coalitionAgentDisplayID");
 		agentTypeThree.setPrefSize(120, 70);
 		agentTypeThree.setOnAction(new AgentDisplayChoiceController(cavModel));
 

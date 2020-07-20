@@ -1,17 +1,12 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import fr.irit.smac.planification.agents.DataAgent;
-import fr.irit.smac.planification.agents.DataMorphAgent;
 import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
@@ -22,7 +17,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -44,8 +38,6 @@ public class DataAgentDisplay implements Modifiable {
 	private int usedLines = 1;
 	private DataAgentDisplayController controller;
 	private Stage primaryStage;
-	
-	/* TESTS ONLY */
 	
 	public DataAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
@@ -127,26 +119,18 @@ public class DataAgentDisplay implements Modifiable {
 		Label labelId = new Label("Agent Name");
 		buildBoldLabel(labelId);
 		grid.add(labelId, 0, 0);
+		Label labelValue = new Label("Value");
+		buildBoldLabel(labelValue);
+		grid.add(labelValue, 1, 0);
+		Label labelCoalition = new Label("Value");
+		buildBoldLabel(labelCoalition);
+		grid.add(labelCoalition, 2, 0);
 		Label labelDataMorph = new Label("DataMorphAgents");
 		buildBoldLabel(labelDataMorph);
-		grid.add(labelDataMorph, 1, 0);
-		//TODO la suite ....
+		labelDataMorph.setPrefWidth(240);
+		grid.add(labelDataMorph, 3, 0);
 	}
 
-
-	//TODO
-	private VBox buildNewCellule(Object data, Object linkedData) {
-
-		VBox cellule = new VBox();
-		buildCellule(cellule);
-		Label labelData = new Label(data.toString());
-		Label labelLinkedData = new Label(linkedData.toString());
-		Separator separator = new Separator(Orientation.HORIZONTAL);
-		cellule.getChildren().addAll(labelData, separator, labelLinkedData);
-		return cellule;
-	}
-
-	//TODO
 	private void buildLignesDataAgent(GridPane grid) {
 		
 		CAV cav = cavModel.getCav();
@@ -154,21 +138,37 @@ public class DataAgentDisplay implements Modifiable {
 		Collection<String> keysDataAgent = mapDataAgents.keySet();
 		
 		for(String key : keysDataAgent) {
+			/* Name */
 			VBox labelNameBox = new VBox();
 			buildCellule(labelNameBox);
 			DataAgent dataAgent = mapDataAgents.get(key);
 			Label labelAgentName = new Label(dataAgent.getDataName());
 			labelAgentName.setStyle(BOLDSTYLE);
 			labelNameBox.getChildren().add(labelAgentName);
+			grid.add(labelNameBox, 0, usedLines);
+			/* Value */
+			Label labelValue = new Label(String.valueOf(dataAgent.askValue()));
+			buildLabel(labelValue);
+			grid.add(labelValue, 1, usedLines);
+			/* Coalition */
+			Label labelCoalition = new Label();
+			buildLabel(labelCoalition);
+			try {
+				labelCoalition.setText(dataAgent.getCoalition().getData());
+			} catch (NullPointerException e) {
+				labelCoalition.setText("No coalition");
+			}
+			grid.add(labelCoalition, 2, usedLines);
+			/* DataMorphButton */
 			VBox buttonBox = new VBox();
 			buildCellule(buttonBox);
-			Button buttonOpenDataMorph = new Button("DataMorph");
-			buttonOpenDataMorph.setPrefSize(70, 30);
+			buttonBox.setPrefWidth(240);
+			Button buttonOpenDataMorph = new Button("DataMorphs");
+			buttonOpenDataMorph.setPrefSize(150, 30);
 			buttonOpenDataMorph.setId(key);
 			buttonBox.getChildren().add(buttonOpenDataMorph);
 			buttonOpenDataMorph.setOnAction(controller);
-			grid.add(labelNameBox, 0, usedLines);
-			grid.add(buttonBox, 1, usedLines);
+			grid.add(buttonBox, 3, usedLines);
 			usedLines++;
 		}
 	}

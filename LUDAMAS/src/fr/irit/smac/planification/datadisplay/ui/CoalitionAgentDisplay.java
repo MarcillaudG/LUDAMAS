@@ -1,7 +1,13 @@
-package fr.irit.smac.planification.datadisplay.controller;
+package fr.irit.smac.planification.datadisplay.ui;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import fr.irit.smac.planification.agents.CoalitionAgent;
+import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
-import fr.irit.smac.planification.datadisplay.ui.Modifiable;
+import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -60,7 +66,7 @@ public class CoalitionAgentDisplay implements Modifiable {
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
 
-		primaryStage.setScene(new Scene(scrollPane, 645, 500));
+		primaryStage.setScene(new Scene(scrollPane, 900, 500));
 		primaryStage.show();
 	}
 
@@ -72,19 +78,56 @@ public class CoalitionAgentDisplay implements Modifiable {
 		Label labelValue = new Label("Value");
 		buildBoldLabel(labelValue);
 		grid.add(labelValue, 1, 0);
-		Label labelUsefulness = new Label("Usefulness");
-		buildBoldLabel(labelUsefulness);
-		grid.add(labelUsefulness, 2, 0);
-		Label labelLinearFormula = new Label("Linear formula");
-		buildBoldLabel(labelLinearFormula);
-		grid.add(labelLinearFormula, 3, 0);
-		Label labelMorphValue = new Label("Morph value");
-		buildBoldLabel(labelMorphValue);
-		grid.add(labelMorphValue, 4, 0);
+		Label labelLinkedAgents = new Label("Linked Agents");
+		buildBoldLabel(labelLinkedAgents);
+		labelLinkedAgents.setPrefWidth(500);
+		grid.add(labelLinkedAgents, 2, 0);
+		Label labelInput = new Label("Input");
+		buildBoldLabel(labelInput);
+		grid.add(labelInput, 3, 0);
 	}
 
 	private void buildLignesCoalitionAgent(GridPane grid) {
-		// TODO
+		CAV cav = cavModel.getCav();
+		List<CoalitionAgent> coalitions = cav.getAllCoalitions();
+		for(CoalitionAgent coalitionAgent : coalitions) {
+			/* name */
+			VBox celluleAgentName = new VBox();
+			buildCellule(celluleAgentName);
+			Label labelAgentName = new Label(coalitionAgent.getName());
+			buildBoldLabel(labelAgentName);
+			celluleAgentName.getChildren().add(labelAgentName);
+			grid.add(celluleAgentName, 0, usedLines);
+			/* value */
+			Label labelValue = new Label(String.valueOf(coalitionAgent.getValue()));
+			buildLabel(labelValue);
+			grid.add(labelValue, 1, usedLines);
+			/* linked agents */
+			StringBuilder result = new StringBuilder();
+			Collection<DataAgent> dataAgents = coalitionAgent.getDatas().values();
+			for(Iterator<DataAgent> it = dataAgents.iterator(); it.hasNext();) {
+				result.append(it.next().getDataName());
+				if(it.hasNext()) {
+					result.append(" // ");
+				}
+			}
+			Label labelLinkedAgents = new Label(result.toString());
+			buildLabel(labelLinkedAgents);
+			labelLinkedAgents.setPrefWidth(500);
+			grid.add(labelLinkedAgents, 2, usedLines);
+			//TODO
+			/* input */
+			Label labelInput = new Label();
+			buildLabel(labelInput);
+			if(coalitionAgent.getInput()==null) {
+				labelInput.setText("No input");
+			} else {
+				labelInput.setText(coalitionAgent.getInput());
+			}
+			grid.add(labelInput, 3, usedLines);
+			usedLines++;
+			
+		}
 	}
 
 	private void buildCellule(VBox box) {
@@ -128,8 +171,8 @@ public class CoalitionAgentDisplay implements Modifiable {
 								Color.BLACK, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 						usedLines = 1;
-//						buildFirstLigneDataMorphAgent(newGrid);
-//						buildLignesDataMorphAgent(newGrid);
+						buildFirstLigneCoalitionAgent(newGrid);
+						buildLignesCoalitionAgent(newGrid);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
 					}

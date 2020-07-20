@@ -67,7 +67,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
 
-		primaryStage.setScene(new Scene(scrollPane, 645, 500));
+		primaryStage.setScene(new Scene(scrollPane, 885, 500));
 		primaryStage.show();
 	}
 	
@@ -84,6 +84,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 		grid.add(labelUsefulness, 2,  0);
 		Label labelLinearFormula = new Label("Linear formula");
 		buildBoldLabel(labelLinearFormula);
+		labelLinearFormula.setPrefWidth(240);
 		grid.add(labelLinearFormula, 3,  0);
 		Label labelMorphValue = new Label("Morph value");
 		buildBoldLabel(labelMorphValue);
@@ -149,12 +150,13 @@ public class DataMorphAgentDisplay implements Modifiable {
 			/* linear formula */
 			Label labelLinearFormula = new Label(dataMorphAgent.getLinearFormula());
 			buildLabel(labelLinearFormula);
+			labelLinearFormula.setPrefWidth(240);
 			grid.add(labelLinearFormula, 3, usedLines);
 			/* morph value */
 			Label labelMorphValue = new Label(String.valueOf(dataMorphAgent.getMorphValue()));
 			buildLabel(labelMorphValue);
 			grid.add(labelMorphValue, 4, usedLines);
-			
+			/* dataMorphAgent button */
 			Label labelTrueValue = new Label(String.valueOf(cav.getTrueValueForInput(dataMorphAgent.getInput())));
 			buildLabel(labelTrueValue);
 			grid.add(labelTrueValue, 5, usedLines);
