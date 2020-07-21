@@ -115,7 +115,6 @@ public class CoalitionAgentDisplay implements Modifiable {
 			buildLabel(labelLinkedAgents);
 			labelLinkedAgents.setPrefWidth(500);
 			grid.add(labelLinkedAgents, 2, usedLines);
-			//TODO
 			/* input */
 			Label labelInput = new Label();
 			buildLabel(labelInput);

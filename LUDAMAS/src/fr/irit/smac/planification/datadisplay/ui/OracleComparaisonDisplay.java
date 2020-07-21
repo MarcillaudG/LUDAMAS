@@ -8,16 +8,13 @@ import java.util.List;
 
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
-import fr.irit.smac.planification.datadisplay.controller.OracleComparaisonDisplayController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
@@ -62,49 +59,49 @@ public class OracleComparaisonDisplay implements Modifiable{
 		resultatsLabel = new Label("Tableau résultats");
 		resultatsLabel.setPadding(new Insets(10, 0, 0, 0));
 		
-		VBox vboxButton = new VBox();
-		vboxButton.setAlignment(Pos.BASELINE_CENTER);
-		Button pauseButton = new Button("PAUSE");
-		pauseButton.setId("pauseID");
-		pauseButton.setPrefSize(90, 60);
-		pauseButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
-		
-		Button oneCycleButton = new Button("ONE CYCLE");
-		oneCycleButton.setId("oneCycleID");
-		oneCycleButton.setPrefSize(90, 60);
-		oneCycleButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
-		vboxButton.getChildren().addAll(pauseButton, oneCycleButton);
-		
-		
-		Label labelSliderPeriod = new Label("Select period between two steps:");
-		labelSliderPeriod.setPadding(new Insets(20, 0, 0, 60));
-		Slider periodSlider = new Slider();
-		periodSlider.setId("periodSliderID");
-		periodSlider.setPrefWidth(600);
-		periodSlider.setMin(0);
-		periodSlider.setMax(1000);
-		periodSlider.setValue(1000);
-		periodSlider.setBlockIncrement(100);
-		periodSlider.setShowTickLabels(true);
-		periodSlider.setPadding(new Insets(30, 100, 0, 100));
-		periodSlider.setShowTickMarks(true);
-		periodSlider.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel, periodSlider));
-		
-		Label labelStepSpeedSlider = new Label("Select step speed:");
-		labelStepSpeedSlider.setPadding(new Insets(20, 0, 0, 60));
-		Slider stepSpeed = new Slider();
-		stepSpeed.setId("stepSpeedID");
-		stepSpeed.setPrefWidth(600);
-		stepSpeed.setMin(0);
-		stepSpeed.setMax(1000);
-		stepSpeed.setValue(0);
-		stepSpeed.setBlockIncrement(100);
-		stepSpeed.setShowTickLabels(true);
-		stepSpeed.setPadding(new Insets(30, 100, 10, 100));
-		stepSpeed.setShowTickMarks(true);
-		stepSpeed.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel, stepSpeed));
-		
-		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, vboxButton, oraclesLabel, gridOracles, resultatsLabel, gridResultats);
+//		VBox vboxButton = new VBox();
+//		vboxButton.setAlignment(Pos.BASELINE_CENTER);
+//		Button pauseButton = new Button("PAUSE");
+//		pauseButton.setId("pauseID");
+//		pauseButton.setPrefSize(90, 60);
+//		pauseButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
+//		
+//		Button oneCycleButton = new Button("ONE CYCLE");
+//		oneCycleButton.setId("oneCycleID");
+//		oneCycleButton.setPrefSize(90, 60);
+//		oneCycleButton.setOnAction(new OracleComparaisonDisplayController(cavModel));
+//		vboxButton.getChildren().addAll(pauseButton, oneCycleButton);
+//		
+//		
+//		Label labelSliderPeriod = new Label("Select period between two steps:");
+//		labelSliderPeriod.setPadding(new Insets(20, 0, 0, 60));
+//		Slider periodSlider = new Slider();
+//		periodSlider.setId("periodSliderID");
+//		periodSlider.setPrefWidth(600);
+//		periodSlider.setMin(0);
+//		periodSlider.setMax(1000);
+//		periodSlider.setValue(1000);
+//		periodSlider.setBlockIncrement(100);
+//		periodSlider.setShowTickLabels(true);
+//		periodSlider.setPadding(new Insets(30, 100, 0, 100));
+//		periodSlider.setShowTickMarks(true);
+//		periodSlider.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel, periodSlider));
+//		
+//		Label labelStepSpeedSlider = new Label("Select step speed:");
+//		labelStepSpeedSlider.setPadding(new Insets(20, 0, 0, 60));
+//		Slider stepSpeed = new Slider();
+//		stepSpeed.setId("stepSpeedID");
+//		stepSpeed.setPrefWidth(600);
+//		stepSpeed.setMin(0);
+//		stepSpeed.setMax(1000);
+//		stepSpeed.setValue(0);
+//		stepSpeed.setBlockIncrement(100);
+//		stepSpeed.setShowTickLabels(true);
+//		stepSpeed.setPadding(new Insets(30, 100, 10, 100));
+//		stepSpeed.setShowTickMarks(true);
+//		stepSpeed.valueProperty().addListener(new OracleComparaisonDisplayController(cavModel, stepSpeed));
+//		
+		root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 		
 		StackPane stack = new StackPane();
 		stack.getChildren().addAll(root);

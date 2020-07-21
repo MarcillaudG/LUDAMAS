@@ -6,6 +6,7 @@ import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.AgentDisplayChoice;
 import fr.irit.smac.planification.datadisplay.ui.MainUI;
 import fr.irit.smac.planification.datadisplay.ui.OracleComparaisonDisplay;
+import fr.irit.smac.planification.datadisplay.ui.ToolsDisplay;
 import fr.irit.smac.planification.system.CAV;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -60,6 +61,7 @@ public class RunController implements EventHandler<ActionEvent> {
 			OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cavModel);
 			cavModel.addModifiables(oracleDisplay);
 			new AgentDisplayChoice(cavModel);
+			new ToolsDisplay(cavModel);
 			cavModel.runExperiment();
 		}
 	}
