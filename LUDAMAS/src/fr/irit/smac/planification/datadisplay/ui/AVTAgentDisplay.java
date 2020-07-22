@@ -1,12 +1,12 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
+import java.util.List;
+import java.util.Map;
+
+import fr.irit.smac.planification.agents.AVTAgent;
 import fr.irit.smac.planification.agents.CoalitionAgent;
 import fr.irit.smac.planification.agents.DataAgent;
-import fr.irit.smac.planification.datadisplay.controller.CoalitionAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
@@ -14,7 +14,6 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -28,8 +27,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-public class CoalitionAgentDisplay implements Modifiable {
-
+public class AVTAgentDisplay implements Modifiable{
+	
 	private int usedLines = 1;
 	private CAVModel cavModel;
 	private GridPane grid;
@@ -37,17 +36,17 @@ public class CoalitionAgentDisplay implements Modifiable {
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	private VBox root;
 	private Stage primaryStage;
-	private CoalitionAgentDisplayController controller;
+	private String coalitionName;
 
-	public CoalitionAgentDisplay(CAVModel cavModel) {
+	public AVTAgentDisplay(CAVModel cavModel, String coalitionName) {
 		this.cavModel = cavModel;
 		this.primaryStage = new Stage();
-		this.controller = new CoalitionAgentDisplayController(cavModel);
+		this.coalitionName = coalitionName;
 		start();
 	}
 
 	public void start() {
-		primaryStage.setTitle("CoalitionAgentsDisplay");
+		primaryStage.setTitle(coalitionName + ": AVTAgents");
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -70,7 +69,7 @@ public class CoalitionAgentDisplay implements Modifiable {
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
 
-		primaryStage.setScene(new Scene(scrollPane, 1100, 500));
+		primaryStage.setScene(new Scene(scrollPane, 900, 500));
 		primaryStage.show();
 	}
 
@@ -79,77 +78,69 @@ public class CoalitionAgentDisplay implements Modifiable {
 		Label labelId = new Label("Name");
 		buildBoldLabel(labelId);
 		grid.add(labelId, 0, 0);
-		Label labelValue = new Label("Value");
-		buildBoldLabel(labelValue);
-		grid.add(labelValue, 1, 0);
-		Label labelLinkedAgents = new Label("Linked Agents");
-		buildBoldLabel(labelLinkedAgents);
-		labelLinkedAgents.setPrefWidth(500);
-		grid.add(labelLinkedAgents, 2, 0);
-		Label labelInput = new Label("Input");
-		buildBoldLabel(labelInput);
-		grid.add(labelInput, 3, 0);
-		Label labelAVT = new Label("AVTAgents");
-		buildBoldLabel(labelAVT);
-		labelAVT.setPrefWidth(200);
-		grid.add(labelAVT, 4, 0);
+		Label labelHeight = new Label("Weight");
+		buildBoldLabel(labelHeight);
+		grid.add(labelHeight, 1, 0);
+		Label labelDataAgent = new Label("DataAgent");
+		buildBoldLabel(labelDataAgent);
+		grid.add(labelDataAgent, 2, 0);
+		Label labelAcc = new Label("AccelerationCoeff");
+		buildBoldLabel(labelAcc);
+		grid.add(labelAcc, 3, 0);
+		Label labelDeceleration = new Label("DecelerationCoeff");
+		buildBoldLabel(labelDeceleration);
+		grid.add(labelDeceleration, 4, 0);
 	}
+	
 
 	private void buildLignesCoalitionAgent(GridPane grid) {
+		
+		Map<String, AVTAgent> avtAgents = getAvtMapFromCoalition();
+		if(avtAgents!=null) {
+			for(String key : avtAgents.keySet()) {
+				AVTAgent avt = avtAgents.get(key);
+				/* name */
+				VBox celluleAgentName = new VBox();
+				buildCellule(celluleAgentName);
+				Label labelAgentName = new Label(key);
+				celluleAgentName.getChildren().add(labelAgentName);
+				grid.add(celluleAgentName, 0, usedLines);
+				/* height */
+				Label labelHeight = new Label(String.valueOf(avt.getWeight()));
+				buildLabel(labelHeight);
+				grid.add(labelHeight, 1, usedLines);
+				/* DataAgent + value */
+				DataAgent dataAgent = avt.getDataAgent();
+				Label labelDataAgent = 
+						new Label(dataAgent.getDataName() + " VALUE: " + String.valueOf(dataAgent.askValue()));
+				buildLabel(labelDataAgent);
+				grid.add(labelDataAgent, 2, usedLines);
+				/* AccelerationCoeff */
+				//TODO get accelerationCoeff
+				Label labelAcceleration = new Label("");
+				buildLabel(labelAcceleration);
+				grid.add(labelAcceleration, 3, usedLines);
+				/* DecelerationCoeff */
+				//TODO get decelerationCoeff
+				Label labelDeceleration = new Label("");
+				buildLabel(labelDeceleration);
+				grid.add(labelDeceleration, 4, usedLines);
+				usedLines++;
+			}
+		}
+	}
+	
+	private Map<String, AVTAgent> getAvtMapFromCoalition() {
+		Map<String, AVTAgent> resultat = null;
 		CAV cav = cavModel.getCav();
 		List<CoalitionAgent> coalitions = cav.getAllCoalitions();
 		for(CoalitionAgent coalitionAgent : coalitions) {
-			/* name */
-			VBox celluleAgentName = new VBox();
-			buildCellule(celluleAgentName);
-			Label labelAgentName = new Label(coalitionAgent.getName());
-			buildBoldLabel(labelAgentName);
-			celluleAgentName.getChildren().add(labelAgentName);
-			grid.add(celluleAgentName, 0, usedLines);
-			/* value */
-			Label labelValue = new Label(String.valueOf(coalitionAgent.getValue()));
-			buildLabel(labelValue);
-			grid.add(labelValue, 1, usedLines);
-			/* linked agents */
-			StringBuilder result = new StringBuilder();
-			Collection<DataAgent> dataAgents = coalitionAgent.getDatas().values();
-			for(Iterator<DataAgent> it = dataAgents.iterator(); it.hasNext();) {
-				result.append(it.next().getDataName());
-				if(it.hasNext()) {
-					result.append(" // ");
-				}
+			String name = coalitionAgent.getName();
+			if(name!=null && name.equals(coalitionName)) {
+				resultat = coalitionAgent.getAllAVT();
 			}
-			Label labelLinkedAgents = new Label(result.toString());
-			buildLabel(labelLinkedAgents);
-			labelLinkedAgents.setPrefWidth(500);
-			grid.add(labelLinkedAgents, 2, usedLines);
-			/* input */
-			Label labelInput = new Label();
-			buildLabel(labelInput);
-			if(coalitionAgent.getInput()==null) {
-				labelInput.setText("No input");
-			} else {
-				labelInput.setText(coalitionAgent.getInput());
-			}
-			grid.add(labelInput, 3, usedLines);
-			/* AVTAgents */
-			VBox buttonBox = new VBox();
-			buildCellule(buttonBox);
-			buttonBox.setPrefWidth(200);
-			Button buttonOpenAVT = new Button("AVTAgents");
-			buttonOpenAVT.setPrefSize(130, 30);
-			buttonOpenAVT.setId(coalitionAgent.getName());
-			buttonOpenAVT.setOnAction(controller);
-			//TODO:
-			/*
-			 * 1 - getAllCoalition (list<CoalitionAgent> from CAV)
-			 * 2 - look for the coalitionAgent by its name given in buttonID
-			 * 3 - process
-			 */
-			buttonBox.getChildren().add(buttonOpenAVT);
-			grid.add(buttonBox, 4, usedLines);
-			usedLines++;
 		}
+		return resultat;
 	}
 
 	private void buildCellule(VBox box) {
@@ -203,4 +194,13 @@ public class CoalitionAgentDisplay implements Modifiable {
 		});
 		taskThread.start();
 	}
+	
+	public void setCavModel(CAVModel cavModel) {
+		this.cavModel = cavModel;
+	}
+	
+	public CAVModel getCavModel() {
+		return cavModel;
+	}
+	
 }
