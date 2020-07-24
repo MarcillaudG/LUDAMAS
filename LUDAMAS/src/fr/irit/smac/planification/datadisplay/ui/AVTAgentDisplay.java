@@ -69,7 +69,7 @@ public class AVTAgentDisplay implements Modifiable{
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
 
-		primaryStage.setScene(new Scene(scrollPane, 900, 500));
+		primaryStage.setScene(new Scene(scrollPane, 750, 300));
 		primaryStage.show();
 	}
 
@@ -83,6 +83,7 @@ public class AVTAgentDisplay implements Modifiable{
 		grid.add(labelHeight, 1, 0);
 		Label labelDataAgent = new Label("DataAgent");
 		buildBoldLabel(labelDataAgent);
+		labelDataAgent.setPrefWidth(240);
 		grid.add(labelDataAgent, 2, 0);
 		Label labelAcc = new Label("AccelerationCoeff");
 		buildBoldLabel(labelAcc);
@@ -114,6 +115,7 @@ public class AVTAgentDisplay implements Modifiable{
 				Label labelDataAgent = 
 						new Label(dataAgent.getDataName() + " VALUE: " + String.valueOf(dataAgent.askValue()));
 				buildLabel(labelDataAgent);
+				labelDataAgent.setPrefWidth(240);
 				grid.add(labelDataAgent, 2, usedLines);
 				/* AccelerationCoeff */
 				//TODO get accelerationCoeff

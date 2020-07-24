@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -18,6 +19,8 @@ public class ToolsDisplay {
 	private Stage primaryStage;
 	private VBox root;
 	private Button oneCycleButton;
+	private Button oneStepButton;
+	private Button pauseButton;
 	private Slider periodSlider;
 	private Slider stepSpeed;
 	
@@ -31,35 +34,33 @@ public class ToolsDisplay {
 		primaryStage.setTitle("Tools");
 		
 		root = new VBox();
-		VBox vboxButtonPause = new VBox();
-		vboxButtonPause.setAlignment(Pos.BASELINE_CENTER);
-		vboxButtonPause.setPadding(new Insets(0, 0, 0, 10));
-		Button pauseButton = new Button("PAUSE");
-		pauseButton.setId("pauseID");
-		pauseButton.setPrefSize(90, 50);
-		pauseButton.setOnAction(new ToolsController(cavModel));
-		vboxButtonPause.getChildren().add(pauseButton);
+		root.setAlignment(Pos.BASELINE_CENTER);
+	
+		HBox hboxButtons = new HBox();
+		hboxButtons.setAlignment(Pos.BASELINE_CENTER);
+		hboxButtons.setSpacing(20);
+		hboxButtons.setPadding(new Insets(0, 0, 20, 0));
 		
-		VBox vboxButtonCycle = new VBox();
-		vboxButtonCycle.setPadding(new Insets(0, 0, 0, 10));
-		vboxButtonCycle.setAlignment(Pos.BASELINE_CENTER);
+		pauseButton = new Button("PAUSE");
+		pauseButton.setId("pauseID");
+		pauseButton.setPrefSize(90, 30);
+		pauseButton.setOnAction(new ToolsController(cavModel));
+		pauseButton.setAlignment(Pos.BASELINE_CENTER);
+		
 		oneCycleButton = new Button("ONE CYCLE");
 		oneCycleButton.setId("oneCycleID");
-		oneCycleButton.setPrefSize(90, 50);
+		oneCycleButton.setPrefSize(90, 30);
 		oneCycleButton.setOnAction(new ToolsController(cavModel));
-		vboxButtonCycle.getChildren().add(oneCycleButton);
-		
-		VBox vboxButtonStep = new VBox();
-		vboxButtonStep.setPadding(new Insets(0, 0, 0, 10));
-		vboxButtonStep.setAlignment(Pos.BASELINE_CENTER);
-		Button oneStepButton = new Button("ONE STEP");
-		oneStepButton.setId("oneStepID");
-		oneStepButton.setPrefSize(90, 50);
-		oneStepButton.setOnAction(new ToolsController(cavModel));
-		vboxButtonStep.getChildren().add(oneStepButton);
 
-		Label labelSliderPeriod = new Label("Select period between two steps (ms):");
-		labelSliderPeriod.setPadding(new Insets(20, 0, 0, 60));
+		oneStepButton = new Button("ONE STEP");
+		oneStepButton.setId("oneStepID");
+		oneStepButton.setPrefSize(90, 30);
+		oneStepButton.setOnAction(new ToolsController(cavModel));
+		
+		hboxButtons.getChildren().addAll(oneCycleButton, oneStepButton);
+
+		Label labelSliderPeriod = new Label("Period between cycles (ms)");
+		labelSliderPeriod.setPadding(new Insets(20, 0, 0, 0));
 		periodSlider = new Slider();
 		periodSlider.setId("periodSliderID");
 		periodSlider.setPrefWidth(600);
@@ -68,12 +69,12 @@ public class ToolsDisplay {
 		periodSlider.setValue(1000);
 		periodSlider.setBlockIncrement(100);
 		periodSlider.setShowTickLabels(true);
-		periodSlider.setPadding(new Insets(30, 100, 0, 100));
+		periodSlider.setPadding(new Insets(10, 50, 0, 50));
 		periodSlider.setShowTickMarks(true);
 		periodSlider.valueProperty().addListener(new ToolsController(cavModel, periodSlider));
 		
-		Label labelStepSpeedSlider = new Label("Select step speed (ms):");
-		labelStepSpeedSlider.setPadding(new Insets(20, 0, 0, 60));
+		Label labelStepSpeedSlider = new Label("Period between steps (ms)");
+		labelStepSpeedSlider.setPadding(new Insets(20, 0, 0, 0));
 		stepSpeed = new Slider();
 		stepSpeed.setId("stepSpeedID");
 		stepSpeed.setPrefWidth(600);
@@ -82,13 +83,13 @@ public class ToolsDisplay {
 		stepSpeed.setValue(0);
 		stepSpeed.setBlockIncrement(100);
 		stepSpeed.setShowTickLabels(true);
-		stepSpeed.setPadding(new Insets(30, 100, 10, 100));
+		stepSpeed.setPadding(new Insets(0, 50, 10, 50));
 		stepSpeed.setShowTickMarks(true);
 		stepSpeed.valueProperty().addListener(new ToolsController(cavModel, periodSlider));
 		
-		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, vboxButtonPause, vboxButtonCycle, vboxButtonStep);
+		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, hboxButtons, pauseButton);
 		
-		primaryStage.setScene(new Scene(root, 500, 400));
+		primaryStage.setScene(new Scene(root, 400, 300));
 		primaryStage.show();
 	}
 }

@@ -4,6 +4,7 @@ import java.io.File;
 
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.AgentDisplayChoice;
+import fr.irit.smac.planification.datadisplay.ui.ChartDisplay;
 import fr.irit.smac.planification.datadisplay.ui.MainUI;
 import fr.irit.smac.planification.datadisplay.ui.OracleComparaisonDisplay;
 import fr.irit.smac.planification.datadisplay.ui.ToolsDisplay;
@@ -12,6 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 
 public class RunController implements EventHandler<ActionEvent> {
@@ -30,7 +32,7 @@ public class RunController implements EventHandler<ActionEvent> {
 
 		Button buttonSource = (Button) actionEvent.getSource();
 		if (buttonSource.getId().equals("runID")) {
-			runHandle();
+			runHandle(buttonSource);
 		} else if (buttonSource.getId().equals("fileChooserID")) {
 			fileChoosing();
 		}
@@ -49,7 +51,7 @@ public class RunController implements EventHandler<ActionEvent> {
 		}
 	}
 
-	private void runHandle() {
+	private void runHandle(Button source) {
 
 		int nbEffectors = mainApp.getValueSpinEffector();
 		int nbSituations = mainApp.getValueSpinSituations();
@@ -62,7 +64,11 @@ public class RunController implements EventHandler<ActionEvent> {
 			cavModel.addModifiables(oracleDisplay);
 			new AgentDisplayChoice(cavModel);
 			new ToolsDisplay(cavModel);
+			ChartDisplay chartDisplay = new ChartDisplay(cavModel);
+			cavModel.addModifiables(chartDisplay);
 			cavModel.runExperiment();
+			Stage stageCorresp = (Stage) source.getScene().getWindow();
+			stageCorresp.close();
 		}
 	}
 	
