@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.irit.smac.planification.Planing;
-import fr.irit.smac.planification.datadisplay.controller.ChartDisplayController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
@@ -70,7 +69,7 @@ public class ChartDisplay implements Modifiable{
 		borneInfMean.setShowTickLabels(true);
 		borneInfMean.setPadding(new Insets(30, 100, 0, 100));
 		borneInfMean.setShowTickMarks(true);
-		borneInfMean.valueProperty().addListener(new ChartDisplayController(cavModel, borneInfMean, this));
+		//borneInfMean.valueProperty().addListener(new ChartDisplayController(cavModel, borneInfMean, this));
 		
 		//Label labelBorneSupp = new Label("Superior bound");
 		borneSupMean = new Slider();
@@ -83,7 +82,7 @@ public class ChartDisplay implements Modifiable{
 		borneSupMean.setShowTickLabels(true);
 		borneSupMean.setPadding(new Insets(30, 100, 0, 100));
 		borneSupMean.setShowTickMarks(true);
-		borneSupMean.valueProperty().addListener(new ChartDisplayController(cavModel, borneSupMean, this));
+		//borneSupMean.valueProperty().addListener(new ChartDisplayController(cavModel, borneSupMean, this));
 
 		
 		/* MAX DIFF CHART */	

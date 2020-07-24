@@ -3,8 +3,7 @@ package fr.irit.smac.planification.datadisplay.controller;
 import java.io.File;
 
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
-import fr.irit.smac.planification.datadisplay.ui.AgentDisplayChoice;
-import fr.irit.smac.planification.datadisplay.ui.ChartDisplay;
+
 import fr.irit.smac.planification.datadisplay.ui.MainUI;
 import fr.irit.smac.planification.datadisplay.ui.OracleComparaisonDisplay;
 import fr.irit.smac.planification.datadisplay.ui.ToolsDisplay;
@@ -15,9 +14,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
-
 public class RunController implements EventHandler<ActionEvent> {
-	
+
 	private CAVModel cavModel;
 	private CAV cav;
 	private String filePath;
@@ -26,7 +24,7 @@ public class RunController implements EventHandler<ActionEvent> {
 	public RunController() {
 		this.cavModel = new CAVModel();
 	}
-	
+
 	@Override
 	public void handle(ActionEvent actionEvent) {
 
@@ -39,14 +37,13 @@ public class RunController implements EventHandler<ActionEvent> {
 	}
 
 	private void fileChoosing() {
-		
+
 		try {
 			File selectedFile = mainApp.getFileChooser().showOpenDialog(mainApp.getPrimaryStage());
 			filePath = selectedFile.getAbsolutePath();
 			Label textSelectedFile = mainApp.getTextSelectedLabel();
 			textSelectedFile.setText(filePath);
-		} catch(NullPointerException e) {
-			//TODO: label text: "please select a file"
+		} catch (NullPointerException e) {
 			System.out.println("Please select a file");
 		}
 	}
@@ -57,22 +54,18 @@ public class RunController implements EventHandler<ActionEvent> {
 		int nbSituations = mainApp.getValueSpinSituations();
 		int nbVarEff = mainApp.getValueSpinVarEff();
 		int nbCopy = mainApp.getValueSpinCopy();
-		if(filePath!=null) {
+		if (filePath != null) {
 			this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
 			this.cavModel.setCav(cav);
 			OracleComparaisonDisplay oracleDisplay = new OracleComparaisonDisplay(cavModel);
 			cavModel.addModifiables(oracleDisplay);
-			new AgentDisplayChoice(cavModel);
 			new ToolsDisplay(cavModel);
-			ChartDisplay chartDisplay = new ChartDisplay(cavModel);
-			cavModel.addModifiables(chartDisplay);
 			cavModel.runExperiment();
 			Stage stageCorresp = (Stage) source.getScene().getWindow();
 			stageCorresp.close();
 		}
 	}
-	
-	
+
 	public CAVModel getCavModel() {
 		return cavModel;
 	}

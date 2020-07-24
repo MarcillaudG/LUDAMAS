@@ -5,12 +5,14 @@ import fr.irit.smac.planification.datadisplay.controller.ToolsController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class ToolsDisplay {
@@ -88,8 +90,14 @@ public class ToolsDisplay {
 		stepSpeed.valueProperty().addListener(new ToolsController(cavModel, periodSlider));
 		
 		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, hboxButtons, pauseButton);
-		
-		primaryStage.setScene(new Scene(root, 400, 300));
+		Scene scene = new Scene(root, 400, 300);
+		primaryStage.setScene(scene);
 		primaryStage.show();
+		
+		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+		double x = bounds.getMinX() + (bounds.getWidth() - scene.getWidth()) * 0.03;
+		double y = bounds.getMinY() + (bounds.getHeight() - scene.getHeight()) * 0.03;
+		primaryStage.setX(x);
+		primaryStage.setY(y);
 	}
 }

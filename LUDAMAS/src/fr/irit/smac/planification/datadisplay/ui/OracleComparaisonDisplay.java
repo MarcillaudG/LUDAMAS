@@ -1,42 +1,80 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
+import fr.irit.smac.planification.datadisplay.controller.AgentDisplayChoiceController;
+import fr.irit.smac.planification.datadisplay.controller.ChartDisplayController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-public class OracleComparaisonDisplay implements Modifiable{
+public class OracleComparaisonDisplay implements Modifiable {
 
 	private Stage primaryStage;
 	private CAVModel cavModel;
 	private GridPane gridOracles;
 	private GridPane gridResultats;
 	private VBox root;
+	private VBox rootPlanings;
 	private Label oraclesLabel;
 	private Label resultatsLabel;
 	private int nbLineUsedOracles = 1;
 	private int nbLineUsedResults = 1;
+
+	private HBox rootAgentChoice;
+	private Separator separator;
+
+	private VBox rootCharts;
+	private Series<Number, Number> seriesMeanDiff;
+	private Series<Number, Number> seriesMaxDiff;
+	Label labelBorneSupp = new Label("Superior bound (step)");
+	Label labelBorneInf = new Label("Inferior bound (step)");
+	private Slider borneInfSlider;
+	private Slider borneSupSlider;
+	private List<XYChart.Data<Number, Number>> allMeanData = new ArrayList<>();
+	private List<XYChart.Data<Number, Number>> allMaxData = new ArrayList<>();
+	private LineChart<Number, Number> lineChartMeanDiff;
+	private LineChart<Number, Number> lineChartMaxDiff;
+	private int borneInf = 0;
+	private int borneSup = 0;
+	private NumberAxis xAxisMeanDiff = new NumberAxis();
+	private NumberAxis yAxisMeanDiff = new NumberAxis();
+	private NumberAxis xAxisMaxDiff = new NumberAxis();
+	private NumberAxis yAxisMaxDiff = new NumberAxis();
 
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
@@ -46,36 +84,137 @@ public class OracleComparaisonDisplay implements Modifiable{
 		this.primaryStage = new Stage();
 		start();
 	}
-	
 
 	public void start() {
 
-		primaryStage.setTitle("Planings comparaison");
+		/* Header build */
+		GridPane start = new GridPane();
+		start.setPadding(new Insets(15, 0, 0, 0));
+		Class<?> clazz = this.getClass();
+		InputStream input = clazz.getResourceAsStream("/fr/irit/smac/img/luda.jpg");
+		Image image = new Image(input);
+		ImageView imageView = new ImageView(image);
+		imageView.setPreserveRatio(true);
+		imageView.setFitWidth(300);
+		imageView.setFitHeight(275);
+
+		start.setAlignment(Pos.BASELINE_CENTER);
+		Label ludamasLabel = new Label("LUDAMAS");
+		ludamasLabel.setPadding(new Insets(0, 0, 0, 15));
+		ludamasLabel.setFont(new Font("Verdana", 60));
+		Separator sepStart = new Separator(Orientation.HORIZONTAL);
+		sepStart.setPadding(new Insets(20, 0, 0, 0));
+		start.add(imageView, 0, 0);
+		start.add(ludamasLabel, 1, 0);
+
+		/* Components build */
+		startAgentDisplayChoice();
+		startCharts();
+		startPlaningGrids();
+
 		root = new VBox();
+		root.getChildren().addAll(start, sepStart, rootAgentChoice, separator, rootCharts, rootPlanings);
+
+		/* Scene and main container build */
+		ScrollPane scrollRoot = new ScrollPane();
+		scrollRoot.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollRoot.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		scrollRoot.setContent(root);
+		primaryStage.setTitle("LUDAMAS - Main panel");
+		Scene scene = new Scene(scrollRoot, 970, 900);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+
+	private void startAgentDisplayChoice() {
+
+		rootAgentChoice = new HBox();
+		rootAgentChoice.setSpacing(20);
+		rootAgentChoice.setAlignment(Pos.BASELINE_CENTER);
+		rootAgentChoice.setPadding(new Insets(15, 0, 0, 0));
+
+		Button agentTypeOne = new Button();
+		agentTypeOne.setText("DataAgents");
+		agentTypeOne.setId("dataDisplayID");
+		agentTypeOne.setPrefSize(120, 70);
+		agentTypeOne.setOnAction(new AgentDisplayChoiceController(cavModel));
+
+		Button agentTypeTwo = new Button();
+		agentTypeTwo.setText("CoalitionAgents");
+		agentTypeTwo.setId("coalitionAgentDisplayID");
+		agentTypeTwo.setPrefSize(120, 70);
+		agentTypeTwo.setOnAction(new AgentDisplayChoiceController(cavModel));
+
+		separator = new Separator(Orientation.HORIZONTAL);
+		separator.setPadding(new Insets(15, 0, 0, 0));
+		rootAgentChoice.getChildren().addAll(agentTypeOne, agentTypeTwo);
+	}
+
+	private void startCharts() {
+
+		/* SLIDERS BOUNDS */
+		labelBorneInf.setPadding(new Insets(0, 0, 0, 30));
+		labelBorneSupp.setPadding(new Insets(0, 0, 0, 30));
+		borneInfSlider = new Slider();
+		borneInfSlider.setId("infBoundID");
+		borneInfSlider.setPrefWidth(600);
+		borneInfSlider.setMin(0);
+		borneInfSlider.setMax(cavModel.getCycle());
+		borneInfSlider.setValue(0);
+		borneInfSlider.setBlockIncrement(5);
+		borneInfSlider.setShowTickLabels(true);
+		borneInfSlider.setPadding(new Insets(30, 100, 0, 100));
+		borneInfSlider.setShowTickMarks(true);
+		borneInfSlider.valueProperty().addListener(new ChartDisplayController(cavModel, borneInfSlider, this));
+
+		borneSupSlider = new Slider();
+		borneSupSlider.setId("supBoundID");
+		borneSupSlider.setPrefWidth(600);
+		borneSupSlider.setMin(0);
+		borneSupSlider.setMax(cavModel.getCycle());
+		borneSupSlider.setValue(0);
+		borneSupSlider.setBlockIncrement(5);
+		borneSupSlider.setShowTickLabels(true);
+		borneSupSlider.setPadding(new Insets(30, 100, 0, 100));
+		borneSupSlider.setShowTickMarks(true);
+		borneSupSlider.valueProperty().addListener(new ChartDisplayController(cavModel, borneSupSlider, this));
+
+		/* MEAN DIFF CHART */
+		rootCharts = new VBox();
+		yAxisMeanDiff.setAutoRanging(true);
+		xAxisMeanDiff.setLabel("Cycle");
+		yAxisMeanDiff.setLabel("MeanDiff");
+		lineChartMeanDiff = new LineChart<>(xAxisMeanDiff, yAxisMeanDiff);
+		lineChartMeanDiff.setMaxHeight(300);
+		seriesMeanDiff = new XYChart.Series<>();
+		seriesMeanDiff.setName("MeanDiff");
+		lineChartMeanDiff.getData().add(seriesMeanDiff);
+
+		/* MAX DIFF CHART */
+		yAxisMaxDiff.setAutoRanging(true);
+		xAxisMaxDiff.setLabel("Cycle");
+		yAxisMaxDiff.setLabel("MaxDiff");
+		lineChartMaxDiff = new LineChart<>(xAxisMaxDiff, yAxisMaxDiff);
+		lineChartMaxDiff.setMaxHeight(300);
+		seriesMaxDiff = new XYChart.Series<>();
+		seriesMaxDiff.setName("MaxDiff");
+		lineChartMaxDiff.getData().add(seriesMaxDiff);
+
+		rootCharts.getChildren().addAll(lineChartMeanDiff, lineChartMaxDiff, labelBorneInf, borneInfSlider,
+				labelBorneSupp, borneSupSlider);
+	}
+
+	private void startPlaningGrids() {
+
 		initGrids();
 		buildFirstLigneOracle();
 		buildFirstLigneResultats();
 		oraclesLabel = new Label("Tableau oracles");
 		resultatsLabel = new Label("Tableau résultats");
 		resultatsLabel.setPadding(new Insets(10, 0, 0, 0));
-		
-		root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
-		
-		StackPane stack = new StackPane();
-		stack.getChildren().addAll(root);
-		
-		ScrollPane scrollPane = new ScrollPane();
-		scrollPane.setContent(stack);
-		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		
-		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
-				scrollPane.viewportBoundsProperty()));
-
-		primaryStage.setScene(new Scene(scrollPane, 970, 700));
-		primaryStage.show();
+		rootPlanings = new VBox();
+		rootPlanings.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 	}
-	
 
 	private void initGrids() {
 
@@ -95,7 +234,6 @@ public class OracleComparaisonDisplay implements Modifiable{
 		gridResultats = newGridResultats;
 	}
 
-	
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(105, 50);
@@ -104,7 +242,6 @@ public class OracleComparaisonDisplay implements Modifiable{
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
-	
 
 	private void buildBoldLabel(Label label) {
 
@@ -115,22 +252,22 @@ public class OracleComparaisonDisplay implements Modifiable{
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
-	
 
 	private void buildResultLine(int step, Result result, Result oracleRes) {
-		
-		/* step*/
+
+		/* step */
 		Label labelStep = new Label(String.valueOf(step));
 		buildBoldLabel(labelStep);
 		gridResultats.add(labelStep, 0, nbLineUsedResults);
-		
+
 		/* result float */
 		VBox vbox = new VBox();
 		buildCellule(vbox);
-		Label labelData = new Label(String.valueOf("SITU: " + result.getValue() + "\nTRUE: " + String.valueOf(oracleRes.getValue())));
+		Label labelData = new Label(
+				String.valueOf("SITU: " + result.getValue() + "\nTRUE: " + String.valueOf(oracleRes.getValue())));
 		vbox.getChildren().add(labelData);
 		gridResultats.add(vbox, 1, nbLineUsedResults);
-		
+
 		/* result variables */
 		List<String> variables = result.getDataChosen();
 		VBox cellule = new VBox();
@@ -144,37 +281,35 @@ public class OracleComparaisonDisplay implements Modifiable{
 		gridResultats.add(cellule, 2, nbLineUsedResults);
 		nbLineUsedResults++;
 	}
-	
-	
+
 	private void buildFirstLigneResultats() {
-		
+
 		VBox vboxNum = new VBox();
 		buildCellule(vboxNum);
 		Label labelNum = new Label("Step");
 		buildBoldLabel(labelNum);
 		vboxNum.getChildren().add(labelNum);
 		gridResultats.add(vboxNum, 0, 0);
-		
+
 		VBox vboxValue = new VBox();
 		buildCellule(vboxValue);
 		Label labelValue = new Label("Value");
 		buildBoldLabel(labelValue);
 		vboxValue.getChildren().add(labelValue);
 		gridResultats.add(vboxValue, 1, 0);
-		
+
 		VBox vboxVariables = new VBox();
 		buildCellule(vboxValue);
-	
+
 		Label labelVariables = new Label("Variables");
 		buildBoldLabel(labelVariables);
 		labelVariables.setPrefSize(700, 50);
 		vboxVariables.getChildren().add(labelVariables);
 		gridResultats.add(vboxVariables, 2, 0);
 	}
-	
-	
+
 	private void buildFirstLigneOracle() {
-		
+
 		VBox vboxValue = new VBox();
 		buildCellule(vboxValue);
 		vboxValue.setPrefWidth(700);
@@ -183,7 +318,7 @@ public class OracleComparaisonDisplay implements Modifiable{
 		labelValue.setPrefWidth(700);
 		vboxValue.getChildren().add(labelValue);
 		gridOracles.add(vboxValue, 1, 0);
-		
+
 		VBox vboxVariables = new VBox();
 		buildCellule(vboxVariables);
 		Label labelVariables = new Label("Variable");
@@ -192,10 +327,9 @@ public class OracleComparaisonDisplay implements Modifiable{
 		vboxVariables.getChildren().add(labelVariables);
 		gridOracles.add(vboxVariables, 0, 0);
 	}
-	
-	
+
 	private void buildOracleLine(int step, float value, String data) {
-		
+
 		/* oracle float */
 		VBox vbox = new VBox();
 		buildCellule(vbox);
@@ -204,10 +338,9 @@ public class OracleComparaisonDisplay implements Modifiable{
 		vbox.getChildren().add(labelData);
 		gridOracles.add(vbox, 1, nbLineUsedOracles);
 
-		
 		/* oracle variables */
 		VBox vboxVar = new VBox();
-		buildCellule(vboxVar);		
+		buildCellule(vboxVar);
 		vboxVar.setPrefSize(210, 50);
 		Label labelVar = new Label(data);
 		vboxVar.getChildren().add(labelVar);
@@ -215,25 +348,24 @@ public class OracleComparaisonDisplay implements Modifiable{
 		nbLineUsedOracles++;
 	}
 
-	
-	public void update() {
+	public void updateGrids() {
 
 		Thread taskThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				Platform.runLater(new Runnable() {
-					
+
 					@Override
 					public void run() {
 
-						root.getChildren().removeAll(oraclesLabel, resultatsLabel, gridOracles, gridResultats);
+						rootPlanings.getChildren().removeAll(oraclesLabel, resultatsLabel, gridOracles, gridResultats);
 						gridOracles.setVisible(false);
 						gridResultats.setVisible(false);
-						nbLineUsedOracles=1;
-						nbLineUsedResults=1;
+						nbLineUsedOracles = 1;
+						nbLineUsedResults = 1;
 						initGrids();
-						
+
 						/* Resultats */
 						buildFirstLigneResultats();
 						CAV cav = cavModel.getCav();
@@ -241,24 +373,128 @@ public class OracleComparaisonDisplay implements Modifiable{
 						Planing situationPlaning = cav.getPlaningSituation();
 						List<Result> trueResults = truePlaning.getPlan();
 						List<Result> situationResults = situationPlaning.getPlan();
-						
-						
-						for(int i=0; i<situationPlaning.getNbRes(); i++) {
+
+						for (int i = 0; i < situationPlaning.getNbRes(); i++) {
 							Result result = situationResults.get(i);
 							buildResultLine(i, result, trueResults.get(i));
 						}
-						
+
 						/* Oracles */
 						buildFirstLigneOracle();
 						Collection<? extends String> datas = cav.getInputInSituation();
 						int step = 0;
-						for(String data : datas) {
-							//System.out.println(data + " ----- " + cav.getTrueValueForInput(data));
+						for (String data : datas) {
 							buildOracleLine(step, cav.getTrueValueForInput(data), data);
 							step++;
 						}
-						
-						root.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
+
+						rootPlanings.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
+					}
+				});
+			}
+		});
+		taskThread.start();
+	}
+
+	public void updateCharts() {
+
+		Thread taskThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						CAV cav = cavModel.getCav();
+						int cycle = cavModel.getCycle();
+						Planing truePlaning = cav.getTruePlaning();
+						Planing situationPlaning = cav.getPlaningSituation();
+						float meanDiff = truePlaning.computeMeanDifference(situationPlaning);
+						float maxDiff = truePlaning.computeMaxDifference(situationPlaning);
+
+						XYChart.Data<Number, Number> newMeanData = new XYChart.Data<>(cycle, meanDiff);
+						XYChart.Data<Number, Number> newMaxData = new XYChart.Data<>(cycle, maxDiff);
+						allMeanData.add(newMeanData);
+						allMaxData.add(newMaxData);
+
+						if (borneSup == borneSupSlider.getValue()) {
+							seriesMeanDiff.getData().add(newMeanData);
+							seriesMaxDiff.getData().add(newMaxData);
+						}
+						borneInfSlider.setMax(borneInfSlider.getMax() + 1);
+						borneSupSlider.setMax(borneSupSlider.getMax() + 1);
+						if (borneSup == borneSupSlider.getValue()) {
+							borneSupSlider.setValue(borneSupSlider.getMax());
+						}
+					}
+				});
+			}
+		});
+		taskThread.start();
+	}
+
+	@Override
+	public void update() {
+
+		updateCharts();
+		updateGrids();
+	}
+
+	public void updateChartsByBounds() {
+
+		Thread taskThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+
+						List<XYChart.Data<Number, Number>> newMeanData = new ArrayList<>();
+						List<XYChart.Data<Number, Number>> newMaxData = new ArrayList<>();
+
+						/* mean */
+						for (XYChart.Data<Number, Number> data : allMeanData) {
+							int x = data.getXValue().intValue();
+							if (x >= borneInf && x <= borneSup) {
+								newMeanData.add(data);
+							}
+						}
+						/* max */
+						for (XYChart.Data<Number, Number> data : allMaxData) {
+							int x = data.getXValue().intValue();
+							if (x >= borneInf && x <= borneSup) {
+								newMaxData.add(data);
+							}
+						}
+
+						lineChartMeanDiff.setVisible(false);
+						lineChartMaxDiff.setVisible(false);
+						rootCharts.getChildren().remove(lineChartMeanDiff);
+						rootCharts.getChildren().remove(lineChartMaxDiff);
+						rootCharts.getChildren().removeAll(borneInfSlider, borneSupSlider, labelBorneInf,
+								labelBorneSupp);
+
+						xAxisMeanDiff.setLowerBound(borneInf);
+						lineChartMeanDiff = new LineChart<>(xAxisMeanDiff, yAxisMeanDiff);
+						seriesMeanDiff = new XYChart.Series<>();
+						seriesMeanDiff.setName("Planings MeanDiff");
+						seriesMeanDiff.getData().addAll(newMeanData);
+						lineChartMeanDiff.getData().add(seriesMeanDiff);
+						lineChartMeanDiff.setPadding(new Insets(10, 0, 0, 0));
+
+						xAxisMaxDiff.setLowerBound(borneInf);
+						lineChartMaxDiff = new LineChart<>(xAxisMaxDiff, yAxisMaxDiff);
+						seriesMaxDiff = new XYChart.Series<>();
+						seriesMaxDiff.setName("Planings MaxDiff");
+						seriesMaxDiff.getData().addAll(newMaxData);
+						lineChartMaxDiff.getData().add(seriesMaxDiff);
+						lineChartMaxDiff.setPadding(new Insets(10, 0, 0, 0));
+
+						rootCharts.getChildren().addAll(lineChartMeanDiff, lineChartMaxDiff, labelBorneInf,
+								borneInfSlider, labelBorneSupp, borneSupSlider);
 					}
 				});
 			}
@@ -273,5 +509,21 @@ public class OracleComparaisonDisplay implements Modifiable{
 	public CAVModel getCavModel() {
 		return cavModel;
 	}
-	
+
+	public void setBorneInf(int value) {
+		this.borneInf = value;
+	}
+
+	public void setBorneSup(int value) {
+		this.borneSup = value;
+	}
+
+	public int getBorneInf() {
+		return borneInf;
+	}
+
+	public int getBorneSup() {
+		return borneSup;
+	}
+
 }

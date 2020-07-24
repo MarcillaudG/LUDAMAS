@@ -45,7 +45,7 @@ public class MainUI extends Application {
 
 	public void initFrame() {
 
-		primaryStage.setTitle("LUDAMAS");
+		primaryStage.setTitle("LUDAMAS - Experiment parameters");
 		VBox root = new VBox();
 		root.setAlignment(Pos.BASELINE_CENTER);
 		fileChooser = new FileChooser();

@@ -2,6 +2,7 @@ package fr.irit.smac.planification.datadisplay.controller;
 
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.ChartDisplay;
+import fr.irit.smac.planification.datadisplay.ui.OracleComparaisonDisplay;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Slider;
@@ -10,9 +11,9 @@ public class ChartDisplayController implements ChangeListener<Number>{
 	
 	private CAVModel cavModel;
 	private Slider associateSlider;
-	private ChartDisplay chartDisplay;
+	private OracleComparaisonDisplay chartDisplay;
 	
-	public ChartDisplayController(CAVModel cavModel, Slider associateSlider, ChartDisplay chartDisplay) {
+	public ChartDisplayController(CAVModel cavModel, Slider associateSlider, OracleComparaisonDisplay chartDisplay) {
 		this.cavModel = cavModel;
 		this.associateSlider = associateSlider;
 		this.chartDisplay = chartDisplay;
@@ -31,7 +32,7 @@ public class ChartDisplayController implements ChangeListener<Number>{
 		} else if(sliderId.equals("supBoundID")) {
 			chartDisplay.setBorneSup(newValue.intValue());
 		}
-		chartDisplay.updateByBounds();
+		chartDisplay.updateChartsByBounds();
 	}
 	
 	
