@@ -7,6 +7,7 @@ import java.util.Map;
 import fr.irit.smac.planification.agents.AVTAgent;
 import fr.irit.smac.planification.agents.CoalitionAgent;
 import fr.irit.smac.planification.agents.DataAgent;
+import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;

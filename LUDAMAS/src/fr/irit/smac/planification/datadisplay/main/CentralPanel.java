@@ -1,9 +1,8 @@
-package fr.irit.smac.planification.datadisplay.ui;
+package fr.irit.smac.planification.datadisplay.main;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.datadisplay.controller.AgentDisplayChoiceController;
 import fr.irit.smac.planification.datadisplay.controller.ChartDisplayController;
+import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
@@ -39,13 +39,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-public class OracleComparaisonDisplay implements Modifiable {
+public class CentralPanel implements Modifiable {
 
+	/* UI */
 	private Stage primaryStage;
 	private CAVModel cavModel;
+	
+	/* Planings display */
 	private GridPane gridOracles;
 	private GridPane gridResultats;
 	private VBox root;
@@ -55,9 +57,11 @@ public class OracleComparaisonDisplay implements Modifiable {
 	private int nbLineUsedOracles = 1;
 	private int nbLineUsedResults = 1;
 
+	/* Display choice (DataAgent + CoalitionAgent) */
 	private HBox rootAgentChoice;
 	private Separator separator;
 
+	/* MeanDiff + MaxDiff chart displays */
 	private VBox rootCharts;
 	private Series<Number, Number> seriesMeanDiff;
 	private Series<Number, Number> seriesMaxDiff;
@@ -79,7 +83,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 
-	public OracleComparaisonDisplay(CAVModel cavModel) {
+	public CentralPanel(CAVModel cavModel) {
 		this.cavModel = cavModel;
 		this.primaryStage = new Stage();
 		start();
@@ -126,6 +130,10 @@ public class OracleComparaisonDisplay implements Modifiable {
 		primaryStage.show();
 	}
 
+	/*
+	 * StartAgentDisplayChoice
+	 * Creating buttons to display DataAgents and CoalitionAgents
+	 */
 	private void startAgentDisplayChoice() {
 
 		rootAgentChoice = new HBox();
@@ -149,7 +157,11 @@ public class OracleComparaisonDisplay implements Modifiable {
 		separator.setPadding(new Insets(15, 0, 0, 0));
 		rootAgentChoice.getChildren().addAll(agentTypeOne, agentTypeTwo);
 	}
-
+	
+	/*
+	 * StartCharts
+	 * Creating charts to display MeanDiff and MaxDiff from planings every cycle
+	 */
 	private void startCharts() {
 
 		/* SLIDERS BOUNDS */
@@ -185,7 +197,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 		xAxisMeanDiff.setLabel("Cycle");
 		yAxisMeanDiff.setLabel("MeanDiff");
 		lineChartMeanDiff = new LineChart<>(xAxisMeanDiff, yAxisMeanDiff);
-		lineChartMeanDiff.setMaxHeight(300);
+		lineChartMeanDiff.setMaxHeight(200);
 		seriesMeanDiff = new XYChart.Series<>();
 		seriesMeanDiff.setName("MeanDiff");
 		lineChartMeanDiff.getData().add(seriesMeanDiff);
@@ -195,7 +207,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 		xAxisMaxDiff.setLabel("Cycle");
 		yAxisMaxDiff.setLabel("MaxDiff");
 		lineChartMaxDiff = new LineChart<>(xAxisMaxDiff, yAxisMaxDiff);
-		lineChartMaxDiff.setMaxHeight(300);
+		lineChartMaxDiff.setMaxHeight(200);
 		seriesMaxDiff = new XYChart.Series<>();
 		seriesMaxDiff.setName("MaxDiff");
 		lineChartMaxDiff.getData().add(seriesMaxDiff);
@@ -204,6 +216,9 @@ public class OracleComparaisonDisplay implements Modifiable {
 				labelBorneSupp, borneSupSlider);
 	}
 
+	/* StartPlaningGrids 
+	 * Creating grids to display planings data
+	 */
 	private void startPlaningGrids() {
 
 		initGrids();
@@ -216,6 +231,10 @@ public class OracleComparaisonDisplay implements Modifiable {
 		rootPlanings.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 	}
 
+	/*
+	 * initGrids
+	 * init grids attributes like border
+	 */
 	private void initGrids() {
 
 		GridPane newGridOracles = new GridPane();
@@ -233,7 +252,7 @@ public class OracleComparaisonDisplay implements Modifiable {
 		gridOracles = newGridOracles;
 		gridResultats = newGridResultats;
 	}
-
+	
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(105, 50);
@@ -252,7 +271,12 @@ public class OracleComparaisonDisplay implements Modifiable {
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
-
+	
+	/*
+	 *  BuildResultLine(int step, Result result, Result oracleRes)
+	 *  Params in - step: line number - result: result to display - oracleRes: associate true value
+	 *  Builds a line in the result grid
+	 */
 	private void buildResultLine(int step, Result result, Result oracleRes) {
 
 		/* step */
@@ -282,6 +306,9 @@ public class OracleComparaisonDisplay implements Modifiable {
 		nbLineUsedResults++;
 	}
 
+	/* BuildFirstLigneResultats
+	 * is part of grid init, puts labels in result grid
+	 */
 	private void buildFirstLigneResultats() {
 
 		VBox vboxNum = new VBox();
@@ -308,6 +335,9 @@ public class OracleComparaisonDisplay implements Modifiable {
 		gridResultats.add(vboxVariables, 2, 0);
 	}
 
+	/* BuildFirstLigneOracle
+	 * is part of grid init, puts labels in true grid
+	 */
 	private void buildFirstLigneOracle() {
 
 		VBox vboxValue = new VBox();
@@ -328,6 +358,11 @@ public class OracleComparaisonDisplay implements Modifiable {
 		gridOracles.add(vboxVariables, 0, 0);
 	}
 
+	/*
+	 *  BuildOracleLine(int step, float value, String data)
+	 *  Params in - step: line number - value: true value to display - data: used variables
+	 *  Builds a line in the oracle grid
+	 */
 	private void buildOracleLine(int step, float value, String data) {
 
 		/* oracle float */
@@ -348,6 +383,10 @@ public class OracleComparaisonDisplay implements Modifiable {
 		nbLineUsedOracles++;
 	}
 
+	/*
+	 * updateGrids
+	 * Re-build grids with new values (will be called every cycle)
+	 */
 	public void updateGrids() {
 
 		Thread taskThread = new Thread(new Runnable() {
@@ -395,7 +434,11 @@ public class OracleComparaisonDisplay implements Modifiable {
 		});
 		taskThread.start();
 	}
-
+	
+	/*
+	 * UpdateCharts
+	 * Add new values to chart depending on MeanDiff and MaxDiff from cav
+	 */
 	public void updateCharts() {
 
 		Thread taskThread = new Thread(new Runnable() {
@@ -434,6 +477,10 @@ public class OracleComparaisonDisplay implements Modifiable {
 		taskThread.start();
 	}
 
+	/* Implemented from Modifiable
+	 * @see fr.irit.smac.planification.datadisplay.interfaces.Modifiable#update()
+	 * Updates charts and grids 
+	 */
 	@Override
 	public void update() {
 
@@ -441,6 +488,10 @@ public class OracleComparaisonDisplay implements Modifiable {
 		updateGrids();
 	}
 
+	/* UpdateChartsByBounds
+	 * When the user select bounds to display a special part of the charts, 
+	 * this method rebuilds charts the with wanted values
+	 */
 	public void updateChartsByBounds() {
 
 		Thread taskThread = new Thread(new Runnable() {
