@@ -1,7 +1,7 @@
 package fr.irit.smac.planification.datadisplay.controller;
 
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
-import fr.irit.smac.planification.datadisplay.ui.ChartDisplay;
+import fr.irit.smac.planification.datadisplay.ui.CoalitionAgentDisplay;
 import fr.irit.smac.planification.datadisplay.ui.DataAgentDisplay;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -19,28 +19,24 @@ public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 	public void handle(ActionEvent actionEvent) {
 		Button buttonSource = (Button) actionEvent.getSource();
 		String idButton = buttonSource.getId();
-		if (idButton.equals("dataDisplay1ID")) {
-			runAgentDisplay(1);
-		} else if (idButton.equals("dataDisplay2ID")) {
-			runAgentDisplay(2);
-		} else if (idButton.equals("dataDisplay3ID")) {
-			runAgentDisplay(3);
-		} else if (idButton.equals("chartDisplayID")) {
-			runChartDisplay();
+		if (idButton.equals("dataDisplayID")) {
+			runAgentDisplay();
+		} else if (idButton.equals("coalitionAgentDisplayID")) {
+			runCoalitionAgentDisplay();
 		}
 	}
 	
 	
-	private void runAgentDisplay(int agentType) {
-		DataAgentDisplay agentDisplay = new DataAgentDisplay(agentType);
+	private void runAgentDisplay() {
+		DataAgentDisplay agentDisplay = new DataAgentDisplay(cavModel);
 		cavModel.addModifiables(agentDisplay);
-		agentDisplay.buildWindow();
 	}
 	
-	private void runChartDisplay() {
-		ChartDisplay chartDisplay = new ChartDisplay(cavModel);
-		cavModel.addModifiables(chartDisplay);
+	private void runCoalitionAgentDisplay() {
+		CoalitionAgentDisplay coalitionDisplay = new CoalitionAgentDisplay(cavModel);
+		cavModel.addModifiables(coalitionDisplay);
 	}
+	
 	
 	public void setCavModel(CAVModel cavModel) {
 		this.cavModel = cavModel;

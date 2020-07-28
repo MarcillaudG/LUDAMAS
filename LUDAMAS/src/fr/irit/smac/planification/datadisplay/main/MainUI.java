@@ -1,4 +1,4 @@
-package fr.irit.smac.planification.datadisplay.ui;
+package fr.irit.smac.planification.datadisplay.main;
 
 import java.io.File;
 
@@ -45,7 +45,7 @@ public class MainUI extends Application {
 
 	public void initFrame() {
 
-		primaryStage.setTitle("LUDAMAS");
+		primaryStage.setTitle("LUDAMAS - Experiment parameters");
 		VBox root = new VBox();
 		root.setAlignment(Pos.BASELINE_CENTER);
 		fileChooser = new FileChooser();
