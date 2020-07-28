@@ -422,16 +422,6 @@ public class DataMorphAgent implements CompetitiveAgent{
 		float x2 = this.historiques.get(indMaxInf).valueData;
 
 		if(this.historiques.size() > 2) {
-			/*if(Math.abs(critFirst) > Math.abs(critSecond)) {
-				float newa = (y2 - y1)/(x2 -x1);
-				float newb = y1 - (y2-y1)/(x2-x1) * x1;
-				this.a = (this.a + newa) / 2;
-				this.b = (this.b + newb) / 2;
-			}
-			else {
-				this.a = (y2 - y1)/(x2 -x1);
-				this.b = y1 - (y2-y1)/(x2-x1) * x1;
-			}*/
 
 			float newa = (y2 - y1)/(x2 -x1);
 			float newb = y1 - (y2-y1)/(x2-x1) * x1;
@@ -444,47 +434,9 @@ public class DataMorphAgent implements CompetitiveAgent{
 			if(maxi > this.historiques.get(0).crit) {
 				this.usefulness = Math.min(this.usefulness +0.05f, 1.0f);
 			}
-			
+			this.usefulness = 1.0f - this.historiques.get(0).crit / this.etendu;
 
 			int ind = this.dataName.indexOf(':');
-			/*if(ind != -1) {
-				String subStr = this.dataName.substring(0, ind);
-				if(subStr.equals(this.inputName)){
-					LxPlot.getChart(this.name).add("Crit", this.superiorAgent.getCurrentCycle(), this.historiques.get(0).crit/this.etendu);
-				}
-			}*/
-			/*else {
-				int ind = this.dataName.indexOf(':');
-				if(ind != -1) {
-					String subStr = this.dataName.substring(0, ind);
-					if(subStr.equals(this.inputName) && Math.abs(this.historiques.get(0).crit) > this.etendu) {
-						System.out.println(this.name);
-						System.out.println(this.getLinearFormula());
-						System.out.println(this.historiques.get(0).getValueData());
-						System.out.println(this.historiques.get(0).getValueInput());
-						System.out.println(this.historiques.get(0).crit);
-						System.out.println("LAST : "+mostCrit + " ->>> "+maxi);
-						System.out.println("Current "+this.historiques.get(0));
-					}
-				}
-			}*/
-			/*if(ind != -1) {
-				String subStr = this.dataName.substring(0, ind);
-				if(subStr.equals(this.inputName) && Math.abs(this.historiques.get(0).crit) > this.etendu) {
-					System.out.println(this.name);
-					System.out.println(this.getLinearFormula());
-					System.out.println(this.historiques.get(0).getValueData());
-					System.out.println(this.historiques.get(0).getValueInput());
-				}
-			}*/
-			/*if(this.dataName.contains(this.inputName)) {
-				if(Math.abs(this.historiques.get(0).crit) > this.etendu) {
-					System.out.println(this.name);
-					System.out.println(this.a * this.historiques.get(0).getValueData() + this.b);
-					System.out.println(this.historiques.get(0).getValueInput());
-				}
-				
-			}*/
 		}
 		else {
 			if(this.historiques.size() == 2) {

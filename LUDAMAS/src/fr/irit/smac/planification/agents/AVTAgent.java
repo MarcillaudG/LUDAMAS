@@ -135,6 +135,7 @@ public class AVTAgent {
 
 	/**
 	 * Use AVT to adapt the weight and delta
+	 * 
 	 * Yes I know, it is a long method, I hate it too
 	 */
 	public void adaptWeightAVT() {
