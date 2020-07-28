@@ -67,6 +67,7 @@ public class CAVModel {
 	}
 	
 	public void removeModifiables(Modifiable modifiable) {
+		System.out.println("Modifiable " + modifiable + " removed");
 		modifiables.remove(modifiable);
 	}
 	

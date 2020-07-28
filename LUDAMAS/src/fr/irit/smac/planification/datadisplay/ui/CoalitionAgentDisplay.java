@@ -6,6 +6,7 @@ import java.util.List;
 
 import fr.irit.smac.planification.agents.CoalitionAgent;
 import fr.irit.smac.planification.agents.DataAgent;
+import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.controller.CoalitionAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
@@ -49,6 +50,7 @@ public class CoalitionAgentDisplay implements Modifiable {
 
 	public void start() {
 		primaryStage.setTitle("CoalitionAgentsDisplay");
+		primaryStage.setOnCloseRequest(new CloseModifiableController(cavModel, this));
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,

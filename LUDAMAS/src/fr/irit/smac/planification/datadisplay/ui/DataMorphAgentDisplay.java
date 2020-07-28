@@ -5,6 +5,7 @@ import java.util.Map;
 
 import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.agents.DataMorphAgent;
+import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
@@ -46,6 +47,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 	
 	public void start() {
 		primaryStage.setTitle(dataAgentName + ": DataMorphAgents");
+		primaryStage.setOnCloseRequest(new CloseModifiableController(cavModel, this));
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,

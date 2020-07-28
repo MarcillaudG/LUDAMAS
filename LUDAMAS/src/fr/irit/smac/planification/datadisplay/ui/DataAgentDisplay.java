@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import fr.irit.smac.planification.agents.DataAgent;
+import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
@@ -23,7 +24,6 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -50,7 +50,7 @@ public class DataAgentDisplay implements Modifiable {
 	public void start() {
 		
 		primaryStage.setTitle("DataAgentsDisplay");
-
+		primaryStage.setOnCloseRequest(new CloseModifiableController(cavModel, this));
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -59,22 +59,21 @@ public class DataAgentDisplay implements Modifiable {
 		buildFirstLigneDataAgent(grid);
 		buildLignesDataAgent(grid);
 
-		Button closeButton = new Button();
-		closeButton.setText("CLOSE");
-		closeButton.setId("closeID");
-		closeButton.setPrefSize(70, 30);
-		closeButton.setStyle(BOLDSTYLE);
-		closeButton.setOnAction(controller);
-
-		HBox hboxButtons = new HBox();
-		hboxButtons.setSpacing(50.0);
-		hboxButtons.setPadding(new Insets(10, 0, 20, 0));
-		hboxButtons.getChildren().addAll(closeButton);
-		hboxButtons.setAlignment(Pos.CENTER);
+//		Button closeButton = new Button();
+//		closeButton.setText("CLOSE");
+//		closeButton.setId("closeID");
+//		closeButton.setPrefSize(70, 30);
+//		closeButton.setStyle(BOLDSTYLE);
+//		closeButton.setOnAction(controller);
+//
+//		HBox hboxButtons = new HBox();
+//		hboxButtons.setSpacing(50.0);
+//		hboxButtons.setPadding(new Insets(10, 0, 20, 0));
+//		hboxButtons.getChildren().addAll(closeButton);
+//		hboxButtons.setAlignment(Pos.CENTER);
 
 		root = new VBox();
 		root.setPadding(new Insets(15, 15, 15, 15));
-		root.getChildren().add(hboxButtons);
 		root.getChildren().add(grid);
 
 		StackPane stack = new StackPane();
