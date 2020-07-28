@@ -383,7 +383,7 @@ public class CAV {
 		System.out.println("Init");
 
 		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
-		this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
+		//this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.deleteExperiment(name);
 
 		// Init the collections
@@ -462,64 +462,6 @@ public class CAV {
 		System.out.println("END");
 	}
 
-	private void initComposedFunction() {
-		Random rand = new Random();
-		//Shield
-		//this.shield = new ShieldUser();
-
-		// TODO changer generation variable
-
-		//this.shield.initGeneratorOfComposedFunction();
-		//List<String> variablesAvailable = new ArrayList<>(this.shield.getAllVariables());
-		List<String> variablesAvailable = new ArrayList<>(this.environment.getAllVariable());
-		List<String> input = new ArrayList<String>();
-		int ind = 0;
-		//Etat interne
-		for(int i = 0; i < 3; i++) {
-			if(i%2 == 0) {
-				input.add("float");
-			}
-			else {
-				input.add("int");
-			}
-			this.internalData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
-			ind++;
-		}
-		// Etat effecteur
-		input.add("float");
-		for(int i =0; i < this.internalState.length;i++) {
-			this.effectorData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
-		}
-		ind++;
-		// nbstep
-		//input.add("int");
-		//ind++;
-		// Donnees exteroceptive
-		for(int i = 0; i < NB_EXTEROCEPTIVES; i++) {
-			if(rand.nextInt()%2 == 0) {
-				input.add("float");
-			}
-			else {
-				input.add("int");
-			}
-			String var = variablesAvailable.remove(rand.nextInt(variablesAvailable.size()));
-			this.exteroData.add(var);
-			this.exteroDataCorrect.put(var, ind);
-
-			//this.shield.generateSimilarData(var, 2);
-			this.environment.generateSimilarData(var, 3);
-			ind++;
-		}
-
-		List<String> outputs = new ArrayList<String>();
-		outputs.add("int");
-		outputs.add("float");
-		this.environment.generateComposedFunction(this.name+"ComposedFunction", input, outputs, 3, 3);
-		this.composedFunction = this.environment.getComposedFunctionWithName(this.name+"ComposedFunction");
-		//System.out.println("END ICF");
-
-	}
-
 	/**
 	 * Choose randomly a situation and init it
 	 */
@@ -529,7 +471,7 @@ public class CAV {
 		int idSituation = rand.nextInt(this.nbSituation);
 		this.currentSituation = this.situations[idSituation];
 		this.myObjective = this.situations[idSituation].getMyobjective();
-		this.currentSituation.startSituation2();
+		this.currentSituation.startSituationOneCopyMinimum();
 
 		for(Effector eff: this.effectors.values()) {
 			eff.initSituation();
@@ -640,6 +582,9 @@ public class CAV {
 			//System.out.println("PERCE");
 			//Perception
 			this.senseData();
+			if(this.currentTime == 0) {
+				System.out.println(this.dataPerceivedInSituation);
+			}
 
 
 			//System.out.println("ValuesEffect");
@@ -658,8 +603,11 @@ public class CAV {
 			this.myPlaning = new Planing();
 			for(int i = 0 ; i < CAV.WINDOW;i++) {
 				float res = 0.0f;
-				for(String effect : this.planningSubProcess.keySet()) {
+				/*for(String effect : this.planningSubProcess.keySet()) {
 					res += this.planningSubProcess.get(effect).getResAtTime(this.getCurrentTime()+i).getValue();
+				}*/
+				for(String input : this.getInputInSituation()) {
+					res+= this.inputConstraints.get(input).getOffers().get(0).getAgent().getValue();
 				}
 				this.myPlaning.addRes(new Result(this.getCurrentTime()+i, res));
 			}
@@ -703,8 +651,12 @@ public class CAV {
 		this.truePlaning = new Planing();
 		for(int i = 0 ; i < this.currentSituation.getTime();i++) {
 			float res = 0.0f;
-			for(String effect : this.planningSubProcess.keySet()) {
+			/*for(String effect : this.planningSubProcess.keySet()) {
 				res += this.planningSubProcess.get(effect).getResAtTime(i).getValue();
+			}*/
+
+			for(String input : this.getInputInSituation()) {
+				res+= this.getTrueValueForInput(input);
 			}
 			this.truePlaning.addRes(new Result(i, res));
 		}
@@ -1299,6 +1251,18 @@ public class CAV {
 
 	public int getCycle() {
 		return this.cycle;
+	}
+
+	public List<CoalitionAgent> getAllCoalitions() {
+		return this.allCoalitions;
+	}
+
+	public Collection<DataAgent> getAllDataAgent() {
+		return this.allDataAgents.values();
+	}
+
+	public DataAgent getDataAgentWithName(String dataAgentName) {
+		return this.allDataAgents.get(dataAgentName);
 	}
 
 

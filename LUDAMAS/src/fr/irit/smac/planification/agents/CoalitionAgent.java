@@ -12,6 +12,7 @@ import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Offer;
 import fr.irit.smac.planification.system.CAV;
+import javafx.geometry.Pos;
 
 public class CoalitionAgent implements CompetitiveAgent{
 
@@ -110,7 +111,6 @@ public class CoalitionAgent implements CompetitiveAgent{
 					input = null;
 				}
 			}
-
 			if(input == null) {
 				// Test avec le plus haut qui commande
 				for(DataAgent agent : this.datasActifs) {
@@ -119,7 +119,6 @@ public class CoalitionAgent implements CompetitiveAgent{
 						maxUseful = agent.getUsefulnessForData(agent.getInputObj());
 					}
 				}
-
 				for(DataAgent agent : this.datasActifs) {
 					meanSum += agent.askMorphUsefulness(this.input)*agent.askMorphedValue(this.input);
 					sumUseful += agent.askMorphUsefulness(this.input);
@@ -139,10 +138,11 @@ public class CoalitionAgent implements CompetitiveAgent{
 		for(DataAgent data : this.datasActifs) {
 			data.computeValueForInput(this.input);
 			this.avtAgents.get(data.getDataName()).cycle();
-			valueofProposition += this.avtAgents.get(data.getDataName()).getValue();
-			sumWeight += this.avtAgents.get(data.getDataName()).getWeight();
+			//valueofProposition += this.avtAgents.get(data.getDataName()).getValue();
+			valueofProposition += data.askMorphedValue(input) * data.askMorphUsefulness(input);
+			//sumWeight += this.avtAgents.get(data.getDataName()).getWeight();
+			sumWeight += data.askMorphUsefulness(input);
 		}
-
 		this.proposition = valueofProposition / sumWeight;
 	}
 
@@ -458,7 +458,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 			feed = 1;
 		}
 		for(DataAgent data : this.datasActifs) {
-			this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
+			//this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
+			this.avtAgents.get(data.getDataName()).sendFeedback(trueValueForInput);
 		}
 
 	}
@@ -469,5 +470,14 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	public AVTAgent getAVTAgent(String dataInCoal) {
 		return this.avtAgents.get(dataInCoal);
+	}
+
+
+	public Collection<AVTAgent> getAllAVT() {
+		return this.avtAgents.values();
+	}
+
+	public Collection<DataAgent> getDatas() {
+		return this.datas.values();
 	}
 }
