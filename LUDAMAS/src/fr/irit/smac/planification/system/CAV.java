@@ -1253,6 +1253,18 @@ public class CAV {
 		return this.cycle;
 	}
 
+	public List<CoalitionAgent> getAllCoalitions() {
+		return this.allCoalitions;
+	}
+
+	public Collection<DataAgent> getAllDataAgent() {
+		return this.allDataAgents.values();
+	}
+
+	public DataAgent getDataAgentWithName(String dataAgentName) {
+		return this.allDataAgents.get(dataAgentName);
+	}
+
 
 
 

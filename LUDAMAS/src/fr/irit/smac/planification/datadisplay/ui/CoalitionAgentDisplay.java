@@ -115,7 +115,7 @@ public class CoalitionAgentDisplay implements Modifiable {
 			grid.add(labelValue, 1, usedLines);
 			/* linked agents */
 			StringBuilder result = new StringBuilder();
-			Collection<DataAgent> dataAgents = coalitionAgent.getDatas().values();
+			Collection<DataAgent> dataAgents = coalitionAgent.getDatas();
 			for(Iterator<DataAgent> it = dataAgents.iterator(); it.hasNext();) {
 				result.append(it.next().getDataName());
 				if(it.hasNext()) {

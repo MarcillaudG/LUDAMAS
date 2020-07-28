@@ -125,8 +125,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 	private void buildLignesDataMorphAgent(GridPane grid) {
 		
 		CAV cav = cavModel.getCav();
-		Map<String, DataAgent> allDataAgents = cav.getAllDataAgent();
-		DataAgent dataAgent = allDataAgents.get(dataAgentName);
+		DataAgent dataAgent = cav.getDataAgentWithName(this.dataAgentName);
 		Collection<? extends DataMorphAgent> dataMorphAgents = dataAgent.getAllMorphs();
 		
 		for(DataMorphAgent dataMorphAgent : dataMorphAgents) {

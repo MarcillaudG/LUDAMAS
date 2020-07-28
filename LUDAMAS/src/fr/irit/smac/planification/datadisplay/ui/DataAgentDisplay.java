@@ -134,14 +134,11 @@ public class DataAgentDisplay implements Modifiable {
 	private void buildLignesDataAgent(GridPane grid) {
 		
 		CAV cav = cavModel.getCav();
-		Map<String, DataAgent> mapDataAgents = cav.getAllDataAgent();
-		Collection<String> keysDataAgent = mapDataAgents.keySet();
 		
-		for(String key : keysDataAgent) {
+		for(DataAgent dataAgent : cav.getAllDataAgent()) {
 			/* Name */
 			VBox labelNameBox = new VBox();
 			buildCellule(labelNameBox);
-			DataAgent dataAgent = mapDataAgents.get(key);
 			Label labelAgentName = new Label(dataAgent.getDataName());
 			labelAgentName.setStyle(BOLDSTYLE);
 			labelNameBox.getChildren().add(labelAgentName);
@@ -165,7 +162,7 @@ public class DataAgentDisplay implements Modifiable {
 			buttonBox.setPrefWidth(240);
 			Button buttonOpenDataMorph = new Button("DataMorphs");
 			buttonOpenDataMorph.setPrefSize(150, 30);
-			buttonOpenDataMorph.setId(key);
+			buttonOpenDataMorph.setId(dataAgent.getDataName());
 			buttonBox.getChildren().add(buttonOpenDataMorph);
 			buttonOpenDataMorph.setOnAction(controller);
 			grid.add(buttonBox, 3, usedLines);

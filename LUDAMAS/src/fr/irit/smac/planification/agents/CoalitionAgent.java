@@ -12,6 +12,7 @@ import fr.irit.smac.planification.matrix.DataUnicityConstraint;
 import fr.irit.smac.planification.matrix.InputConstraint;
 import fr.irit.smac.planification.matrix.Offer;
 import fr.irit.smac.planification.system.CAV;
+import javafx.geometry.Pos;
 
 public class CoalitionAgent implements CompetitiveAgent{
 
@@ -471,5 +472,14 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	public AVTAgent getAVTAgent(String dataInCoal) {
 		return this.avtAgents.get(dataInCoal);
+	}
+
+
+	public Collection<AVTAgent> getAllAVT() {
+		return this.avtAgents.values();
+	}
+
+	public Collection<DataAgent> getDatas() {
+		return this.datas.values();
 	}
 }

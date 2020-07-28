@@ -1,6 +1,8 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +32,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class AVTAgentDisplay implements Modifiable{
-	
+
 	private int usedLines = 1;
 	private CAVModel cavModel;
 	private GridPane grid;
@@ -95,54 +97,50 @@ public class AVTAgentDisplay implements Modifiable{
 		buildBoldLabel(labelDeceleration);
 		grid.add(labelDeceleration, 4, 0);
 	}
-	
+
 
 	private void buildLignesCoalitionAgent(GridPane grid) {
-		
-		Map<String, AVTAgent> avtAgents = getAvtMapFromCoalition();
-		if(avtAgents!=null) {
-			for(String key : avtAgents.keySet()) {
-				AVTAgent avt = avtAgents.get(key);
-				/* name */
-				VBox celluleAgentName = new VBox();
-				buildCellule(celluleAgentName);
-				Label labelAgentName = new Label(key);
-				celluleAgentName.getChildren().add(labelAgentName);
-				grid.add(celluleAgentName, 0, usedLines);
-				/* height */
-				Label labelHeight = new Label(String.valueOf(avt.getWeight()));
-				buildLabel(labelHeight);
-				grid.add(labelHeight, 1, usedLines);
-				/* DataAgent + value */
-				DataAgent dataAgent = avt.getDataAgent();
-				Label labelDataAgent = 
-						new Label(dataAgent.getDataName() + " VALUE: " + String.valueOf(dataAgent.askValue()));
-				buildLabel(labelDataAgent);
-				labelDataAgent.setPrefWidth(240);
-				grid.add(labelDataAgent, 2, usedLines);
-				/* AccelerationCoeff */
-				//TODO get accelerationCoeff
-				Label labelAcceleration = new Label("");
-				buildLabel(labelAcceleration);
-				grid.add(labelAcceleration, 3, usedLines);
-				/* DecelerationCoeff */
-				//TODO get decelerationCoeff
-				Label labelDeceleration = new Label("");
-				buildLabel(labelDeceleration);
-				grid.add(labelDeceleration, 4, usedLines);
-				usedLines++;
-			}
+		List<AVTAgent> allAVT = new ArrayList<>(this.getAvtMapFromCoalition());
+		for(AVTAgent avt : allAVT) {
+			/* name */
+			VBox celluleAgentName = new VBox();
+			buildCellule(celluleAgentName);
+			Label labelAgentName = new Label(avt.getDataAgent().getDataName());
+			celluleAgentName.getChildren().add(labelAgentName);
+			grid.add(celluleAgentName, 0, usedLines);
+			/* height */
+			Label labelHeight = new Label(String.valueOf(avt.getWeight()));
+			buildLabel(labelHeight);
+			grid.add(labelHeight, 1, usedLines);
+			/* DataAgent + value */
+			DataAgent dataAgent = avt.getDataAgent();
+			Label labelDataAgent = 
+					new Label(dataAgent.getDataName() + " VALUE: " + String.valueOf(dataAgent.askValue()));
+			buildLabel(labelDataAgent);
+			labelDataAgent.setPrefWidth(240);
+			grid.add(labelDataAgent, 2, usedLines);
+			/* AccelerationCoeff */
+			//TODO get accelerationCoeff
+			Label labelAcceleration = new Label("");
+			buildLabel(labelAcceleration);
+			grid.add(labelAcceleration, 3, usedLines);
+			/* DecelerationCoeff */
+			//TODO get decelerationCoeff
+			Label labelDeceleration = new Label("");
+			buildLabel(labelDeceleration);
+			grid.add(labelDeceleration, 4, usedLines);
+			usedLines++;
 		}
 	}
-	
-	private Map<String, AVTAgent> getAvtMapFromCoalition() {
-		Map<String, AVTAgent> resultat = null;
+
+	private Collection<AVTAgent> getAvtMapFromCoalition() {
+		List<AVTAgent> resultat = null;
 		CAV cav = cavModel.getCav();
 		List<CoalitionAgent> coalitions = cav.getAllCoalitions();
 		for(CoalitionAgent coalitionAgent : coalitions) {
 			String name = coalitionAgent.getName();
 			if(name!=null && name.equals(coalitionName)) {
-				resultat = coalitionAgent.getAllAVT();
+				resultat = new ArrayList<>(coalitionAgent.getAllAVT());
 			}
 		}
 		return resultat;
@@ -199,13 +197,13 @@ public class AVTAgentDisplay implements Modifiable{
 		});
 		taskThread.start();
 	}
-	
+
 	public void setCavModel(CAVModel cavModel) {
 		this.cavModel = cavModel;
 	}
-	
+
 	public CAVModel getCavModel() {
 		return cavModel;
 	}
-	
+
 }
