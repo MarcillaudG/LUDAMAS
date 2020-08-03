@@ -2,11 +2,14 @@ package fr.irit.smac.planification.datadisplay.controller;
 
 import fr.irit.smac.planification.datadisplay.main.CentralPanel;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
+import fr.irit.smac.planification.datadisplay.ui.HoveredChartData;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseEvent;
 
-public class ChartDisplayController implements ChangeListener<Number>{
+public class ChartDisplayController implements ChangeListener<Number>, EventHandler<MouseEvent>{
 	
 	private CAVModel cavModel;
 	private Slider associateSlider;
@@ -16,6 +19,10 @@ public class ChartDisplayController implements ChangeListener<Number>{
 		this.cavModel = cavModel;
 		this.associateSlider = associateSlider;
 		this.chartDisplay = chartDisplay;
+	}
+	
+	public ChartDisplayController(CAVModel cavModel) {
+		this.cavModel = cavModel;
 	}
 
 	@Override
@@ -34,9 +41,21 @@ public class ChartDisplayController implements ChangeListener<Number>{
 		chartDisplay.updateChartsByBounds();
 	}
 	
+	@Override 
+	public void handle(MouseEvent mouseEvent) {
+		HoveredChartData sourceNode = (HoveredChartData) mouseEvent.getSource();
+		if(sourceNode.getChildren().isEmpty()) {
+			sourceNode.getChildren().setAll(sourceNode.getDataLabel());
+			sourceNode.toFront();
+		} else {
+			sourceNode.getChildren().clear();
+		}
+	}
+	
 	
 	public CAVModel getCavModel() {
 		return cavModel;
 	}
+
 
 }

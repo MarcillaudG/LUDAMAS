@@ -24,6 +24,9 @@ public class CoalitionAgentDisplayController implements EventHandler<ActionEvent
 		} else {
 			AVTAgentDisplay avtDisplay = new AVTAgentDisplay(cavModel, idButton);
 			cavModel.addModifiables(avtDisplay);
+			if(cavModel.getCycle()!=0) {
+				avtDisplay.update();
+			}
 		}
 	}
 	

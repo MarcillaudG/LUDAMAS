@@ -3,9 +3,6 @@ package fr.irit.smac.planification.datadisplay.ui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
-import java.util.Collection;
-import java.util.Map;
-
 import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
@@ -58,19 +55,6 @@ public class DataAgentDisplay implements Modifiable {
 
 		buildFirstLigneDataAgent(grid);
 		buildLignesDataAgent(grid);
-
-//		Button closeButton = new Button();
-//		closeButton.setText("CLOSE");
-//		closeButton.setId("closeID");
-//		closeButton.setPrefSize(70, 30);
-//		closeButton.setStyle(BOLDSTYLE);
-//		closeButton.setOnAction(controller);
-//
-//		HBox hboxButtons = new HBox();
-//		hboxButtons.setSpacing(50.0);
-//		hboxButtons.setPadding(new Insets(10, 0, 20, 0));
-//		hboxButtons.getChildren().addAll(closeButton);
-//		hboxButtons.setAlignment(Pos.CENTER);
 
 		root = new VBox();
 		root.setPadding(new Insets(15, 15, 15, 15));
@@ -170,6 +154,10 @@ public class DataAgentDisplay implements Modifiable {
 		}
 	}
 
+	/* Implemented from Modifiable
+	 * @see fr.irit.smac.planification.datadisplay.interfaces.Modifiable#update()
+	 * Recreates a grid with new values
+	 */
 	public void update() {
 
 		Thread taskThread = new Thread(new Runnable() {

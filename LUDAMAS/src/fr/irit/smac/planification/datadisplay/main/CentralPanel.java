@@ -15,6 +15,7 @@ import fr.irit.smac.planification.datadisplay.controller.AgentDisplayChoiceContr
 import fr.irit.smac.planification.datadisplay.controller.ChartDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
+import fr.irit.smac.planification.datadisplay.ui.HoveredChartData;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -65,8 +66,8 @@ public class CentralPanel implements Modifiable {
 	private VBox rootCharts;
 	private Series<Number, Number> seriesMeanDiff;
 	private Series<Number, Number> seriesMaxDiff;
-	Label labelBorneSupp = new Label("Superior bound (step)");
-	Label labelBorneInf = new Label("Inferior bound (step)");
+	private Label labelBorneSupp = new Label("Superior bound (step)");
+	private Label labelBorneInf = new Label("Inferior bound (step)");
 	private Slider borneInfSlider;
 	private Slider borneSupSlider;
 	private List<XYChart.Data<Number, Number>> allMeanData = new ArrayList<>();
@@ -82,7 +83,7 @@ public class CentralPanel implements Modifiable {
 
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
-
+	
 	public CentralPanel(CAVModel cavModel) {
 		this.cavModel = cavModel;
 		this.primaryStage = new Stage();
@@ -194,6 +195,7 @@ public class CentralPanel implements Modifiable {
 		/* MEAN DIFF CHART */
 		rootCharts = new VBox();
 		yAxisMeanDiff.setAutoRanging(true);
+
 		xAxisMeanDiff.setLabel("Cycle");
 		yAxisMeanDiff.setLabel("MeanDiff");
 		lineChartMeanDiff = new LineChart<>(xAxisMeanDiff, yAxisMeanDiff);
@@ -458,6 +460,9 @@ public class CentralPanel implements Modifiable {
 
 						XYChart.Data<Number, Number> newMeanData = new XYChart.Data<>(cycle, meanDiff);
 						XYChart.Data<Number, Number> newMaxData = new XYChart.Data<>(cycle, maxDiff);
+						newMeanData.setNode(new HoveredChartData(cavModel, meanDiff));
+						newMaxData.setNode(new HoveredChartData(cavModel, maxDiff));
+
 						allMeanData.add(newMeanData);
 						allMaxData.add(newMaxData);
 
@@ -576,5 +581,7 @@ public class CentralPanel implements Modifiable {
 	public int getBorneSup() {
 		return borneSup;
 	}
+	
+	
 
 }

@@ -30,11 +30,17 @@ public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 	private void runAgentDisplay() {
 		DataAgentDisplay agentDisplay = new DataAgentDisplay(cavModel);
 		cavModel.addModifiables(agentDisplay);
+		if(cavModel.getCycle()!=0) {
+			agentDisplay.update();
+		}
 	}
 	
 	private void runCoalitionAgentDisplay() {
 		CoalitionAgentDisplay coalitionDisplay = new CoalitionAgentDisplay(cavModel);
 		cavModel.addModifiables(coalitionDisplay);
+		if(cavModel.getCycle()!=0) {
+			coalitionDisplay.update();
+		}
 	}
 	
 	

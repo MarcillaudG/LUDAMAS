@@ -23,12 +23,20 @@ public class CAVModel {
 		this.modifiables = new ArrayList<>();
 	}
 	
+	/* UpdateFrames
+	 * Informe toutes les fenetres modifiables qu'un cycle a ete 
+	 * termine et donc les donnees ont ete modifiees 
+	 */
 	public void updateFrames() {
 		for(Modifiable modifiable : modifiables) {
 			modifiable.update();
 		}
 	}
 	
+	/* RunExperiment
+	 * Demarre l'experience via un nouveau thread pour ne pas bloquer l'UI et 
+	 * les autres calculs
+	 */
 	public void runExperiment() {
 
         Thread taskThread = new Thread(new Runnable() {
@@ -51,10 +59,7 @@ public class CAVModel {
         taskThread.start();
     }
 	
-	/* Pour executer un cycle:
-	 * Si not paused -> mettre sur pause et attendre la fin d'un cycle
-	 * Si paused -> executer le cycle
-	 */
+
 	public void oneCycle() {
         cav.manageSituation(cycle);
         cycle++;
@@ -67,7 +72,6 @@ public class CAVModel {
 	}
 	
 	public void removeModifiables(Modifiable modifiable) {
-		System.out.println("Modifiable " + modifiable + " removed");
 		modifiables.remove(modifiable);
 	}
 	

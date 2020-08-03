@@ -26,6 +26,9 @@ public class DataAgentDisplayController implements EventHandler<ActionEvent>{
 		} else {
 			DataMorphAgentDisplay morphAgentDisplay = new DataMorphAgentDisplay(cavModel, idButton);
 			cavModel.addModifiables(morphAgentDisplay);
+			if(cavModel.getCycle()!=0) {
+				morphAgentDisplay.update();
+			}
 		}
 	}
 
