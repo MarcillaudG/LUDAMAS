@@ -13,6 +13,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
+/* Controller pour le demarrage de l'experience
+ * Permet de choisir les differents parametres et de creer l'objet CAV
+ */
 public class RunController implements EventHandler<ActionEvent> {
 
 	private CAVModel cavModel;
@@ -24,9 +27,12 @@ public class RunController implements EventHandler<ActionEvent> {
 		this.cavModel = new CAVModel();
 	}
 
+	/* Button action handler
+	 * - Bouton run : demarre l'experience
+	 * - Bouton fileChooser : ouvre le fileChooser pour choisir un dataset
+	 */
 	@Override
 	public void handle(ActionEvent actionEvent) {
-
 		Button buttonSource = (Button) actionEvent.getSource();
 		if (buttonSource.getId().equals("runID")) {
 			runHandle(buttonSource);
@@ -35,8 +41,11 @@ public class RunController implements EventHandler<ActionEvent> {
 		}
 	}
 
+	/* Action declenchee par l'evenement du bouton fileChooser 
+	 * Affiche le fileChooser et indique a l'utilisateur si aucun fichier n'a
+	 * ete choisi
+	 */
 	private void fileChoosing() {
-
 		try {
 			File selectedFile = mainApp.getFileChooser().showOpenDialog(mainApp.getPrimaryStage());
 			filePath = selectedFile.getAbsolutePath();
@@ -47,8 +56,11 @@ public class RunController implements EventHandler<ActionEvent> {
 		}
 	}
 
+	/* Action declenchee par l'evenement du bouton run
+	 * Lit les parametres fournis par l'utilisateur et demarre l'experience
+	 * avec la creation de l'objet cav et l'affichage du CentralPanel
+	 */
 	private void runHandle(Button source) {
-
 		int nbEffectors = mainApp.getValueSpinEffector();
 		int nbSituations = mainApp.getValueSpinSituations();
 		int nbVarEff = mainApp.getValueSpinVarEff();
@@ -56,8 +68,8 @@ public class RunController implements EventHandler<ActionEvent> {
 		if (filePath != null) {
 			this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
 			this.cavModel.setCav(cav);
-			CentralPanel oracleDisplay = new CentralPanel(cavModel);
-			cavModel.addModifiables(oracleDisplay);
+			CentralPanel centralPanel = new CentralPanel(cavModel);
+			cavModel.addModifiables(centralPanel);
 			new ToolsDisplay(cavModel);
 			cavModel.runExperiment();
 			Stage stageCorresp = (Stage) source.getScene().getWindow();

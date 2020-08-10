@@ -7,6 +7,10 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
+/*
+ * Controller pour la fenetre CoalitionAgentDisplay
+ * Permet d'afficher les AVTAgents correspondant au CoalitionAgent souhaite
+ */
 public class CoalitionAgentDisplayController implements EventHandler<ActionEvent> {
 	
 	private CAVModel cavModel;
@@ -15,6 +19,10 @@ public class CoalitionAgentDisplayController implements EventHandler<ActionEvent
 		this.cavModel = cavModel;
 	}
 
+	/* Button handler
+	 * Recupere l'id du bouton clique qui est le nom du coalitionAgent correspondant
+	 * pour permettre d'ouvrir une fenetre avec les AVTAgents associes
+	 */
 	@Override
 	public void handle(ActionEvent actionEvent) {
 		Button sourceButton = (Button) actionEvent.getSource();

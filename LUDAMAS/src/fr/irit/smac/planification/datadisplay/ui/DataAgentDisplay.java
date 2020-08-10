@@ -28,14 +28,17 @@ import javafx.stage.Stage;
 
 public class DataAgentDisplay implements Modifiable {
 	
-	private static final Color grey = Color.rgb(100, 100, 100);
-	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	private GridPane grid;
 	private VBox root;
 	private CAVModel cavModel;
+	/* nb of grid lines used (starts at 1 because of grid header) */
 	private int usedLines = 1;
 	private DataAgentDisplayController controller;
 	private Stage primaryStage;
+	
+	/* Constants */
+	private static final Color grey = Color.rgb(100, 100, 100);
+	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	
 	public DataAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
@@ -98,6 +101,9 @@ public class DataAgentDisplay implements Modifiable {
 		label.setStyle(BOLDSTYLE);
 	}
 
+	/* Displayed attributes of a DataAgent
+	 * Name/Value/Associate coalitionAgent/Associate DataMorphAgents
+	 */
 	private void buildFirstLigneDataAgent(GridPane grid) {
 
 		Label labelId = new Label("Agent Name");
@@ -106,7 +112,7 @@ public class DataAgentDisplay implements Modifiable {
 		Label labelValue = new Label("Value");
 		buildBoldLabel(labelValue);
 		grid.add(labelValue, 1, 0);
-		Label labelCoalition = new Label("Value");
+		Label labelCoalition = new Label("Coalition");
 		buildBoldLabel(labelCoalition);
 		grid.add(labelCoalition, 2, 0);
 		Label labelDataMorph = new Label("DataMorphAgents");
@@ -118,7 +124,6 @@ public class DataAgentDisplay implements Modifiable {
 	private void buildLignesDataAgent(GridPane grid) {
 		
 		CAV cav = cavModel.getCav();
-		
 		for(DataAgent dataAgent : cav.getAllDataAgent()) {
 			/* Name */
 			VBox labelNameBox = new VBox();

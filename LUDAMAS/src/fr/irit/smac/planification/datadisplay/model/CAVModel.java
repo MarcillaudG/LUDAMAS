@@ -8,11 +8,14 @@ import fr.irit.smac.planification.system.CAV;
 
 public class CAVModel {
 	
+	/* Data access and experiment */
 	private CAV cav;
+	/* List of opened updatable frames */
 	private List<Modifiable> modifiables;
-	private int stepPeriod = 1000;
+	/* period between two cycles (ms)*/
+	private int cyclePeriod = 1000;
 	private int cycle = 0;
-	private boolean pause = false;
+	private boolean stop = false;
 	
 	public CAVModel() {
 		this.modifiables = new ArrayList<>();
@@ -36,6 +39,8 @@ public class CAVModel {
 	/* RunExperiment
 	 * Demarre l'experience via un nouveau thread pour ne pas bloquer l'UI et 
 	 * les autres calculs
+	 * A chaque tour de boucle: si l'experience n'est pas en pause
+	 * alors on effectue un cycle
 	 */
 	public void runExperiment() {
 
@@ -45,11 +50,11 @@ public class CAVModel {
             public void run() {
                 cav.generateNewValues(cycle);
                 while(cycle<1000) {
-                	if(!pause) {
+                	if(!stop) {
                         oneCycle();
                 	}
                 	try {
-                        Thread.sleep(stepPeriod);
+                        Thread.sleep(cyclePeriod);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -59,7 +64,9 @@ public class CAVModel {
         taskThread.start();
     }
 	
-
+	/* OneCycle
+	 * One cycle of the experiment
+	 */
 	public void oneCycle() {
         cav.manageSituation(cycle);
         cycle++;
@@ -79,24 +86,24 @@ public class CAVModel {
 		return modifiables;
 	}
 	
-	public void setStepPeriod(int value) {
-		stepPeriod = value;
+	public void setCyclePeriod(int value) {
+		cyclePeriod = value;
 	}
 	
-	public int getStepPeriod() {
-		return stepPeriod;
+	public int getCyclePeriod() {
+		return cyclePeriod;
 	}
 	
 	public int getCycle() {
 		return cycle;
 	}
 	
-	public void setPause(boolean value) {
-		this.pause = value;
+	public void setStopValue(boolean value) {
+		this.stop = value;
 	}
 	
-	public boolean getPaused() {
-		return pause;
+	public boolean isStopped() {
+		return stop;
 	}
 	
 	public void setCav(CAV cav) {

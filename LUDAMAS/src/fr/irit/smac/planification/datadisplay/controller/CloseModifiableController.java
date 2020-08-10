@@ -5,6 +5,11 @@ import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
 
+/*
+ * Controller pour toutes les fenetres Modifiables
+ * WindowEvent
+ * Defini une action pour l'evenement de la fermeture d'une fenetre
+ */
 public class CloseModifiableController implements EventHandler<WindowEvent> {
 
 	private CAVModel cavModel;

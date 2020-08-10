@@ -32,14 +32,18 @@ import javafx.stage.Stage;
 
 public class CoalitionAgentDisplay implements Modifiable {
 
+	/* nb of grid lines used (starts at 1 because of grid header) */
 	private int usedLines = 1;
 	private CAVModel cavModel;
 	private GridPane grid;
-	private static final Color grey = Color.rgb(100, 100, 100);
-	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	private VBox root;
 	private Stage primaryStage;
+	/* Controller */
 	private CoalitionAgentDisplayController controller;
+	
+	/* Constants */
+	private static final Color grey = Color.rgb(100, 100, 100);
+	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 
 	public CoalitionAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
@@ -77,6 +81,9 @@ public class CoalitionAgentDisplay implements Modifiable {
 		primaryStage.show();
 	}
 
+	/* Displayed attributes of a CoalitionAgent
+	 * Name/Value/Linked Agents/Input/Associate AVTAgents
+	 */
 	private void buildFirstLigneCoalitionAgent(GridPane grid) {
 
 		Label labelId = new Label("Name");
@@ -143,18 +150,16 @@ public class CoalitionAgentDisplay implements Modifiable {
 			buttonOpenAVT.setPrefSize(130, 30);
 			buttonOpenAVT.setId(coalitionAgent.getName());
 			buttonOpenAVT.setOnAction(controller);
-			//TODO:
-			/*
-			 * 1 - getAllCoalition (list<CoalitionAgent> from CAV)
-			 * 2 - look for the coalitionAgent by its name given in buttonID
-			 * 3 - process
-			 */
 			buttonBox.getChildren().add(buttonOpenAVT);
 			grid.add(buttonBox, 4, usedLines);
 			usedLines++;
 		}
 	}
 
+	/* BuildCellule 
+	 * Param in: VBox to build
+	 * Sets size, alignment and border of the vbox given
+	 */
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(120, 40);
@@ -164,6 +169,10 @@ public class CoalitionAgentDisplay implements Modifiable {
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
 
+	/* BuildLabel
+	 * Param in: Label to build
+	 * Sets size, alignment and border of the label given
+	 */
 	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
 		label.setPrefSize(120, 40);
@@ -172,12 +181,20 @@ public class CoalitionAgentDisplay implements Modifiable {
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
 
+	/* BuildBoldLabel
+	 * Param in: Label to build
+	 * Sets size, bold style, alignment and border of the label given
+	 */
 	private void buildBoldLabel(Label label) {
 
 		buildLabel(label);
 		label.setStyle(BOLDSTYLE);
 	}
 
+	/* update implemented from Modifiable
+	 * @see fr.irit.smac.planification.datadisplay.interfaces.Modifiable#update()
+	 * Builds a new grid with data collected from CAVModel
+	 */
 	@Override
 	public void update() {
 		Thread taskThread = new Thread(new Runnable() {

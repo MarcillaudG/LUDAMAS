@@ -7,6 +7,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 
+/*
+ * Controller pour l'ouverture des fenetres de DataDisplay depuis le
+ * CentralPanel
+ */
 public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 	
 	private CAVModel cavModel;
@@ -15,6 +19,11 @@ public class AgentDisplayChoiceController implements EventHandler<ActionEvent> {
 		this.cavModel = cavModel;
 	}
 
+	/*
+	 * Button Handler
+	 * Recupere l'id du bouton et appelle la methode associe
+	 * pour ouvrir un affichage de donnees
+	 */
 	@Override
 	public void handle(ActionEvent actionEvent) {
 		Button buttonSource = (Button) actionEvent.getSource();

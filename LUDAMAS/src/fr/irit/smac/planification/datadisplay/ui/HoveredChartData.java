@@ -5,6 +5,9 @@ import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
+/* Charts nodes 
+ * Make user able to see the precise value of a node 
+ */
 public class HoveredChartData extends StackPane{
 	
 	private Label dataLabel;

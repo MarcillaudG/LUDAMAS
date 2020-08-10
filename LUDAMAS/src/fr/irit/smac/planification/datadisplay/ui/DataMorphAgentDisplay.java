@@ -1,7 +1,6 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
 import java.util.Collection;
-import java.util.Map;
 
 import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.agents.DataMorphAgent;

@@ -81,6 +81,7 @@ public class CentralPanel implements Modifiable {
 	private NumberAxis xAxisMaxDiff = new NumberAxis();
 	private NumberAxis yAxisMaxDiff = new NumberAxis();
 
+	/* Constants */
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	
@@ -255,6 +256,10 @@ public class CentralPanel implements Modifiable {
 		gridResultats = newGridResultats;
 	}
 	
+	/* BuildCellule 
+	 * Param in: VBox to build
+	 * Sets size, alignment and border of the vbox given
+	 */
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(105, 50);
@@ -264,6 +269,10 @@ public class CentralPanel implements Modifiable {
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
 
+	/* BuildBoldLabel
+	 * Param in: Label to build
+	 * Sets size, bold style, alignment and border of the label given
+	 */
 	private void buildBoldLabel(Label label) {
 
 		label.setAlignment(Pos.CENTER);
@@ -407,7 +416,9 @@ public class CentralPanel implements Modifiable {
 						nbLineUsedResults = 1;
 						initGrids();
 
-						/* Resultats */
+						/* Resultats 
+						 * - Recupere les resultats du planing situation depuis le CAVModel
+						 */
 						buildFirstLigneResultats();
 						CAV cav = cavModel.getCav();
 						Planing truePlaning = cav.getTruePlaning();
@@ -420,7 +431,9 @@ public class CentralPanel implements Modifiable {
 							buildResultLine(i, result, trueResults.get(i));
 						}
 
-						/* Oracles */
+						/* Oracles 
+						 * - Recupere les resultats attendus depuis le CAV
+						 */
 						buildFirstLigneOracle();
 						Collection<? extends String> datas = cav.getInputInSituation();
 						int step = 0;
@@ -525,7 +538,8 @@ public class CentralPanel implements Modifiable {
 								newMaxData.add(data);
 							}
 						}
-
+						
+						/* Suppression des graphes actuels */
 						lineChartMeanDiff.setVisible(false);
 						lineChartMaxDiff.setVisible(false);
 						rootCharts.getChildren().remove(lineChartMeanDiff);
@@ -533,6 +547,7 @@ public class CentralPanel implements Modifiable {
 						rootCharts.getChildren().removeAll(borneInfSlider, borneSupSlider, labelBorneInf,
 								labelBorneSupp);
 
+						/* Recreation des graphes */
 						xAxisMeanDiff.setLowerBound(borneInf);
 						lineChartMeanDiff = new LineChart<>(xAxisMeanDiff, yAxisMeanDiff);
 						seriesMeanDiff = new XYChart.Series<>();
