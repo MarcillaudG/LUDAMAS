@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -29,6 +30,7 @@ public class ToolsDisplay {
 	public ToolsDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
 		this.primaryStage = new Stage();
+		this.primaryStage.getIcons().add(new Image("./fr/irit/smac/img/icon.png"));
 		start();
 	}
 	

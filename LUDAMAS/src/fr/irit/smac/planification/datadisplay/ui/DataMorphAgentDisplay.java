@@ -16,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -41,6 +42,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 		this.primaryStage = new Stage();
 		this.cavModel = cavModel;
 		this.dataAgentName = dataAgentName;
+		this.primaryStage.getIcons().add(new Image("./fr/irit/smac/img/icon.png"));
 		start();
 	}
 	

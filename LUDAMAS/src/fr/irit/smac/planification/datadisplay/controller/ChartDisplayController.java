@@ -44,14 +44,21 @@ public class ChartDisplayController implements ChangeListener<Number>, EventHand
 	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 		String sliderId = associateSlider.getId();
 		if(sliderId.equals("infBoundID")) {
-			chartDisplay.setBorneInf(newValue.intValue());
 			int borneSup = chartDisplay.getBorneSup();
-			if(newValue.intValue()>borneSup) {
+			if(newValue.intValue()>=borneSup) {
 				chartDisplay.setBorneInf(borneSup-1);
 				associateSlider.setValue(chartDisplay.getBorneInf());
+			} else {
+				chartDisplay.setBorneInf(newValue.intValue());
 			}
 		} else if(sliderId.equals("supBoundID")) {
-			chartDisplay.setBorneSup(newValue.intValue());
+			int borneInf = chartDisplay.getBorneInf();
+			if(newValue.intValue()<=borneInf) {
+				chartDisplay.setBorneSup(borneInf+1);
+				associateSlider.setValue(chartDisplay.getBorneSup());
+			} else {
+				chartDisplay.setBorneSup(newValue.intValue());
+			}
 		}
 		chartDisplay.updateChartsByBounds();
 	}

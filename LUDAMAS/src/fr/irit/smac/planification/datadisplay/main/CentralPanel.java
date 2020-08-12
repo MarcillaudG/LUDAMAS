@@ -88,6 +88,7 @@ public class CentralPanel implements Modifiable {
 	public CentralPanel(CAVModel cavModel) {
 		this.cavModel = cavModel;
 		this.primaryStage = new Stage();
+		this.primaryStage.getIcons().add(new Image("./fr/irit/smac/img/icon.png"));
 		start();
 	}
 
