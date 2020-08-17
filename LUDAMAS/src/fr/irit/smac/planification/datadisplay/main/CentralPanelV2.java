@@ -13,6 +13,8 @@ import fr.irit.smac.planification.Planing;
 import fr.irit.smac.planification.Result;
 import fr.irit.smac.planification.datadisplay.controller.AgentDisplayChoiceController;
 import fr.irit.smac.planification.datadisplay.controller.ChartDisplayController;
+import fr.irit.smac.planification.datadisplay.controller.CoalitionAgentDisplayController;
+import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.CoalitionAgentDisplay;
@@ -56,6 +58,8 @@ public class CentralPanelV2 implements Modifiable{
 	TitledPane titledCoalitionAgent;
 	TitledPane titledCharts;
 	TitledPane titledPlanings;
+	int nbCreatedDataMorphPanes = 0;
+	int nbCreatedAvtPanes = 0;
 	
 	/* Planings display */
 	private GridPane gridOracles;
@@ -134,11 +138,15 @@ public class CentralPanelV2 implements Modifiable{
 		titledPlanings.setExpanded(false);
 		
 		DataAgentDisplay dataAgentDisplay = new DataAgentDisplay(cavModel);
+		DataAgentDisplayController dataAgentController = new DataAgentDisplayController(cavModel, this);
+		dataAgentDisplay.setController(dataAgentController);
 		cavModel.addModifiables(dataAgentDisplay);
 		titledDataAgent = new TitledPane("Data Agents", dataAgentDisplay.getScrollPane());
 		titledDataAgent.setExpanded(false);
 		
 		CoalitionAgentDisplay coalitionDisplay = new CoalitionAgentDisplay(cavModel);
+		CoalitionAgentDisplayController coalitionController = new CoalitionAgentDisplayController(cavModel, this);
+		coalitionDisplay.setController(coalitionController);
 		cavModel.addModifiables(coalitionDisplay);
 		titledCoalitionAgent = new TitledPane("Coalition Agents", coalitionDisplay.getScrollPane());
 		titledCoalitionAgent.setExpanded(false);
@@ -598,14 +606,6 @@ public class CentralPanelV2 implements Modifiable{
 		taskThread.start();
 	}
 
-	public void setCavModel(CAVModel cavModel) {
-		this.cavModel = cavModel;
-	}
-
-	public CAVModel getCavModel() {
-		return cavModel;
-	}
-
 	public void setBorneInf(int value) {
 		this.borneInf = value;
 	}
@@ -622,5 +622,31 @@ public class CentralPanelV2 implements Modifiable{
 		return borneSup;
 	}
 	
+	public VBox getRoot() {
+		return root;
+	}
 	
+	public int getNbCreatedDataMorphPanes() {
+		return nbCreatedDataMorphPanes;
+	}
+	
+	public int getNbCreatedAvtPanes() {
+		return nbCreatedAvtPanes;
+	}
+	
+	public void incNbCreatedAvtPanes() {
+		nbCreatedAvtPanes++;
+	}
+	
+	public void decNbCreatedAvtPanes() {
+		nbCreatedAvtPanes--;
+	}
+	
+	public void incNbCreatedDataMorphPanes() {
+		nbCreatedDataMorphPanes++;
+	}
+	
+	public void decNbCreatedDataMorphPanes() {
+		nbCreatedDataMorphPanes--;
+	}
 }

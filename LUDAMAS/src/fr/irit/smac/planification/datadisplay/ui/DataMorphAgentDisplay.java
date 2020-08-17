@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.agents.DataMorphAgent;
-import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
@@ -12,11 +11,9 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -25,7 +22,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 public class DataMorphAgentDisplay implements Modifiable {
 	
@@ -35,20 +31,16 @@ public class DataMorphAgentDisplay implements Modifiable {
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	private GridPane grid;
 	private VBox root;
+	private ScrollPane scrollPane;
 	private String dataAgentName;
-	private Stage primaryStage;
 	
 	public DataMorphAgentDisplay(CAVModel cavModel, String dataAgentName) {
-		this.primaryStage = new Stage();
 		this.cavModel = cavModel;
 		this.dataAgentName = dataAgentName;
-		this.primaryStage.getIcons().add(new Image("./fr/irit/smac/img/icon.png"));
 		start();
 	}
 	
 	public void start() {
-		primaryStage.setTitle(dataAgentName + ": DataMorphAgents");
-		primaryStage.setOnCloseRequest(new CloseModifiableController(cavModel, this));
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -63,16 +55,15 @@ public class DataMorphAgentDisplay implements Modifiable {
 		StackPane stack = new StackPane();
 		stack.getChildren().add(root);
 
-		ScrollPane scrollPane = new ScrollPane();
+		scrollPane = new ScrollPane();
 		scrollPane.setContent(stack);
 		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
-
-		primaryStage.setScene(new Scene(scrollPane, 885, 500));
-		primaryStage.show();
+		
+		scrollPane.setPrefSize(1100, 500);
 	}
 	
 	private void buildFirstLigneDataMorphAgent(GridPane grid) {
@@ -88,7 +79,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 		grid.add(labelUsefulness, 2,  0);
 		Label labelLinearFormula = new Label("Linear formula");
 		buildBoldLabel(labelLinearFormula);
-		labelLinearFormula.setPrefWidth(240);
+		labelLinearFormula.setPrefWidth(260);
 		grid.add(labelLinearFormula, 3,  0);
 		Label labelMorphValue = new Label("Morph value");
 		buildBoldLabel(labelMorphValue);
@@ -101,7 +92,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 	
 	private void buildCellule(VBox box) {
 
-		box.setPrefSize(120, 40);
+		box.setPrefSize(160, 40);
 		box.setAlignment(Pos.CENTER);
 		box.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -110,7 +101,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 
 	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
-		label.setPrefSize(120, 40);
+		label.setPrefSize(160, 40);
 		label.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
@@ -153,7 +144,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 			/* linear formula */
 			Label labelLinearFormula = new Label(dataMorphAgent.getLinearFormula());
 			buildLabel(labelLinearFormula);
-			labelLinearFormula.setPrefWidth(240);
+			labelLinearFormula.setPrefWidth(260);
 			grid.add(labelLinearFormula, 3, usedLines);
 			/* morph value */
 			Label labelMorphValue = new Label(String.valueOf(dataMorphAgent.getMorphValue()));
@@ -197,4 +188,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 		taskThread.start();
 	}
 
+	public ScrollPane getScrollPane() {
+		return scrollPane;
+	}
 }

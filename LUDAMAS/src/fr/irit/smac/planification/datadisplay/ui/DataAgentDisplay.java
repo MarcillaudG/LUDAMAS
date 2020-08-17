@@ -19,12 +19,11 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-public class DataAgentDisplay extends Region implements Modifiable{
+public class DataAgentDisplay implements Modifiable{
 	
 	private GridPane grid;
 	private VBox root;
@@ -187,6 +186,10 @@ public class DataAgentDisplay extends Region implements Modifiable{
 			}
 		});
 		taskThread.start();
+	}
+	
+	public void setController(DataAgentDisplayController controller) {
+		this.controller = controller;
 	}
 	
 	public void setCavModel(CAVModel cavModel) {

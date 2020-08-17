@@ -217,12 +217,11 @@ public class CoalitionAgentDisplay implements Modifiable {
 		taskThread.start();
 	}
 	
-	
-	public VBox getRoot() {
-		return root;
-	}
-	
 	public ScrollPane getScrollPane() {
 		return scrollPane;
+	}
+	
+	public void setController(CoalitionAgentDisplayController controller) {
+		this.controller = controller;
 	}
 }
