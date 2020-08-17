@@ -6,7 +6,6 @@ import java.util.List;
 
 import fr.irit.smac.planification.agents.CoalitionAgent;
 import fr.irit.smac.planification.agents.DataAgent;
-import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.controller.CoalitionAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
@@ -15,12 +14,10 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -29,7 +26,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 public class CoalitionAgentDisplay implements Modifiable {
 
@@ -38,7 +34,7 @@ public class CoalitionAgentDisplay implements Modifiable {
 	private CAVModel cavModel;
 	private GridPane grid;
 	private VBox root;
-	private Stage primaryStage;
+	private ScrollPane scrollPane;
 	/* Controller */
 	private CoalitionAgentDisplayController controller;
 	
@@ -48,15 +44,11 @@ public class CoalitionAgentDisplay implements Modifiable {
 
 	public CoalitionAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
-		this.primaryStage = new Stage();
 		this.controller = new CoalitionAgentDisplayController(cavModel);
-		this.primaryStage.getIcons().add(new Image("./fr/irit/smac/img/icon.png"));
 		start();
 	}
 
 	public void start() {
-		primaryStage.setTitle("CoalitionAgentsDisplay");
-		primaryStage.setOnCloseRequest(new CloseModifiableController(cavModel, this));
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -71,16 +63,15 @@ public class CoalitionAgentDisplay implements Modifiable {
 		StackPane stack = new StackPane();
 		stack.getChildren().add(root);
 
-		ScrollPane scrollPane = new ScrollPane();
+		scrollPane = new ScrollPane();
 		scrollPane.setContent(stack);
 		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
-
-		primaryStage.setScene(new Scene(scrollPane, 1100, 500));
-		primaryStage.show();
+		
+		scrollPane.setPrefSize(1100, 500);
 	}
 
 	/* Displayed attributes of a CoalitionAgent
@@ -224,5 +215,14 @@ public class CoalitionAgentDisplay implements Modifiable {
 			}
 		});
 		taskThread.start();
+	}
+	
+	
+	public VBox getRoot() {
+		return root;
+	}
+	
+	public ScrollPane getScrollPane() {
+		return scrollPane;
 	}
 }

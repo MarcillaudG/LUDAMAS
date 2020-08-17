@@ -4,38 +4,35 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
 import fr.irit.smac.planification.agents.DataAgent;
-import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.system.CAV;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
-public class DataAgentDisplay implements Modifiable {
+public class DataAgentDisplay extends Region implements Modifiable{
 	
 	private GridPane grid;
 	private VBox root;
 	private CAVModel cavModel;
+	private ScrollPane scrollPane;
 	/* nb of grid lines used (starts at 1 because of grid header) */
 	private int usedLines = 1;
 	private DataAgentDisplayController controller;
-	private Stage primaryStage;
 	
 	/* Constants */
 	private static final Color grey = Color.rgb(100, 100, 100);
@@ -44,15 +41,11 @@ public class DataAgentDisplay implements Modifiable {
 	public DataAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
 		this.controller = new DataAgentDisplayController(cavModel);
-		this.primaryStage = new Stage();
-		this.primaryStage.getIcons().add(new Image("./fr/irit/smac/img/icon.png"));
 		start();
 	}
 	
 	public void start() {
 		
-		primaryStage.setTitle("DataAgentsDisplay");
-		primaryStage.setOnCloseRequest(new CloseModifiableController(cavModel, this));
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -68,16 +61,15 @@ public class DataAgentDisplay implements Modifiable {
 		StackPane stack = new StackPane();
 		stack.getChildren().add(root);
 
-		ScrollPane scrollPane = new ScrollPane();
+		scrollPane = new ScrollPane();
 		scrollPane.setContent(stack);
 		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
-
-		primaryStage.setScene(new Scene(scrollPane, 645, 500));
-		primaryStage.show();
+		
+		scrollPane.setPrefSize(1100, 500);
 	}
 
 	private void buildCellule(VBox box) {
@@ -113,13 +105,15 @@ public class DataAgentDisplay implements Modifiable {
 		grid.add(labelId, 0, 0);
 		Label labelValue = new Label("Value");
 		buildBoldLabel(labelValue);
+		labelValue.setPrefWidth(315);
 		grid.add(labelValue, 1, 0);
 		Label labelCoalition = new Label("Coalition");
 		buildBoldLabel(labelCoalition);
+		labelCoalition.setPrefWidth(310);
 		grid.add(labelCoalition, 2, 0);
 		Label labelDataMorph = new Label("DataMorphAgents");
 		buildBoldLabel(labelDataMorph);
-		labelDataMorph.setPrefWidth(240);
+		labelDataMorph.setPrefWidth(310);
 		grid.add(labelDataMorph, 3, 0);
 	}
 
@@ -137,10 +131,12 @@ public class DataAgentDisplay implements Modifiable {
 			/* Value */
 			Label labelValue = new Label(String.valueOf(dataAgent.askValue()));
 			buildLabel(labelValue);
+			labelValue.setPrefWidth(315);
 			grid.add(labelValue, 1, usedLines);
 			/* Coalition */
 			Label labelCoalition = new Label();
 			buildLabel(labelCoalition);
+			labelCoalition.setPrefWidth(310);
 			try {
 				labelCoalition.setText(dataAgent.getCoalition().getData());
 			} catch (NullPointerException e) {
@@ -150,7 +146,7 @@ public class DataAgentDisplay implements Modifiable {
 			/* DataMorphButton */
 			VBox buttonBox = new VBox();
 			buildCellule(buttonBox);
-			buttonBox.setPrefWidth(240);
+			buttonBox.setPrefWidth(310);
 			Button buttonOpenDataMorph = new Button("DataMorphs");
 			buttonOpenDataMorph.setPrefSize(150, 30);
 			buttonOpenDataMorph.setId(dataAgent.getDataName());
@@ -199,6 +195,14 @@ public class DataAgentDisplay implements Modifiable {
 	
 	public CAVModel getCavModel() {
 		return cavModel;	
+	}
+	
+	public VBox getRoot() {
+		return root;
+	}
+	
+	public ScrollPane getScrollPane() {
+		return scrollPane;
 	}
 
 }

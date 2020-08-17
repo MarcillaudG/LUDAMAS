@@ -2,7 +2,7 @@ package fr.irit.smac.planification.datadisplay.controller;
 
 import java.io.File;
 
-import fr.irit.smac.planification.datadisplay.main.CentralPanel;
+import fr.irit.smac.planification.datadisplay.main.CentralPanelV2;
 import fr.irit.smac.planification.datadisplay.main.MainUI;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.ToolsDisplay;
@@ -68,8 +68,8 @@ public class RunController implements EventHandler<ActionEvent> {
 		if (filePath != null) {
 			this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
 			this.cavModel.setCav(cav);
-			CentralPanel centralPanel = new CentralPanel(cavModel);
-			cavModel.addModifiables(centralPanel);
+			CentralPanelV2 centralPanelV2 = new CentralPanelV2(cavModel);
+			cavModel.addModifiables(centralPanelV2);
 			new ToolsDisplay(cavModel);
 			cavModel.runExperiment();
 			Stage stageCorresp = (Stage) source.getScene().getWindow();

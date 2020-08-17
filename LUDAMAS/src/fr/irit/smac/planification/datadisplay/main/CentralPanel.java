@@ -180,7 +180,7 @@ public class CentralPanel implements Modifiable {
 		borneInfSlider.setShowTickLabels(true);
 		borneInfSlider.setPadding(new Insets(30, 100, 0, 100));
 		borneInfSlider.setShowTickMarks(true);
-		borneInfSlider.valueProperty().addListener(new ChartDisplayController(cavModel, borneInfSlider, this));
+		//borneInfSlider.valueProperty().addListener(new ChartDisplayController(cavModel, borneInfSlider, this));
 
 		borneSupSlider = new Slider();
 		borneSupSlider.setId("supBoundID");
@@ -192,7 +192,7 @@ public class CentralPanel implements Modifiable {
 		borneSupSlider.setShowTickLabels(true);
 		borneSupSlider.setPadding(new Insets(30, 100, 0, 100));
 		borneSupSlider.setShowTickMarks(true);
-		borneSupSlider.valueProperty().addListener(new ChartDisplayController(cavModel, borneSupSlider, this));
+		//borneSupSlider.valueProperty().addListener(new ChartDisplayController(cavModel, borneSupSlider, this));
 
 		/* MEAN DIFF CHART */
 		rootCharts = new VBox();

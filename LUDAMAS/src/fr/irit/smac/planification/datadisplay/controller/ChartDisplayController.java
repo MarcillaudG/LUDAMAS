@@ -1,6 +1,6 @@
 package fr.irit.smac.planification.datadisplay.controller;
 
-import fr.irit.smac.planification.datadisplay.main.CentralPanel;
+import fr.irit.smac.planification.datadisplay.main.CentralPanelV2;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.HoveredChartData;
 import javafx.beans.value.ChangeListener;
@@ -19,10 +19,10 @@ public class ChartDisplayController implements ChangeListener<Number>, EventHand
 	
 	private CAVModel cavModel;
 	private Slider associateSlider;
-	private CentralPanel chartDisplay;
+	private CentralPanelV2 chartDisplay;
 	
 	/* Connaît un slider ainsi que le CentralPanel pour pouvoir changer des valeurs (voir changed) */
-	public ChartDisplayController(CAVModel cavModel, Slider associateSlider, CentralPanel chartDisplay) {
+	public ChartDisplayController(CAVModel cavModel, Slider associateSlider, CentralPanelV2 chartDisplay) {
 		this.cavModel = cavModel;
 		this.associateSlider = associateSlider;
 		this.chartDisplay = chartDisplay;
