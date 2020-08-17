@@ -68,7 +68,7 @@ public class AVTAgentDisplay implements Modifiable{
 
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
-		scrollPane.setPrefSize(1100, 500);
+		scrollPane.setPrefSize(1100, 300);
 	}
 
 	/* Displayed attributes of an AVTAgent: 
@@ -84,7 +84,7 @@ public class AVTAgentDisplay implements Modifiable{
 		grid.add(labelHeight, 1, 0);
 		Label labelDataAgent = new Label("DataAgent");
 		buildBoldLabel(labelDataAgent);
-		labelDataAgent.setPrefWidth(240);
+		labelDataAgent.setPrefWidth(348);
 		grid.add(labelDataAgent, 2, 0);
 		Label labelAcc = new Label("AccelerationCoeff");
 		buildBoldLabel(labelAcc);
@@ -113,7 +113,7 @@ public class AVTAgentDisplay implements Modifiable{
 			Label labelDataAgent = 
 					new Label(dataAgent.getDataName() + " VALUE: " + String.valueOf(dataAgent.askValue()));
 			buildLabel(labelDataAgent);
-			labelDataAgent.setPrefWidth(240);
+			labelDataAgent.setPrefWidth(348);
 			grid.add(labelDataAgent, 2, usedLines);
 			/* AccelerationCoeff */
 			//TODO get accelerationCoeff
@@ -152,7 +152,7 @@ public class AVTAgentDisplay implements Modifiable{
 	 */
 	private void buildCellule(VBox box) {
 
-		box.setPrefSize(120, 40);
+		box.setPrefSize(180, 40);
 		box.setAlignment(Pos.CENTER);
 		box.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -165,7 +165,7 @@ public class AVTAgentDisplay implements Modifiable{
 	 */
 	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
-		label.setPrefSize(120, 40);
+		label.setPrefSize(180, 40);
 		label.setBorder(
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
