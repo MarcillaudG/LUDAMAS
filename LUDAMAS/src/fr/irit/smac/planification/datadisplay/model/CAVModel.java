@@ -2,6 +2,7 @@ package fr.irit.smac.planification.datadisplay.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.system.CAV;
@@ -16,6 +17,9 @@ public class CAVModel {
 	private int cyclePeriod = 1000;
 	private int cycle = 0;
 	private boolean stop = false;
+	
+	
+	private Semaphore semaphore;
 	
 	public CAVModel() {
 		this.modifiables = new ArrayList<>();
@@ -68,10 +72,30 @@ public class CAVModel {
 	 * One cycle of the experiment
 	 */
 	public void oneCycle() {
-        cav.manageSituation(cycle);
-        cycle++;
-        updateFrames();
-        cav.generateNewValues(cycle);
+		System.out.println("debut manage situations");
+		cav.manageSituation(cycle);
+		System.out.println("fin manage situations");
+	    cycle++;
+	    semaphore = new Semaphore(0);
+	    System.out.println("debut update");
+	    updateFrames();
+	    for(int i=0; i<modifiables.size(); i++) {
+	    	P();
+	    }
+	    System.out.println("fin update");
+	    cav.generateNewValues(cycle);
+	}
+	
+	public void P() {
+		try {
+			semaphore.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void V() {
+		semaphore.release();
 	}
 	
 	public void addModifiables(Modifiable modifiable) {
@@ -109,6 +133,7 @@ public class CAVModel {
 	public void setCav(CAV cav) {
 		this.cav = cav;
 	}
+	
 	public CAV getCav() {
 		return cav;
 	}

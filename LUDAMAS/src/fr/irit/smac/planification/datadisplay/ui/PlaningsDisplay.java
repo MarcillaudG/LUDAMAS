@@ -239,11 +239,16 @@ public class PlaningsDisplay implements Modifiable {
 
 			@Override
 			public void run() {
+				CAV cav = cavModel.getCav();
+				Planing truePlaning = cav.getTruePlaning();
+				Planing situationPlaning = cav.getPlaningSituation();
+				List<Result> trueResults = truePlaning.getPlan();
+				List<Result> situationResults = situationPlaning.getPlan();
+				Collection<? extends String> datas = cav.getInputInSituation();
+				
 				Platform.runLater(new Runnable() {
-
 					@Override
 					public void run() {
-
 						rootPlanings.getChildren().removeAll(oraclesLabel, resultatsLabel, gridOracles, gridResultats);
 						gridOracles.setVisible(false);
 						gridResultats.setVisible(false);
@@ -251,26 +256,14 @@ public class PlaningsDisplay implements Modifiable {
 						nbLineUsedResults = 1;
 						initGrids();
 
-						/* Resultats 
-						 * - Recupere les resultats du planing situation depuis le CAVModel
-						 */
 						buildFirstLigneResultats();
-						CAV cav = cavModel.getCav();
-						Planing truePlaning = cav.getTruePlaning();
-						Planing situationPlaning = cav.getPlaningSituation();
-						List<Result> trueResults = truePlaning.getPlan();
-						List<Result> situationResults = situationPlaning.getPlan();
 
 						for (int i = 0; i < situationPlaning.getNbRes(); i++) {
 							Result result = situationResults.get(i);
 							buildResultLine(i, result, trueResults.get(i));
 						}
 
-						/* Oracles 
-						 * - Recupere les resultats attendus depuis le CAV
-						 */
 						buildFirstLigneOracle();
-						Collection<? extends String> datas = cav.getInputInSituation();
 						int step = 0;
 						for (String data : datas) {
 							buildOracleLine(step, cav.getTrueValueForInput(data), data);
@@ -280,6 +273,7 @@ public class PlaningsDisplay implements Modifiable {
 						rootPlanings.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 					}
 				});
+				cavModel.V();
 			}
 		});
 		taskThread.start();

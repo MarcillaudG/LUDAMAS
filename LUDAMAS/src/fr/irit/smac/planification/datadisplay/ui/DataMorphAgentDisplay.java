@@ -114,12 +114,8 @@ public class DataMorphAgentDisplay implements Modifiable {
 	}
 	
 	
-	private void buildLignesDataMorphAgent(GridPane grid) {
-		
+	private void buildLignesDataMorphAgent(GridPane grid, Collection<? extends DataMorphAgent> dataMorphAgents) {
 		CAV cav = cavModel.getCav();
-		DataAgent dataAgent = cav.getDataAgentWithName(this.dataAgentName);
-		Collection<? extends DataMorphAgent> dataMorphAgents = dataAgent.getAllMorphs();
-		
 		for(DataMorphAgent dataMorphAgent : dataMorphAgents) {
 			/* Name */
 			VBox celluleAgentName = new VBox();
@@ -165,6 +161,9 @@ public class DataMorphAgentDisplay implements Modifiable {
 			
 			@Override
 			public void run() {
+				CAV cav = cavModel.getCav();
+				DataAgent dataAgent = cav.getDataAgentWithName(dataAgentName);
+				Collection<? extends DataMorphAgent> dataMorphAgents = dataAgent.getAllMorphs();
 				
 				Platform.runLater(new Runnable() {
 					
@@ -178,14 +177,16 @@ public class DataMorphAgentDisplay implements Modifiable {
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 						usedLines = 1;
 						buildFirstLigneDataMorphAgent(newGrid);
-						buildLignesDataMorphAgent(newGrid);
+						buildLignesDataMorphAgent(newGrid, dataMorphAgents);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
 					}
-				});
+				});			
+				cavModel.V();
 			}
 		});
 		taskThread.start();
+		
 	}
 
 	public ScrollPane getScrollPane() {

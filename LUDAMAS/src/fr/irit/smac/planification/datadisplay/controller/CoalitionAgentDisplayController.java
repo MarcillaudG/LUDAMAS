@@ -1,6 +1,6 @@
 package fr.irit.smac.planification.datadisplay.controller;
 
-import fr.irit.smac.planification.datadisplay.main.CentralPanelV2;
+import fr.irit.smac.planification.datadisplay.main.CentralPanel;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.AVTAgentDisplay;
 import javafx.event.ActionEvent;
@@ -15,13 +15,9 @@ import javafx.scene.control.TitledPane;
 public class CoalitionAgentDisplayController implements EventHandler<ActionEvent> {
 
 	private CAVModel cavModel;
-	private CentralPanelV2 centralPanel;
-
-	public CoalitionAgentDisplayController(CAVModel cavModel) {
-		this.cavModel = cavModel;
-	}
-
-	public CoalitionAgentDisplayController(CAVModel cavModel, CentralPanelV2 centralPanel) {
+	private CentralPanel centralPanel;
+	
+	public CoalitionAgentDisplayController(CAVModel cavModel, CentralPanel centralPanel) {
 		this.cavModel = cavModel;
 		this.centralPanel = centralPanel;
 	}
@@ -37,13 +33,12 @@ public class CoalitionAgentDisplayController implements EventHandler<ActionEvent
 		String idButton = sourceButton.getId();
 		AVTAgentDisplay avtDisplay = new AVTAgentDisplay(cavModel, idButton);
 		TitledPane avtPane = new TitledPane("AVT: " + idButton, avtDisplay.getScrollPane());
-		int paneIndex = 6 + centralPanel.getNbCreatedDataMorphPanes() + centralPanel.getNbCreatedAvtPanes();
+		int paneIndex = 4 + centralPanel.getNbCreatedDataMorphPanes() + centralPanel.getNbCreatedAvtPanes();
 		centralPanel.getRoot().getChildren().add(paneIndex, avtPane);
 		centralPanel.incNbCreatedAvtPanes();
 		cavModel.addModifiables(avtDisplay);
 		if (cavModel.getCycle() != 0) {
 			avtDisplay.update();
-
 		}
 	}
 

@@ -1,5 +1,6 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +45,6 @@ public class CoalitionAgentDisplay implements Modifiable {
 
 	public CoalitionAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
-		this.controller = new CoalitionAgentDisplayController(cavModel);
 		start();
 	}
 
@@ -98,9 +98,7 @@ public class CoalitionAgentDisplay implements Modifiable {
 		grid.add(labelAVT, 4, 0);
 	}
 
-	private void buildLignesCoalitionAgent(GridPane grid) {
-		CAV cav = cavModel.getCav();
-		List<CoalitionAgent> coalitions = cav.getAllCoalitions();
+	private void buildLignesCoalitionAgent(GridPane grid, List<CoalitionAgent> coalitions) {
 		for(CoalitionAgent coalitionAgent : coalitions) {
 			/* name */
 			VBox celluleAgentName = new VBox();
@@ -194,7 +192,9 @@ public class CoalitionAgentDisplay implements Modifiable {
 
 			@Override
 			public void run() {
-
+				CAV cav = cavModel.getCav();
+				List<CoalitionAgent> coalitions = new ArrayList<>(cav.getAllCoalitions());
+				
 				Platform.runLater(new Runnable() {
 
 					@Override
@@ -207,11 +207,12 @@ public class CoalitionAgentDisplay implements Modifiable {
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 						usedLines = 1;
 						buildFirstLigneCoalitionAgent(newGrid);
-						buildLignesCoalitionAgent(newGrid);
+						buildLignesCoalitionAgent(newGrid, coalitions);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
 					}
 				});
+				cavModel.V();
 			}
 		});
 		taskThread.start();

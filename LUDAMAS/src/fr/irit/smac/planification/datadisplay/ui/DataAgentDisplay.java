@@ -3,6 +3,8 @@ package fr.irit.smac.planification.datadisplay.ui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import java.util.Collection;
+
 import fr.irit.smac.planification.agents.DataAgent;
 import fr.irit.smac.planification.datadisplay.controller.DataAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
@@ -39,7 +41,6 @@ public class DataAgentDisplay implements Modifiable{
 	
 	public DataAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
-		this.controller = new DataAgentDisplayController(cavModel);
 		start();
 	}
 	
@@ -51,7 +52,6 @@ public class DataAgentDisplay implements Modifiable{
 				null, new BorderWidths(0.5), null)));
 
 		buildFirstLigneDataAgent(grid);
-		buildLignesDataAgent(grid);
 
 		root = new VBox();
 		root.setPadding(new Insets(15, 15, 15, 15));
@@ -116,10 +116,8 @@ public class DataAgentDisplay implements Modifiable{
 		grid.add(labelDataMorph, 3, 0);
 	}
 
-	private void buildLignesDataAgent(GridPane grid) {
-		
-		CAV cav = cavModel.getCav();
-		for(DataAgent dataAgent : cav.getAllDataAgent()) {
+	private void buildLignesDataAgent(GridPane grid, Collection<DataAgent> allDataAgents) {
+		for(DataAgent dataAgent : allDataAgents) {
 			/* Name */
 			VBox labelNameBox = new VBox();
 			buildCellule(labelNameBox);
@@ -165,7 +163,8 @@ public class DataAgentDisplay implements Modifiable{
 		Thread taskThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				
+				CAV cav = cavModel.getCav();
+				Collection<DataAgent> allDataAgents = cav.getAllDataAgent();
 				Platform.runLater(new Runnable() {
 					
 					@Override
@@ -178,11 +177,12 @@ public class DataAgentDisplay implements Modifiable{
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 						usedLines = 1;
 						buildFirstLigneDataAgent(newGrid);
-						buildLignesDataAgent(newGrid);
+						buildLignesDataAgent(newGrid, allDataAgents);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
 					}
 				});
+				cavModel.V();
 			}
 		});
 		taskThread.start();

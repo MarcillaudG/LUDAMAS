@@ -59,6 +59,7 @@ public class ToolsController implements EventHandler<ActionEvent>, ChangeListene
 					e.printStackTrace();
 				}
 			}
+			System.out.println("yes");
 			cavModel.oneCycle();
 		}
 	}
@@ -87,12 +88,6 @@ public class ToolsController implements EventHandler<ActionEvent>, ChangeListene
 		return associateSlider;
 	}
 
-	public void setCavModel(CAVModel cavModel) {
-		this.cavModel = cavModel;
-	}
 
-	public CAVModel getCavModel() {
-		return cavModel;
-	}
 	
 }

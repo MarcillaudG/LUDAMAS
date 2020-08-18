@@ -26,7 +26,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-public class AVTAgentDisplay implements Modifiable{
+public class AVTAgentDisplay implements Modifiable {
 
 	/* nb of grid lines used (starts at 1 because of grid header) */
 	private int usedLines = 1;
@@ -35,7 +35,7 @@ public class AVTAgentDisplay implements Modifiable{
 	private VBox root;
 	private String coalitionName;
 	private ScrollPane scrollPane;
-	
+
 	/* Constants */
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
@@ -52,7 +52,7 @@ public class AVTAgentDisplay implements Modifiable{
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 				null, new BorderWidths(0.5), null)));
 
-		buildFirstLigneCoalitionAgent(grid);
+		buildFirstLigneAVTAgent(grid);
 
 		root = new VBox();
 		root.setPadding(new Insets(15, 15, 15, 15));
@@ -71,10 +71,11 @@ public class AVTAgentDisplay implements Modifiable{
 		scrollPane.setPrefSize(1100, 300);
 	}
 
-	/* Displayed attributes of an AVTAgent: 
-	 * Name/Weight/Associate DataAgent(name + value)/AccelerationCoeff/DecelerationCoeff
+	/*
+	 * Displayed attributes of an AVTAgent: Name/Weight/Associate DataAgent(name +
+	 * value)/AccelerationCoeff/DecelerationCoeff
 	 */
-	private void buildFirstLigneCoalitionAgent(GridPane grid) {
+	private void buildFirstLigneAVTAgent(GridPane grid) {
 
 		Label labelId = new Label("Name");
 		buildBoldLabel(labelId);
@@ -94,10 +95,8 @@ public class AVTAgentDisplay implements Modifiable{
 		grid.add(labelDeceleration, 4, 0);
 	}
 
-
-	private void buildLignesCoalitionAgent(GridPane grid) {
-		List<AVTAgent> allAVT = new ArrayList<>(this.getAvtsFromCoalition());
-		for(AVTAgent avt : allAVT) {
+	private void buildLignesAVTAgent(GridPane grid, List<AVTAgent> allAVT) {
+		for (AVTAgent avt : allAVT) {
 			/* name */
 			VBox celluleAgentName = new VBox();
 			buildCellule(celluleAgentName);
@@ -110,18 +109,18 @@ public class AVTAgentDisplay implements Modifiable{
 			grid.add(labelHeight, 1, usedLines);
 			/* DataAgent + value */
 			DataAgent dataAgent = avt.getDataAgent();
-			Label labelDataAgent = 
-					new Label(dataAgent.getDataName() + " VALUE: " + String.valueOf(dataAgent.askValue()));
+			Label labelDataAgent = new Label(
+					dataAgent.getDataName() + " VALUE: " + String.valueOf(dataAgent.askValue()));
 			buildLabel(labelDataAgent);
 			labelDataAgent.setPrefWidth(348);
 			grid.add(labelDataAgent, 2, usedLines);
 			/* AccelerationCoeff */
-			//TODO get accelerationCoeff
+			// TODO get accelerationCoeff
 			Label labelAcceleration = new Label("");
 			buildLabel(labelAcceleration);
 			grid.add(labelAcceleration, 3, usedLines);
 			/* DecelerationCoeff */
-			//TODO get decelerationCoeff
+			// TODO get decelerationCoeff
 			Label labelDeceleration = new Label("");
 			buildLabel(labelDeceleration);
 			grid.add(labelDeceleration, 4, usedLines);
@@ -129,26 +128,26 @@ public class AVTAgentDisplay implements Modifiable{
 		}
 	}
 
-	/* GetAvtsFromCoalition 
-	 * Gets all AVTAgent from every coalition agents 
-	 * and builds a collection for it
+	/*
+	 * GetAvtsFromCoalition Gets all AVTAgent from every coalition agents and builds
+	 * a collection for it
 	 */
 	private Collection<AVTAgent> getAvtsFromCoalition() {
 		List<AVTAgent> resultat = null;
 		CAV cav = cavModel.getCav();
 		List<CoalitionAgent> coalitions = cav.getAllCoalitions();
-		for(CoalitionAgent coalitionAgent : coalitions) {
+		for (CoalitionAgent coalitionAgent : coalitions) {
 			String name = coalitionAgent.getName();
-			if(name!=null && name.equals(coalitionName)) {
+			if (name != null && name.equals(coalitionName)) {
 				resultat = new ArrayList<>(coalitionAgent.getAllAVT());
 			}
 		}
 		return resultat;
 	}
 
-	/* BuildCellule 
-	 * Param in: VBox to build
-	 * Sets size, alignment and border of the vbox given
+	/*
+	 * BuildCellule Param in: VBox to build Sets size, alignment and border of the
+	 * vbox given
 	 */
 	private void buildCellule(VBox box) {
 
@@ -159,9 +158,9 @@ public class AVTAgentDisplay implements Modifiable{
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
 
-	/* BuildLabel
-	 * Param in: Label to build
-	 * Sets size, alignment and border of the label given
+	/*
+	 * BuildLabel Param in: Label to build Sets size, alignment and border of the
+	 * label given
 	 */
 	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
@@ -170,10 +169,10 @@ public class AVTAgentDisplay implements Modifiable{
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
-	
-	/* BuildBoldLabel
-	 * Param in: Label to build
-	 * Sets size, bold style, alignment and border of the label given
+
+	/*
+	 * BuildBoldLabel Param in: Label to build Sets size, bold style, alignment and
+	 * border of the label given
 	 */
 	private void buildBoldLabel(Label label) {
 
@@ -181,7 +180,9 @@ public class AVTAgentDisplay implements Modifiable{
 		label.setStyle(BOLDSTYLE);
 	}
 
-	/* update implemented from Modifiable
+	/*
+	 * update implemented from Modifiable
+	 * 
 	 * @see fr.irit.smac.planification.datadisplay.interfaces.Modifiable#update()
 	 * Builds a new grid with data collected from CAVModel
 	 */
@@ -191,9 +192,9 @@ public class AVTAgentDisplay implements Modifiable{
 
 			@Override
 			public void run() {
-
+				List<AVTAgent> allAVT = new ArrayList<>(getAvtsFromCoalition());
+				
 				Platform.runLater(new Runnable() {
-
 					@Override
 					public void run() {
 						root.getChildren().remove(grid);
@@ -203,12 +204,13 @@ public class AVTAgentDisplay implements Modifiable{
 								Color.BLACK, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 						usedLines = 1;
-						buildFirstLigneCoalitionAgent(newGrid);
-						buildLignesCoalitionAgent(newGrid);
+						buildFirstLigneAVTAgent(newGrid);
+						buildLignesAVTAgent(newGrid, allAVT);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
 					}
 				});
+				cavModel.V();
 			}
 		});
 		taskThread.start();
