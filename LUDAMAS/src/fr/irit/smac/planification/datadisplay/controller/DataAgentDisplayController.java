@@ -24,7 +24,8 @@ public class DataAgentDisplayController implements EventHandler<ActionEvent> {
 
 	/*
 	 * Button Handler Recupere le nom du DataAgent selectionne depuis l'id du bouton
-	 * pour ouvrir la fenetre d'affichage des DataMorphAgents associes
+	 * pour creer le nouveau TitledPane associe et l'ajoute dans le root container du panel 
+	 * central
 	 */
 	@Override
 	public void handle(ActionEvent actionEvent) {

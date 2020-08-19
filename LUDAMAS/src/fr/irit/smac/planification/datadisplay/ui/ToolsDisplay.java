@@ -96,6 +96,7 @@ public class ToolsDisplay {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		
+		/* Positionnement de la fenetre a l'ouverture en fonction de la taille de l'ecran */
 		Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
 		double x = bounds.getMinX() + (bounds.getWidth() - scene.getWidth()) * 0.03;
 		double y = bounds.getMinY() + (bounds.getHeight() - scene.getHeight()) * 0.03;

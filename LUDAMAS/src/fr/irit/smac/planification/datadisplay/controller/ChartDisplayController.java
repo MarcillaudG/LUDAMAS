@@ -38,7 +38,8 @@ public class ChartDisplayController implements ChangeListener<Number>, EventHand
 	 * Modifie les valeurs borneSup/borneInf du CentralPanel et lui indique de modifier les graphes
 	 * en fonction des nouvelles valeurs
 	 * Si une incoherence est trouvee (borne inferieure > borne sup) alors la borne inferieure
-	 * est placee a une valeur inferieure a la borne superieure
+	 * est placee a une valeur inferieure a la borne superieure 
+	 * Inversement si la borne superieure est placee a une 
 	 */
 	@Override
 	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {

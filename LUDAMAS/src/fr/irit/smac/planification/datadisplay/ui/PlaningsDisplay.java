@@ -27,16 +27,20 @@ import javafx.scene.paint.Color;
 public class PlaningsDisplay implements Modifiable {
 
 	private CAVModel cavModel;
-	
 	private GridPane gridOracles;
 	private GridPane gridResultats;
 	private ScrollPane scrollPanePlanings;
 	private VBox rootPlanings;
 	private Label oraclesLabel;
 	private Label resultatsLabel;
+	/* Nombre de lignes utilisees pour chaque gridpane */
+	/* Commencent a 1 en raison de la premiere ligne qui affiche les noms
+	 * des proprietes affichees 
+	 */
 	private int nbLineUsedOracles = 1;
 	private int nbLineUsedResults = 1;
 	
+	/* Constantes */
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	
@@ -45,6 +49,10 @@ public class PlaningsDisplay implements Modifiable {
 		start();
 	}
 	
+	/* Start
+	 * Construction des composants des deux gridpanes et des principaux containeurs de
+	 * l'affichage
+	 */
 	public void start() {
 		initGrids();
 		buildFirstLigneOracle();
@@ -71,7 +79,7 @@ public class PlaningsDisplay implements Modifiable {
 	
 	/*
 	 * initGrids
-	 * init grids attributes like border
+	 * Construction des gridPanes oracles et resultats
 	 */
 	private void initGrids() {
 
@@ -153,7 +161,8 @@ public class PlaningsDisplay implements Modifiable {
 	}
 
 	/* BuildFirstLigneResultats
-	 * is part of grid init, puts labels in result grid
+	 * Construit la premiere ligne du tableau des resultats
+	 * Proprietes affichees: step/Value/Variables
 	 */
 	private void buildFirstLigneResultats() {
 
@@ -182,7 +191,8 @@ public class PlaningsDisplay implements Modifiable {
 	}
 
 	/* BuildFirstLigneOracle
-	 * is part of grid init, puts labels in true grid
+	 * Construit la premiere ligne du tableau des oracles
+	 * Proprietes affichees: value/ variable
 	 */
 	private void buildFirstLigneOracle() {
 
@@ -273,6 +283,9 @@ public class PlaningsDisplay implements Modifiable {
 						rootPlanings.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
 					}
 				});
+				/* Le travail du thread est termine, on rend un token
+				 * a la semaphore du cavModel
+				 */
 				cavModel.V();
 			}
 		});

@@ -25,14 +25,19 @@ import javafx.scene.paint.Color;
 
 public class DataMorphAgentDisplay implements Modifiable {
 	
+	/* Nombre de lignes utilisees dans le gridpane (commence a 1 en raison de la premiere ligne) */
 	private int usedLines = 1;
 	private CAVModel cavModel;
-	private static final Color grey = Color.rgb(100, 100, 100);
-	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	private GridPane grid;
 	private VBox root;
 	private ScrollPane scrollPane;
+	
+	/* Nom du DataAgent associe */
 	private String dataAgentName;
+	
+	/* Constantes */
+	private static final Color grey = Color.rgb(100, 100, 100);
+	private static final String BOLDSTYLE = "-fx-font-weight: bold";
 	
 	public DataMorphAgentDisplay(CAVModel cavModel, String dataAgentName) {
 		this.cavModel = cavModel;
@@ -40,6 +45,9 @@ public class DataMorphAgentDisplay implements Modifiable {
 		start();
 	}
 	
+	/* Start
+	 * Construction des differents composants de l'affichage des DataMorphAgents
+	 */
 	public void start() {
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
@@ -66,8 +74,12 @@ public class DataMorphAgentDisplay implements Modifiable {
 		scrollPane.setPrefSize(1100, 500);
 	}
 	
+	/* BuildFirstLigneDataMorphAgent
+	 * Construit la premiere ligne du gridpane de l'affichage des agents
+	 * Les proprietes des DataMorphAgents affichees sont
+	 * Nom/Value/Usefulness/Linear Formuma/MorphValue/TrueValue
+	 */
 	private void buildFirstLigneDataMorphAgent(GridPane grid) {
-		
 		Label labelId = new Label("Name");
 		buildBoldLabel(labelId);
 		grid.add(labelId, 0,  0);
@@ -89,9 +101,11 @@ public class DataMorphAgentDisplay implements Modifiable {
 		grid.add(labelTrueValue, 5,  0);
 	}
 
-	
+	/* BuildCellule 
+	 * Param in: VBox to build
+	 * Sets size, alignment and border of the vbox given
+	 */
 	private void buildCellule(VBox box) {
-
 		box.setPrefSize(160, 40);
 		box.setAlignment(Pos.CENTER);
 		box.setBorder(
@@ -99,6 +113,10 @@ public class DataMorphAgentDisplay implements Modifiable {
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
 
+	/* BuildLabel
+	 * Param in: Label to build
+	 * Sets size, alignment and border of the label given
+	 */
 	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
 		label.setPrefSize(160, 40);
@@ -107,13 +125,20 @@ public class DataMorphAgentDisplay implements Modifiable {
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
 
+	/* BuildBoldLabel
+	 * Param in: Label to build
+	 * Sets size, bold style, alignment and border of the label given
+	 */
 	private void buildBoldLabel(Label label) {
-
 		buildLabel(label);
 		label.setStyle(BOLDSTYLE);
 	}
 	
-	
+	/* BuildLignesDataMorphAgent 
+	 * Prend en parametre le gridpane ou les informations seront affichees et la 
+	 * collection contenant les dataMorphAgents
+	 * Construit le gridpane depuis la collection
+	 */
 	private void buildLignesDataMorphAgent(GridPane grid, Collection<? extends DataMorphAgent> dataMorphAgents) {
 		CAV cav = cavModel.getCav();
 		for(DataMorphAgent dataMorphAgent : dataMorphAgents) {
@@ -154,11 +179,14 @@ public class DataMorphAgentDisplay implements Modifiable {
 		}
 	}
 	
+	/* Update
+	 * Implente depuis Modifiable
+	 * Reconstruit un gridpane pour mettre a jour l'etat actuel 
+	 * des DataMorphAgents
+	 */
 	@Override
 	public void update() {
-		
 		Thread taskThread = new Thread(new Runnable() {
-			
 			@Override
 			public void run() {
 				CAV cav = cavModel.getCav();
@@ -166,7 +194,6 @@ public class DataMorphAgentDisplay implements Modifiable {
 				Collection<? extends DataMorphAgent> dataMorphAgents = dataAgent.getAllMorphs();
 				
 				Platform.runLater(new Runnable() {
-					
 					@Override 
 					public void run() {
 						root.getChildren().remove(grid);
@@ -181,7 +208,10 @@ public class DataMorphAgentDisplay implements Modifiable {
 						root.getChildren().add(newGrid);
 						grid = newGrid;
 					}
-				});			
+				});
+				/* Le travail du thread est termine, on rend un token
+				 * a la semaphore du cav modele
+				 */
 				cavModel.V();
 			}
 		});

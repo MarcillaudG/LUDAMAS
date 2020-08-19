@@ -17,7 +17,7 @@ public class ToolsController implements EventHandler<ActionEvent>, ChangeListene
 	private CAVModel cavModel;
 	private Slider associateSlider;
 	
-	/* Constructeur pour les actions des boutons */
+	/* Constructeur pour les actions des boutons, pas de slider associe */
 	public ToolsController(CAVModel cavModel) {
 		this.cavModel = cavModel;
 	}
@@ -68,7 +68,7 @@ public class ToolsController implements EventHandler<ActionEvent>, ChangeListene
 	 * Changed
 	 * Evenement changement d'une valeur du slider associe
 	 * - Slider cyclePeriod: defini la periode entre deux cycles
-	 * - Slider stepPeriod: defini la periode entre deux etapes d'un cycle
+	 * - Slider stepPeriod: defini la periode entre deux etapes d'un cycle TODO
 	 */
 	@Override
 	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {

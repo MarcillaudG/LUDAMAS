@@ -24,8 +24,8 @@ public class CoalitionAgentDisplayController implements EventHandler<ActionEvent
 
 	/*
 	 * Button handler Recupere l'id du bouton clique qui est le nom du
-	 * coalitionAgent correspondant pour permettre d'ouvrir une fenetre avec les
-	 * AVTAgents associes
+	 * coalitionAgent correspondant pour creer le titled pane associe
+	 * et l'ajoute dans le root container du panel central
 	 */
 	@Override
 	public void handle(ActionEvent actionEvent) {

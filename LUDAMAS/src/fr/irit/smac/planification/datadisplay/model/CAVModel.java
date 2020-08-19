@@ -11,22 +11,22 @@ public class CAVModel {
 	
 	/* Data access and experiment */
 	private CAV cav;
-	/* List of opened updatable frames */
+	/* Liste des composants modifibles (qui seront mis a jours
+	 * a chaque cycle de l'experience
+	 */
 	private List<Modifiable> modifiables;
 	/* period between two cycles (ms)*/
 	private int cyclePeriod = 1000;
 	private int cycle = 0;
 	private boolean stop = false;
 	
-	
+	/* Semaphore permettant d'attendre la fin des mises a jours des composants
+	 * modifiables
+	 * Chaque composant modifiable rend un token a la fin de son update 
+	 */
 	private Semaphore semaphore;
 	
 	public CAVModel() {
-		this.modifiables = new ArrayList<>();
-	}
-	
-	public CAVModel(CAV cav) {
-		this.cav = cav;
 		this.modifiables = new ArrayList<>();
 	}
 	
@@ -69,7 +69,9 @@ public class CAVModel {
     }
 	
 	/* OneCycle
-	 * One cycle of the experiment
+	 * Deroulement d'un cycle:
+	 * ManageSituation - incrementation du nombre de cycle - 
+	 * mise a jour des composants modifiables - generation de nouvelles valeurs
 	 */
 	public void oneCycle() {
 		System.out.println("debut manage situations");
@@ -79,6 +81,9 @@ public class CAVModel {
 	    semaphore = new Semaphore(0);
 	    System.out.println("debut update");
 	    updateFrames();
+	    /* Permet d'attendre la fin des mises a jour des
+	     * composants modifiables pour continuer le cycle
+	     */
 	    for(int i=0; i<modifiables.size(); i++) {
 	    	P();
 	    }

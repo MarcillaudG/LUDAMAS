@@ -31,7 +31,7 @@ public class DataAgentDisplay implements Modifiable{
 	private VBox root;
 	private CAVModel cavModel;
 	private ScrollPane scrollPane;
-	/* nb of grid lines used (starts at 1 because of grid header) */
+	/* Nombre de lignes utilisees dans le gridPane (commence a 1 en raison de la premiere ligne) */
 	private int usedLines = 1;
 	private DataAgentDisplayController controller;
 	
@@ -44,6 +44,9 @@ public class DataAgentDisplay implements Modifiable{
 		start();
 	}
 	
+	/* Start
+	 * Construction des composants pour l'affichage des DataAgents
+	 */
 	public void start() {
 		
 		grid = new GridPane();
@@ -71,6 +74,10 @@ public class DataAgentDisplay implements Modifiable{
 		scrollPane.setPrefSize(1100, 500);
 	}
 
+	/* BuildCellule 
+	 * Param in: VBox to build
+	 * Sets size, alignment and border of the vbox given
+	 */
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(120, 40);
@@ -80,6 +87,10 @@ public class DataAgentDisplay implements Modifiable{
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
 	
+	/* BuildLabel
+	 * Param in: Label to build
+	 * Sets size, alignment and border of the label given
+	 */
 	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
 		label.setPrefSize(120, 40);
@@ -87,7 +98,11 @@ public class DataAgentDisplay implements Modifiable{
 				new Border(new BorderStroke(grey, grey, grey, grey, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
-
+	
+	/* BuildBoldLabel
+	 * Param in: Label to build
+	 * Sets size, bold style, alignment and border of the label given
+	 */
 	private void buildBoldLabel(Label label) {
 
 		buildLabel(label);
@@ -116,6 +131,11 @@ public class DataAgentDisplay implements Modifiable{
 		grid.add(labelDataMorph, 3, 0);
 	}
 
+	/* BuildLignesDataAgent
+	 * Prend en parametre le gridpane ou on affiche les proprietes des agents
+	 * et la collection contenant tous les dataAgents a afficher
+	 * Ajoute un a un dans l'affichage les agents et leur proprietes
+	 */
 	private void buildLignesDataAgent(GridPane grid, Collection<DataAgent> allDataAgents) {
 		for(DataAgent dataAgent : allDataAgents) {
 			/* Name */
@@ -154,9 +174,9 @@ public class DataAgentDisplay implements Modifiable{
 		}
 	}
 
-	/* Implemented from Modifiable
-	 * @see fr.irit.smac.planification.datadisplay.interfaces.Modifiable#update()
-	 * Recreates a grid with new values
+	/* Update 
+	 * Implente depuis Modifiable 
+	 * Re-cree un gridpane pour mettre a jour les donnees affiches des DataAgents
 	 */
 	public void update() {
 
@@ -182,6 +202,9 @@ public class DataAgentDisplay implements Modifiable{
 						grid = newGrid;
 					}
 				});
+				/* Le travail du thread est termine, on rend un token
+				 * a la semaphore du cav modele
+				 */
 				cavModel.V();
 			}
 		});

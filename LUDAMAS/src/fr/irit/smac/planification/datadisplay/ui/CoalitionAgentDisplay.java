@@ -30,13 +30,18 @@ import javafx.scene.paint.Color;
 
 public class CoalitionAgentDisplay implements Modifiable {
 
-	/* nb of grid lines used (starts at 1 because of grid header) */
+	/* Nombre de lignes utilisees dans le gridPane (commence a 1 en raison de la premiere ligne) */
 	private int usedLines = 1;
 	private CAVModel cavModel;
 	private GridPane grid;
 	private VBox root;
 	private ScrollPane scrollPane;
+	
 	/* Controller */
+	/* La classe possede comme attribut son controleur 
+	 * car il n'y a besoin que d'une seule instance du controleur
+	 * (une seule action possible)
+	 */
 	private CoalitionAgentDisplayController controller;
 	
 	/* Constants */
@@ -48,6 +53,10 @@ public class CoalitionAgentDisplay implements Modifiable {
 		start();
 	}
 
+	/* Start
+	 * Construction des composants pour l'affichage des
+	 * coalition agents
+	 */
 	public void start() {
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
@@ -98,6 +107,11 @@ public class CoalitionAgentDisplay implements Modifiable {
 		grid.add(labelAVT, 4, 0);
 	}
 
+	/* BuildLignesCoalitionAgent
+	 * Prend en paramaetre le gridpane ou on souhaite afficher les proprietes des agents
+	 * et la liste des coalitions agent a afficher
+	 * Construit le gridpane en fonction de cette liste
+	 */
 	private void buildLignesCoalitionAgent(GridPane grid, List<CoalitionAgent> coalitions) {
 		for(CoalitionAgent coalitionAgent : coalitions) {
 			/* name */
@@ -182,9 +196,10 @@ public class CoalitionAgentDisplay implements Modifiable {
 		label.setStyle(BOLDSTYLE);
 	}
 
-	/* update implemented from Modifiable
-	 * @see fr.irit.smac.planification.datadisplay.interfaces.Modifiable#update()
-	 * Builds a new grid with data collected from CAVModel
+	/* Update
+	 * Implente depuis Modifiable
+	 * Met a jour l'affichage des coalition agents apres avoir
+	 * collecte les donnnees depuis le cav
 	 */
 	@Override
 	public void update() {
@@ -212,6 +227,9 @@ public class CoalitionAgentDisplay implements Modifiable {
 						grid = newGrid;
 					}
 				});
+				/* Le travail du thread est termine, on rend un token
+				 * a la semaphore du cav modele
+				 */
 				cavModel.V();
 			}
 		});

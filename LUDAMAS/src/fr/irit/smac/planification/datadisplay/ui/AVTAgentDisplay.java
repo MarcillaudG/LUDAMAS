@@ -28,7 +28,9 @@ import javafx.scene.paint.Color;
 
 public class AVTAgentDisplay implements Modifiable {
 
-	/* nb of grid lines used (starts at 1 because of grid header) */
+	/* Nombre de lignes utilisees dans le gridPane (commence a 1 en raison de la premiere
+	 * ligne
+	 */
 	private int usedLines = 1;
 	private CAVModel cavModel;
 	private GridPane grid;
@@ -45,7 +47,11 @@ public class AVTAgentDisplay implements Modifiable {
 		this.coalitionName = coalitionName;
 		start();
 	}
-
+	
+	/*
+	 * Start
+	 * Construction des composants du dataDisplay
+	 */
 	public void start() {
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
@@ -95,6 +101,10 @@ public class AVTAgentDisplay implements Modifiable {
 		grid.add(labelDeceleration, 4, 0);
 	}
 
+	/* BuildLignesAVTAgent
+	 * Prend en parametre le gridpane a remplir et la liste des agents
+	 * et affiche les donnees de chaque agents dans le gridpane
+	 */
 	private void buildLignesAVTAgent(GridPane grid, List<AVTAgent> allAVT) {
 		for (AVTAgent avt : allAVT) {
 			/* name */
@@ -180,11 +190,9 @@ public class AVTAgentDisplay implements Modifiable {
 		label.setStyle(BOLDSTYLE);
 	}
 
-	/*
-	 * update implemented from Modifiable
-	 * 
-	 * @see fr.irit.smac.planification.datadisplay.interfaces.Modifiable#update()
-	 * Builds a new grid with data collected from CAVModel
+	/* Update
+	 * Implente depuis Modifiable
+	 * A chaque cycle de l'exeperience, l'affichage est mis a jour
 	 */
 	@Override
 	public void update() {
@@ -210,6 +218,9 @@ public class AVTAgentDisplay implements Modifiable {
 						grid = newGrid;
 					}
 				});
+				/* Le travail du thread est termine, on rend le token
+				 * a la semphore du cavModel
+				 */
 				cavModel.V();
 			}
 		});

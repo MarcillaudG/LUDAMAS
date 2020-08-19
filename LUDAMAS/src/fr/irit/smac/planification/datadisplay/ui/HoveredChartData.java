@@ -6,7 +6,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
 /* Charts nodes 
- * Make user able to see the precise value of a node 
+ * Permettent d'afficher la valeur exacte d'un point d'un graphe 
+ * lorsque la souris est passee dessus
  */
 public class HoveredChartData extends StackPane{
 	

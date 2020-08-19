@@ -43,7 +43,7 @@ public class CentralPanel implements Modifiable {
 	private Stage primaryStage;
 	private CAVModel cavModel;
 	private VBox root;
-	
+
 	/* TitledPanes */
 	TitledPane titledDataAgent;
 	TitledPane titledCoalitionAgent;
@@ -78,9 +78,12 @@ public class CentralPanel implements Modifiable {
 		start();
 	}
 
+	/*
+	 * Start Construction des composants de la fenetre
+	 */
 	public void start() {
 
-		/* Header build */
+		/* Header build - images */
 		VBox start = new VBox();
 		start.setPadding(new Insets(15, 0, 0, 0));
 		Class<?> clazz = this.getClass();
@@ -90,21 +93,19 @@ public class CentralPanel implements Modifiable {
 		imageView.setPreserveRatio(true);
 		imageView.setFitWidth(300);
 		imageView.setFitHeight(275);
-
 		InputStream inputTitle = clazz.getResourceAsStream("/fr/irit/smac/img/ludamastitle.png");
 		Image imageTitle = new Image(inputTitle);
 		ImageView imageTitleView = new ImageView(imageTitle);
-
 		start.setAlignment(Pos.BASELINE_CENTER);
 		Separator sepStart = new Separator(Orientation.HORIZONTAL);
 		sepStart.setPadding(new Insets(10, 0, 0, 0));
 		start.getChildren().addAll(imageView, imageTitleView);
 
-		/* Components build */
+		/* Components build - construction des graphes */
 		startCharts();
 
+		/* Construction des onglets pour chaque affichage */
 		titledCharts = new TitledPane("Charts", rootCharts);
-
 		PlaningsDisplay planingsDisplay = new PlaningsDisplay(cavModel);
 		cavModel.addModifiables(planingsDisplay);
 		titledPlanings = new TitledPane("Planings", planingsDisplay.getScrollPane());
@@ -139,8 +140,8 @@ public class CentralPanel implements Modifiable {
 	}
 
 	/*
-	 * StartCharts Creating charts to display MeanDiff and MaxDiff from planings
-	 * every cycle
+	 * StartCharts construction des graphes qui seront mis à jour a chaque cycle
+	 * Construction des sliders des bornes puis des graphes
 	 */
 	private void startCharts() {
 
@@ -196,8 +197,8 @@ public class CentralPanel implements Modifiable {
 	}
 
 	/*
-	 * UpdateCharts Add new values to chart depending on MeanDiff and MaxDiff from
-	 * cav
+	 * Update Implente depuis Modifiable Met a jour les deux graphes depuis les
+	 * donnees collectees depuis le cav Mis a jour a chaque cycle de l'experience
 	 */
 	public void update() {
 
@@ -206,16 +207,22 @@ public class CentralPanel implements Modifiable {
 			@Override
 			public void run() {
 				System.out.println("debut centralPanel run thread update");
+				/* Collecte des donnees */
 				CAV cav = cavModel.getCav();
 				int cycle = cavModel.getCycle();
 				Planing truePlaning = cav.getTruePlaning();
 				Planing situationPlaning = cav.getPlaningSituation();
 				float meanDiff = truePlaning.computeMeanDifference(situationPlaning);
 				float maxDiff = truePlaning.computeMaxDifference(situationPlaning);
-				
+
 				Platform.runLater(new Runnable() {
 					@Override
-					public void run() {
+					public synchronized void run() {
+						/* Construction des nouveaux points des graphes */
+						/*
+						 * Ajout des points dans les collections correspondantes pour les affichages par
+						 * bornes (voir updateChartsByBounds)
+						 */
 						XYChart.Data<Number, Number> newMeanData = new XYChart.Data<>(cycle, meanDiff);
 						XYChart.Data<Number, Number> newMaxData = new XYChart.Data<>(cycle, maxDiff);
 						newMeanData.setNode(new HoveredChartData(cavModel, meanDiff));
@@ -223,6 +230,11 @@ public class CentralPanel implements Modifiable {
 
 						allMeanData.add(newMeanData);
 						allMaxData.add(newMaxData);
+						/*
+						 * Si la borne superieure est placee au maximum possible, alors le graphe
+						 * continue d'accueillir les nouveaux points Sinon, les points sont stockes mais
+						 * pas affiches
+						 */
 						if (borneSup == borneSupSlider.getValue()) {
 							seriesMeanDiff.getData().add(newMeanData);
 							seriesMaxDiff.getData().add(newMaxData);
@@ -232,18 +244,20 @@ public class CentralPanel implements Modifiable {
 						if (borneSup == borneSupSlider.getValue()) {
 							borneSupSlider.setValue(borneSupSlider.getMax() + 1);
 						}
+
 						System.out.println("fin runlater");
 					}
 				});
+				/* Le travail est termine, on rend un token a la semaphore de cavModel */
 				cavModel.V();
 			}
 		});
 		taskThread.start();
+		System.out.println("fin update chart");
 	}
 
 	/*
-	 * UpdateChartsByBounds When the user select bounds to display a special part of
-	 * the charts, this method rebuilds charts the with wanted values
+	 * UpdateChartsByBounds Methode declenchee par le ChartDisplayController des que
 	 */
 	public void updateChartsByBounds() {
 
@@ -251,29 +265,30 @@ public class CentralPanel implements Modifiable {
 
 			@Override
 			public void run() {
+				List<XYChart.Data<Number, Number>> newMeanData = new ArrayList<>();
+				List<XYChart.Data<Number, Number>> newMaxData = new ArrayList<>();
+				/*
+				 * Calculs pour savoir quels sont les points demandes dans l'encadrement
+				 * souhaite
+				 */
+				/* mean */
+				for (XYChart.Data<Number, Number> data : allMeanData) {
+					int x = data.getXValue().intValue();
+					if (x >= borneInf && x <= borneSup) {
+						newMeanData.add(data);
+					}
+				}
+				/* max */
+				for (XYChart.Data<Number, Number> data : allMaxData) {
+					int x = data.getXValue().intValue();
+					if (x >= borneInf && x <= borneSup) {
+						newMaxData.add(data);
+					}
+				}
 
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-
-						List<XYChart.Data<Number, Number>> newMeanData = new ArrayList<>();
-						List<XYChart.Data<Number, Number>> newMaxData = new ArrayList<>();
-
-						/* mean */
-						for (XYChart.Data<Number, Number> data : allMeanData) {
-							int x = data.getXValue().intValue();
-							if (x >= borneInf && x <= borneSup) {
-								newMeanData.add(data);
-							}
-						}
-						/* max */
-						for (XYChart.Data<Number, Number> data : allMaxData) {
-							int x = data.getXValue().intValue();
-							if (x >= borneInf && x <= borneSup) {
-								newMaxData.add(data);
-							}
-						}
-
 						/* Suppression des graphes actuels */
 						lineChartMeanDiff.setVisible(false);
 						lineChartMaxDiff.setVisible(false);
