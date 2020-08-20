@@ -21,7 +21,7 @@ public class ChartDisplayController implements ChangeListener<Number>, EventHand
 	private Slider associateSlider;
 	private CentralPanel chartDisplay;
 	
-	/* Connaît un slider ainsi que le CentralPanel pour pouvoir changer des valeurs (voir changed) */
+	/* Connait un slider ainsi que le CentralPanel pour pouvoir changer des valeurs (voir changed) */
 	public ChartDisplayController(CAVModel cavModel, Slider associateSlider, CentralPanel chartDisplay) {
 		this.cavModel = cavModel;
 		this.associateSlider = associateSlider;
@@ -39,7 +39,7 @@ public class ChartDisplayController implements ChangeListener<Number>, EventHand
 	 * en fonction des nouvelles valeurs
 	 * Si une incoherence est trouvee (borne inferieure > borne sup) alors la borne inferieure
 	 * est placee a une valeur inferieure a la borne superieure 
-	 * Inversement si la borne superieure est placee a une 
+	 * Inversement si la borne superieure est placee a une valeur inferieure a la borne inf
 	 */
 	@Override
 	public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -65,7 +65,7 @@ public class ChartDisplayController implements ChangeListener<Number>, EventHand
 	}
 	
 	/*
-	 * MouseEvent
+	 * Handle MouseEvent
 	 * Action declenchee par l'evenement du passage de la souris sur un noeud 
 	 * d'un des graphes, permet d'afficher sa valeur exacte dans le noeud (voir
 	 * HoveredChartData)

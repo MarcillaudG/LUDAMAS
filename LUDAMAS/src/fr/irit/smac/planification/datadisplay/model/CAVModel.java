@@ -74,12 +74,9 @@ public class CAVModel {
 	 * mise a jour des composants modifiables - generation de nouvelles valeurs
 	 */
 	public void oneCycle() {
-		System.out.println("debut manage situations");
 		cav.manageSituation(cycle);
-		System.out.println("fin manage situations");
 	    cycle++;
 	    semaphore = new Semaphore(0);
-	    System.out.println("debut update");
 	    updateFrames();
 	    /* Permet d'attendre la fin des mises a jour des
 	     * composants modifiables pour continuer le cycle
@@ -87,7 +84,6 @@ public class CAVModel {
 	    for(int i=0; i<modifiables.size(); i++) {
 	    	P();
 	    }
-	    System.out.println("fin update");
 	    cav.generateNewValues(cycle);
 	}
 	

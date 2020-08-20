@@ -203,7 +203,7 @@ public class DataAgentDisplay implements Modifiable{
 					}
 				});
 				/* Le travail du thread est termine, on rend un token
-				 * a la semaphore du cav modele
+				 * au semaphore du cav modele
 				 */
 				cavModel.V();
 			}

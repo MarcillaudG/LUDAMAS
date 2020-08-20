@@ -219,7 +219,7 @@ public class AVTAgentDisplay implements Modifiable {
 					}
 				});
 				/* Le travail du thread est termine, on rend le token
-				 * a la semphore du cavModel
+				 * au semphore du cavModel
 				 */
 				cavModel.V();
 			}

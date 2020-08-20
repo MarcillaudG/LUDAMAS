@@ -59,7 +59,6 @@ public class ToolsController implements EventHandler<ActionEvent>, ChangeListene
 					e.printStackTrace();
 				}
 			}
-			System.out.println("yes");
 			cavModel.oneCycle();
 		}
 	}

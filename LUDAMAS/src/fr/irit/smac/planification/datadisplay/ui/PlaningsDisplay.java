@@ -284,7 +284,7 @@ public class PlaningsDisplay implements Modifiable {
 					}
 				});
 				/* Le travail du thread est termine, on rend un token
-				 * a la semaphore du cavModel
+				 * au semaphore du cavModel
 				 */
 				cavModel.V();
 			}

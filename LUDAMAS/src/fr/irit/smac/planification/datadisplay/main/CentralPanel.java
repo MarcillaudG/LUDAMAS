@@ -206,7 +206,6 @@ public class CentralPanel implements Modifiable {
 
 			@Override
 			public void run() {
-				System.out.println("debut centralPanel run thread update");
 				/* Collecte des donnees */
 				CAV cav = cavModel.getCav();
 				int cycle = cavModel.getCycle();
@@ -244,16 +243,13 @@ public class CentralPanel implements Modifiable {
 						if (borneSup == borneSupSlider.getValue()) {
 							borneSupSlider.setValue(borneSupSlider.getMax() + 1);
 						}
-
-						System.out.println("fin runlater");
 					}
 				});
-				/* Le travail est termine, on rend un token a la semaphore de cavModel */
+				/* Le travail est termine, on rend un token au semaphore de cavModel */
 				cavModel.V();
 			}
 		});
 		taskThread.start();
-		System.out.println("fin update chart");
 	}
 
 	/*
