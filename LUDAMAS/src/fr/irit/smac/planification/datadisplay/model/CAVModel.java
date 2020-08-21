@@ -25,6 +25,7 @@ public class CAVModel {
 	 * Chaque composant modifiable rend un token a la fin de son update 
 	 */
 	private Semaphore semaphore;
+	private Semaphore semTools;
 	
 	public CAVModel() {
 		this.modifiables = new ArrayList<>();
@@ -75,8 +76,8 @@ public class CAVModel {
 	 */
 	public void oneCycle() {
 		cav.manageSituation(cycle);
-	    cycle++;
 	    semaphore = new Semaphore(0);
+	    semTools = new Semaphore(0);
 	    updateFrames();
 	    /* Permet d'attendre la fin des mises a jour des
 	     * composants modifiables pour continuer le cycle
@@ -84,7 +85,9 @@ public class CAVModel {
 	    for(int i=0; i<modifiables.size(); i++) {
 	    	P();
 	    }
+	    cycle++;
 	    cav.generateNewValues(cycle);
+	    semTools.release();
 	}
 	
 	public void P() {
@@ -139,4 +142,7 @@ public class CAVModel {
 		return cav;
 	}
 
+	public Semaphore getSemTools() {
+		return semTools;
+	}
 }

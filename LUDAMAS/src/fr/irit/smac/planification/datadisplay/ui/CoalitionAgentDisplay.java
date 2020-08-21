@@ -225,12 +225,13 @@ public class CoalitionAgentDisplay implements Modifiable {
 						buildLignesCoalitionAgent(newGrid, coalitions);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
+						/* Le travail du thread est termine, on rend un token
+						 * au semaphore du cav modele
+						 */
+						cavModel.V();
 					}
 				});
-				/* Le travail du thread est termine, on rend un token
-				 * au semaphore du cav modele
-				 */
-				cavModel.V();
+
 			}
 		});
 		taskThread.start();

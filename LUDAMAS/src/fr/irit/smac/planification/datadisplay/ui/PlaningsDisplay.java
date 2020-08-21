@@ -1,5 +1,6 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -254,7 +255,7 @@ public class PlaningsDisplay implements Modifiable {
 				Planing situationPlaning = cav.getPlaningSituation();
 				List<Result> trueResults = truePlaning.getPlan();
 				List<Result> situationResults = situationPlaning.getPlan();
-				Collection<? extends String> datas = cav.getInputInSituation();
+				Collection<? extends String> datas = new ArrayList<>(cav.getInputInSituation());
 				
 				Platform.runLater(new Runnable() {
 					@Override
@@ -281,12 +282,12 @@ public class PlaningsDisplay implements Modifiable {
 						}
 
 						rootPlanings.getChildren().addAll(oraclesLabel, gridOracles, resultatsLabel, gridResultats);
+						/* Le travail du thread est termine, on rend un token
+						 * au semaphore du cavModel
+						 */
+						cavModel.V();
 					}
 				});
-				/* Le travail du thread est termine, on rend un token
-				 * au semaphore du cavModel
-				 */
-				cavModel.V();
 			}
 		});
 		taskThread.start();

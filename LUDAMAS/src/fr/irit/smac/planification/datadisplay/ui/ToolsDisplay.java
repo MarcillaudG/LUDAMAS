@@ -48,18 +48,19 @@ public class ToolsDisplay {
 		pauseButton = new Button("PAUSE");
 		pauseButton.setId("pauseID");
 		pauseButton.setPrefSize(90, 30);
-		pauseButton.setOnAction(new ToolsController(cavModel));
+		pauseButton.setOnAction(new ToolsController(cavModel, this));
 		pauseButton.setAlignment(Pos.BASELINE_CENTER);
 		
 		oneCycleButton = new Button("ONE CYCLE");
 		oneCycleButton.setId("oneCycleID");
 		oneCycleButton.setPrefSize(90, 30);
-		oneCycleButton.setOnAction(new ToolsController(cavModel));
+		oneCycleButton.setOnAction(new ToolsController(cavModel, this));
+		oneCycleButton.setDisable(true);
 
 		oneStepButton = new Button("ONE STEP");
 		oneStepButton.setId("oneStepID");
 		oneStepButton.setPrefSize(90, 30);
-		oneStepButton.setOnAction(new ToolsController(cavModel));
+		oneStepButton.setOnAction(new ToolsController(cavModel, this));
 		
 		hboxButtons.getChildren().addAll(oneCycleButton, oneStepButton);
 
@@ -75,7 +76,7 @@ public class ToolsDisplay {
 		periodSlider.setShowTickLabels(true);
 		periodSlider.setPadding(new Insets(10, 50, 0, 50));
 		periodSlider.setShowTickMarks(true);
-		periodSlider.valueProperty().addListener(new ToolsController(cavModel, periodSlider));
+		periodSlider.valueProperty().addListener(new ToolsController(cavModel, periodSlider, this));
 		
 		Label labelStepSpeedSlider = new Label("Period between steps (ms)");
 		labelStepSpeedSlider.setPadding(new Insets(20, 0, 0, 0));
@@ -89,7 +90,7 @@ public class ToolsDisplay {
 		stepSpeed.setShowTickLabels(true);
 		stepSpeed.setPadding(new Insets(0, 50, 10, 50));
 		stepSpeed.setShowTickMarks(true);
-		stepSpeed.valueProperty().addListener(new ToolsController(cavModel, periodSlider));
+		stepSpeed.valueProperty().addListener(new ToolsController(cavModel, periodSlider, this));
 		
 		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, hboxButtons, pauseButton);
 		Scene scene = new Scene(root, 400, 300);
@@ -102,5 +103,9 @@ public class ToolsDisplay {
 		double y = bounds.getMinY() + (bounds.getHeight() - scene.getHeight()) * 0.03;
 		primaryStage.setX(x);
 		primaryStage.setY(y);
+	}
+	
+	public Button getOneCycleButton() {
+		return oneCycleButton;
 	}
 }

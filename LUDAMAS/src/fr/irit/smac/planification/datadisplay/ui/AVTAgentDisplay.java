@@ -143,7 +143,7 @@ public class AVTAgentDisplay implements Modifiable {
 	 * a collection for it
 	 */
 	private Collection<AVTAgent> getAvtsFromCoalition() {
-		List<AVTAgent> resultat = null;
+		List<AVTAgent> resultat = new ArrayList<>();
 		CAV cav = cavModel.getCav();
 		List<CoalitionAgent> coalitions = cav.getAllCoalitions();
 		for (CoalitionAgent coalitionAgent : coalitions) {
@@ -216,12 +216,12 @@ public class AVTAgentDisplay implements Modifiable {
 						buildLignesAVTAgent(newGrid, allAVT);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
+						/* Le travail du thread est termine, on rend le token
+						 * au semphore du cavModel
+						 */
+						cavModel.V();
 					}
 				});
-				/* Le travail du thread est termine, on rend le token
-				 * au semphore du cavModel
-				 */
-				cavModel.V();
 			}
 		});
 		taskThread.start();

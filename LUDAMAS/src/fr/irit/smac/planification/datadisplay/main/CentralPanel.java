@@ -243,10 +243,10 @@ public class CentralPanel implements Modifiable {
 						if (borneSup == borneSupSlider.getValue()) {
 							borneSupSlider.setValue(borneSupSlider.getMax() + 1);
 						}
+						/* Le travail est termine, on rend un token au semaphore de cavModel */
+						cavModel.V();
 					}
 				});
-				/* Le travail est termine, on rend un token au semaphore de cavModel */
-				cavModel.V();
 			}
 		});
 		taskThread.start();

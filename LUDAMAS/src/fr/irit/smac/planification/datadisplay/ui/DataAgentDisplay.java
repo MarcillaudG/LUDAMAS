@@ -3,6 +3,7 @@ package fr.irit.smac.planification.datadisplay.ui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import fr.irit.smac.planification.agents.DataAgent;
@@ -184,7 +185,7 @@ public class DataAgentDisplay implements Modifiable{
 			@Override
 			public void run() {
 				CAV cav = cavModel.getCav();
-				Collection<DataAgent> allDataAgents = cav.getAllDataAgent();
+				Collection<DataAgent> allDataAgents = new ArrayList<>(cav.getAllDataAgent());
 				Platform.runLater(new Runnable() {
 					
 					@Override
@@ -200,12 +201,12 @@ public class DataAgentDisplay implements Modifiable{
 						buildLignesDataAgent(newGrid, allDataAgents);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
+						/* Le travail du thread est termine, on rend un token
+						 * au semaphore du cav modele
+						 */
+						cavModel.V();
 					}
 				});
-				/* Le travail du thread est termine, on rend un token
-				 * au semaphore du cav modele
-				 */
-				cavModel.V();
 			}
 		});
 		taskThread.start();

@@ -1,5 +1,6 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import fr.irit.smac.planification.agents.DataAgent;
@@ -191,7 +192,7 @@ public class DataMorphAgentDisplay implements Modifiable {
 			public void run() {
 				CAV cav = cavModel.getCav();
 				DataAgent dataAgent = cav.getDataAgentWithName(dataAgentName);
-				Collection<? extends DataMorphAgent> dataMorphAgents = dataAgent.getAllMorphs();
+				Collection<? extends DataMorphAgent> dataMorphAgents = new ArrayList<>(dataAgent.getAllMorphs());
 				
 				Platform.runLater(new Runnable() {
 					@Override 
@@ -207,12 +208,12 @@ public class DataMorphAgentDisplay implements Modifiable {
 						buildLignesDataMorphAgent(newGrid, dataMorphAgents);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
+						/* Le travail du thread est termine, on rend un token
+						 * au semaphore du cav modele
+						 */
+						cavModel.V();
 					}
 				});
-				/* Le travail du thread est termine, on rend un token
-				 * au semaphore du cav modele
-				 */
-				cavModel.V();
 			}
 		});
 		taskThread.start();
