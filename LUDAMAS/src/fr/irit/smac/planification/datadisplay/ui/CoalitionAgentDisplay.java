@@ -1,12 +1,12 @@
 package fr.irit.smac.planification.datadisplay.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import fr.irit.smac.planification.agents.CoalitionAgent;
 import fr.irit.smac.planification.agents.DataAgent;
-import fr.irit.smac.planification.datadisplay.controller.CloseModifiableController;
 import fr.irit.smac.planification.datadisplay.controller.CoalitionAgentDisplayController;
 import fr.irit.smac.planification.datadisplay.interfaces.Modifiable;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
@@ -15,7 +15,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -28,29 +27,37 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 public class CoalitionAgentDisplay implements Modifiable {
 
+	/* Nombre de lignes utilisees dans le gridPane (commence a 1 en raison de la premiere ligne) */
 	private int usedLines = 1;
 	private CAVModel cavModel;
 	private GridPane grid;
+	private VBox root;
+	private ScrollPane scrollPane;
+	
+	/* Controller */
+	/* La classe possede comme attribut son controleur 
+	 * car il n'y a besoin que d'une seule instance du controleur
+	 * (une seule action possible)
+	 */
+	private CoalitionAgentDisplayController controller;
+	
+	/* Constants */
 	private static final Color grey = Color.rgb(100, 100, 100);
 	private static final String BOLDSTYLE = "-fx-font-weight: bold";
-	private VBox root;
-	private Stage primaryStage;
-	private CoalitionAgentDisplayController controller;
 
 	public CoalitionAgentDisplay(CAVModel cavModel) {
 		this.cavModel = cavModel;
-		this.primaryStage = new Stage();
-		this.controller = new CoalitionAgentDisplayController(cavModel);
 		start();
 	}
 
+	/* Start
+	 * Construction des composants pour l'affichage des
+	 * coalition agents
+	 */
 	public void start() {
-		primaryStage.setTitle("CoalitionAgentsDisplay");
-		primaryStage.setOnCloseRequest(new CloseModifiableController(cavModel, this));
 		grid = new GridPane();
 		grid.setBorder(new Border(new BorderStroke(Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK,
 				BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID,
@@ -65,18 +72,20 @@ public class CoalitionAgentDisplay implements Modifiable {
 		StackPane stack = new StackPane();
 		stack.getChildren().add(root);
 
-		ScrollPane scrollPane = new ScrollPane();
+		scrollPane = new ScrollPane();
 		scrollPane.setContent(stack);
 		scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 
 		stack.minWidthProperty().bind(Bindings.createDoubleBinding(() -> scrollPane.getViewportBounds().getWidth(),
 				scrollPane.viewportBoundsProperty()));
-
-		primaryStage.setScene(new Scene(scrollPane, 1100, 500));
-		primaryStage.show();
+		
+		scrollPane.setPrefSize(1100, 500);
 	}
 
+	/* Displayed attributes of a CoalitionAgent
+	 * Name/Value/Linked Agents/Input/Associate AVTAgents
+	 */
 	private void buildFirstLigneCoalitionAgent(GridPane grid) {
 
 		Label labelId = new Label("Name");
@@ -98,9 +107,12 @@ public class CoalitionAgentDisplay implements Modifiable {
 		grid.add(labelAVT, 4, 0);
 	}
 
-	private void buildLignesCoalitionAgent(GridPane grid) {
-		CAV cav = cavModel.getCav();
-		List<CoalitionAgent> coalitions = cav.getAllCoalitions();
+	/* BuildLignesCoalitionAgent
+	 * Prend en paramaetre le gridpane ou on souhaite afficher les proprietes des agents
+	 * et la liste des coalitions agent a afficher
+	 * Construit le gridpane en fonction de cette liste
+	 */
+	private void buildLignesCoalitionAgent(GridPane grid, List<CoalitionAgent> coalitions) {
 		for(CoalitionAgent coalitionAgent : coalitions) {
 			/* name */
 			VBox celluleAgentName = new VBox();
@@ -143,18 +155,16 @@ public class CoalitionAgentDisplay implements Modifiable {
 			buttonOpenAVT.setPrefSize(130, 30);
 			buttonOpenAVT.setId(coalitionAgent.getName());
 			buttonOpenAVT.setOnAction(controller);
-			//TODO:
-			/*
-			 * 1 - getAllCoalition (list<CoalitionAgent> from CAV)
-			 * 2 - look for the coalitionAgent by its name given in buttonID
-			 * 3 - process
-			 */
 			buttonBox.getChildren().add(buttonOpenAVT);
 			grid.add(buttonBox, 4, usedLines);
 			usedLines++;
 		}
 	}
 
+	/* BuildCellule 
+	 * Param in: VBox to build
+	 * Sets size, alignment and border of the vbox given
+	 */
 	private void buildCellule(VBox box) {
 
 		box.setPrefSize(120, 40);
@@ -164,6 +174,10 @@ public class CoalitionAgentDisplay implements Modifiable {
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 	}
 
+	/* BuildLabel
+	 * Param in: Label to build
+	 * Sets size, alignment and border of the label given
+	 */
 	private void buildLabel(Label label) {
 		label.setAlignment(Pos.CENTER);
 		label.setPrefSize(120, 40);
@@ -172,19 +186,30 @@ public class CoalitionAgentDisplay implements Modifiable {
 						BorderStrokeStyle.SOLID, BorderStrokeStyle.SOLID, null, new BorderWidths(1), null)));
 	}
 
+	/* BuildBoldLabel
+	 * Param in: Label to build
+	 * Sets size, bold style, alignment and border of the label given
+	 */
 	private void buildBoldLabel(Label label) {
 
 		buildLabel(label);
 		label.setStyle(BOLDSTYLE);
 	}
 
+	/* Update
+	 * Implente depuis Modifiable
+	 * Met a jour l'affichage des coalition agents apres avoir
+	 * collecte les donnnees depuis le cav
+	 */
 	@Override
 	public void update() {
 		Thread taskThread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-
+				CAV cav = cavModel.getCav();
+				List<CoalitionAgent> coalitions = new ArrayList<>(cav.getAllCoalitions());
+				
 				Platform.runLater(new Runnable() {
 
 					@Override
@@ -197,13 +222,26 @@ public class CoalitionAgentDisplay implements Modifiable {
 								BorderStrokeStyle.SOLID, null, new BorderWidths(0.5), null)));
 						usedLines = 1;
 						buildFirstLigneCoalitionAgent(newGrid);
-						buildLignesCoalitionAgent(newGrid);
+						buildLignesCoalitionAgent(newGrid, coalitions);
 						root.getChildren().add(newGrid);
 						grid = newGrid;
+						/* Le travail du thread est termine, on rend un token
+						 * au semaphore du cav modele
+						 */
+						cavModel.V();
 					}
 				});
+
 			}
 		});
 		taskThread.start();
+	}
+	
+	public ScrollPane getScrollPane() {
+		return scrollPane;
+	}
+	
+	public void setController(CoalitionAgentDisplayController controller) {
+		this.controller = controller;
 	}
 }

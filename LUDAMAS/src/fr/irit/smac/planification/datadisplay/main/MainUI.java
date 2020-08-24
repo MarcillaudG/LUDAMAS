@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -36,10 +37,10 @@ public class MainUI extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-
 		this.primaryStage = primaryStage;
-		runController = new RunController();
-		runController.setMainApp(this);
+		this.runController = new RunController();
+		this.runController.setMainApp(this);
+		this.primaryStage.getIcons().add(new Image("./fr/irit/smac/img/icon.png"));
 		initFrame();
 	}
 

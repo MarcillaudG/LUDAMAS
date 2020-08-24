@@ -1,42 +1,45 @@
 package fr.irit.smac.planification.datadisplay.controller;
 
+import fr.irit.smac.planification.datadisplay.main.CentralPanel;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
 import fr.irit.smac.planification.datadisplay.ui.AVTAgentDisplay;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
+import javafx.scene.control.TitledPane;
 
+/*
+ * Controller pour la fenetre CoalitionAgentDisplay
+ * Permet d'afficher les AVTAgents correspondant au CoalitionAgent souhaite
+ */
 public class CoalitionAgentDisplayController implements EventHandler<ActionEvent> {
-	
+
 	private CAVModel cavModel;
+	private CentralPanel centralPanel;
 	
-	public CoalitionAgentDisplayController(CAVModel cavModel) {
+	public CoalitionAgentDisplayController(CAVModel cavModel, CentralPanel centralPanel) {
 		this.cavModel = cavModel;
+		this.centralPanel = centralPanel;
 	}
 
+	/*
+	 * Button handler Recupere l'id du bouton clique qui est le nom du
+	 * coalitionAgent correspondant pour creer le titled pane associe
+	 * et l'ajoute dans le root container du panel central
+	 */
 	@Override
 	public void handle(ActionEvent actionEvent) {
 		Button sourceButton = (Button) actionEvent.getSource();
 		String idButton = sourceButton.getId();
-		if(idButton.equals("closeID")) {
-			closeAction(sourceButton);
-		} else {
-			AVTAgentDisplay avtDisplay = new AVTAgentDisplay(cavModel, idButton);
-			cavModel.addModifiables(avtDisplay);
+		AVTAgentDisplay avtDisplay = new AVTAgentDisplay(cavModel, idButton);
+		TitledPane avtPane = new TitledPane("AVT: " + idButton, avtDisplay.getScrollPane());
+		int paneIndex = 4 + centralPanel.getNbCreatedDataMorphPanes() + centralPanel.getNbCreatedAvtPanes();
+		centralPanel.getRoot().getChildren().add(paneIndex, avtPane);
+		centralPanel.incNbCreatedAvtPanes();
+		cavModel.addModifiables(avtDisplay);
+		if (cavModel.getCycle() != 0) {
+			avtDisplay.update();
 		}
 	}
-	
-	private void closeAction(Button source) {
-		Stage stageCorresp = (Stage) source.getScene().getWindow();
-		stageCorresp.close();
-	}
-	
-	public void setCavModel(CAVModel cavModel) {
-		this.cavModel = cavModel;
-	}
-	
-	public CAVModel getCavModel() {
-		return cavModel;
-	}
+
 }
