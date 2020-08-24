@@ -135,7 +135,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 					this.inputConstraint.addOffer(myOffer);
 				}
 			}
-			else {
+			/*else {
 				if(this.inputConstraint.hasMyOffer(agentNegociating)) {
 					if(this.inputConstraint.isOfferBetter(myOffer)) {
 						//Remove less crit
@@ -186,7 +186,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 						}
 					}
 				}
-			}
+			}*/
 		}
 
 	}

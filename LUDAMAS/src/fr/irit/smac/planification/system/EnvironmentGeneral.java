@@ -3,6 +3,7 @@ package fr.irit.smac.planification.system;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -142,6 +143,16 @@ public abstract class EnvironmentGeneral {
 		else {
 			return this.getValueOfVariableWithName(dataName);
 		}
+	}
+
+	public Collection<? extends String> getAllCopyOfVar() {
+		Set<String> res = new TreeSet<>();
+		for(String dat : this.data.keySet()) {
+			if(dat.contains(":copy")) {
+				res.add(dat);
+			}
+		}
+		return res;		
 	}
 	
 }

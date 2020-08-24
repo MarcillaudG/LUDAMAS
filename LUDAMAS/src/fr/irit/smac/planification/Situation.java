@@ -176,6 +176,7 @@ public class Situation {
 				this.informationAvailable.put(informationTmp.remove(rand.nextInt(informationTmp.size())), i*slice);
 			}
 		}
+		System.out.println(this.informationAvailable);
 		//System.out.println("SITU :"+this.informationAvailable);
 	}
 	

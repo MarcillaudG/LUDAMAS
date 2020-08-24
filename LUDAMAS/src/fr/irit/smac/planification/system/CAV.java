@@ -1,5 +1,8 @@
 package fr.irit.smac.planification.system;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -135,6 +138,8 @@ public class CAV {
 
 	private int cycle;
 
+	private FileWriter resultingDataset;
+
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
 		this.currentTime = 0;
@@ -170,7 +175,7 @@ public class CAV {
 		//this.name = name+"->"+filePath+":"+date;
 		String[] splitFile = filePath.split("\\\\");
 		System.out.println(splitFile[0]);
-		this.name = name+"->"+splitFile[splitFile.length-1]+":"+date;
+		this.name = name+"_"+splitFile[splitFile.length-1]+":"+date;
 		this.currentTime = 0;
 		this.nbCopy = nbCopy;
 		this.nbVarEff = nbVarEff;
@@ -204,7 +209,7 @@ public class CAV {
 		Date date = new Date(System.currentTimeMillis());
 		//this.name = name+"->"+filePath+":"+date;
 		String[] splitFile = filePath.split("\\");
-		this.name = name+"->"+splitFile[splitFile.length-1]+":"+date;
+		this.name = name+"_"+splitFile[splitFile.length-1]+":"+date;
 		this.currentTime = 0;
 		this.nbCopy = nbCopy;
 		this.nbVarEff = nbVarEff;
@@ -385,6 +390,12 @@ public class CAV {
 		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.deleteExperiment(name);
+		try {
+			this.resultingDataset = new FileWriter(new File("C:\\Users\\gmarcill\\Documents\\Dataset\\Results\\result1.csv"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// Init the collections
 		this.effectors = new TreeMap<String,Effector>();
@@ -423,9 +434,9 @@ public class CAV {
 
 
 		// set the internal data of the CAV
-		for(int i =0; i < 2;i++) {
+		/*for(int i =0; i < 2;i++) {
 			this.internalData.add(variablesAvailable.remove(rand.nextInt(variablesAvailable.size())));
-		}
+		}*/
 		this.exteroData.addAll(variablesAvailable);
 
 		// Create a number of effector equal to the number of state of the CAV
@@ -443,7 +454,8 @@ public class CAV {
 		List<String> dataInSituation = new ArrayList<String>();
 		for(String s : this.exteroData) {
 			//dataInSituation.add(this.environment.getCopyOfVar(s));
-			dataInSituation.addAll(this.environment.getAllCopyOfVar(s));
+			//dataInSituation.addAll(this.environment.getAllCopyOfVar(s));
+			dataInSituation.addAll(this.environment.getAllCopyOfVar());
 		}
 		dataInSituation.addAll(this.exteroData);
 
@@ -456,7 +468,8 @@ public class CAV {
 				eff.addDP(dp,s);
 				Collections.shuffle(this.internalData);
 				Collections.shuffle(this.exteroData);
-				dp.initComposedFunction(this.internalData.subList(0, 2), this.exteroData.subList(0, 3), new ArrayList<String>());
+				//dp.initComposedFunction(this.internalData.subList(0, 2), this.exteroData.subList(0, 3), new ArrayList<String>());
+				dp.initComposedFunction(this.internalData, this.exteroData.subList(0, 3), new ArrayList<String>());
 			}
 		}
 		System.out.println("END");
@@ -476,7 +489,7 @@ public class CAV {
 		for(Effector eff: this.effectors.values()) {
 			eff.initSituation();
 		}
-		
+
 		for(DataAgent agent : this.allDataAgents.values()) {
 			agent.startSituation();
 		}
@@ -698,6 +711,13 @@ public class CAV {
 		this.coalitionsToRemove.clear();
 
 
+		this.writeResults(cycle);
+		try {
+			this.resultingDataset.write("\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		System.out.println("END CYCLE");
 
 		//UI
@@ -711,9 +731,43 @@ public class CAV {
 		}*/
 	}
 
-	
+	/**
+	 * Write results in a file
+	 * @param cycle 
+	 */
+	private void writeResults(int cycle) {
+		if(cycle < 1) {
+			for(DataAgent data: this.allDataAgents.values()) {
+				for(DataMorphAgent morph : data.getAllMorphs()) {
+					try {
+						this.resultingDataset.write(morph.getName()+";");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			try {
+				this.resultingDataset.write("\n");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		for(DataAgent data: this.allDataAgents.values()) {
+			for(DataMorphAgent morph : data.getAllMorphs()) {
+				try {
+					this.resultingDataset.write(morph.getValue()+";");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 	private String buildStringForPlaning(CompetitiveAgent competitiveAgent) {
-		
+
 		StringBuilder resultat = new StringBuilder();
 		CoalitionAgent coalitionAgent = (CoalitionAgent) competitiveAgent;
 		resultat.append(coalitionAgent.getData()+ " value: " + coalitionAgent.getValue() + " input: " + coalitionAgent.getInput() +"    DATA: ");
@@ -724,7 +778,7 @@ public class CAV {
 		return resultat.toString();
 	}
 
-	
+
 	/**
 	 * Manage links
 	 */
@@ -877,61 +931,60 @@ public class CAV {
 		}
 
 		//while(!satisfied) {
-			for(CompetitiveAgent compet : allCompets) {
-				compet.cycleOffer();
+		for(CompetitiveAgent compet : allCompets) {
+			compet.cycleOffer();
+		}
+		satisfied = true;
+		for(InputConstraint constr : inputConstrActive) {
+			if(!constr.isSatisfied()) {
+				satisfied = false;
 			}
-			satisfied = true;
+		}
+		for(String data: dataAgentsActives) {
+			if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
+				satisfied = false;
+			}
+		}
+		i++;
+		if(i > 20) {
 			for(InputConstraint constr : inputConstrActive) {
 				if(!constr.isSatisfied()) {
-					satisfied = false;
+					System.out.println(constr.getOffers());
+					for(Offer offer : constr.getOffers()) {
+						System.out.println(offer.getAgent());
+						for(String data : ((CoalitionAgent)offer.getAgent()).getAllData()) {
+							System.out.println(this.allDataAgents.get(data).getCoalition());
+							System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint());
+						}
+					}
+				}
+			}
+
+			for(String data: dataAgentsActives) {
+				if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
+					System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint().getOffers());
+
 				}
 			}
 			for(String data: dataAgentsActives) {
 				if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
-					satisfied = false;
+					System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint().getOffers());
+					for(Offer offer : this.allDataAgents.get(data).getDataUnicityConstraint().getOffers()) {
+						System.out.println(offer.getInputConstraint().getOffers());
+					}
 				}
 			}
-			i++;
-			if(i > 20) {
-				for(InputConstraint constr : inputConstrActive) {
-					if(!constr.isSatisfied()) {
-						System.out.println(constr.getOffers());
-						for(Offer offer : constr.getOffers()) {
-							System.out.println(offer.getAgent());
-							for(String data : ((CoalitionAgent)offer.getAgent()).getAllData()) {
-								System.out.println(this.allDataAgents.get(data).getCoalition());
-								System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint());
-							}
-						}
-					}
-				}
-
-				for(String data: dataAgentsActives) {
-					if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
-						System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint().getOffers());
-
-					}
-				}
-				for(String data: dataAgentsActives) {
-					if(!this.allDataAgents.get(data).getDataUnicityConstraint().isSatisfied()) {
-						System.out.println(this.allDataAgents.get(data).getDataUnicityConstraint().getOffers());
-						for(Offer offer : this.allDataAgents.get(data).getDataUnicityConstraint().getOffers()) {
-							System.out.println(offer.getInputConstraint().getOffers());
-						}
-					}
-				}
-				for(CoalitionAgent coal : this.allCoalitions) {
-					System.out.println(coal.getID());
-				}
-				try {
-					Thread.sleep(200000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			for(CoalitionAgent coal : this.allCoalitions) {
+				System.out.println(coal.getID());
 			}
+			try {
+				Thread.sleep(200000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		//}
-
 		for(InputConstraint constr : inputConstrActive) {
 			constr.keepOnlyTheBest();
 			constr.getOffers().get(0).getAgent().cycleValue(constr.getInput());
