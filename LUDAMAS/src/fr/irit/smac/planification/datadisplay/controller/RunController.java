@@ -21,6 +21,7 @@ public class RunController implements EventHandler<ActionEvent> {
 	private CAVModel cavModel;
 	private CAV cav;
 	private String filePath;
+	private String oraclePath;
 	private MainUI mainApp;
 
 	public RunController() {
@@ -38,8 +39,11 @@ public class RunController implements EventHandler<ActionEvent> {
 			runHandle(buttonSource);
 		} else if (buttonSource.getId().equals("fileChooserID")) {
 			fileChoosing();
+		}else if (buttonSource.getId().equals("fileChooserOracleID")) {
+			fileChoosingOracle();
 		}
 	}
+
 
 	/* Action declenchee par l'evenement du bouton fileChooser 
 	 * Affiche le fileChooser et indique a l'utilisateur si aucun fichier n'a
@@ -49,6 +53,21 @@ public class RunController implements EventHandler<ActionEvent> {
 		try {
 			File selectedFile = mainApp.getFileChooser().showOpenDialog(mainApp.getPrimaryStage());
 			filePath = selectedFile.getAbsolutePath();
+			Label textSelectedFile = mainApp.getTextSelectedLabel();
+			textSelectedFile.setText(filePath);
+		} catch (NullPointerException e) {
+			System.out.println("Please select a file");
+		}
+	}
+
+	/* Action declenchee par l'evenement du bouton fileChooserOracle 
+	 * Affiche le fileChooserOracle et indique a l'utilisateur si aucun fichier n'a
+	 * ete choisi
+	 */
+	private void fileChoosingOracle() {
+		try {
+			File selectedFile = mainApp.getFileChooserOracle().showOpenDialog(mainApp.getPrimaryStage());
+			oraclePath = selectedFile.getAbsolutePath();
 			Label textSelectedFile = mainApp.getTextSelectedLabel();
 			textSelectedFile.setText(filePath);
 		} catch (NullPointerException e) {
@@ -66,7 +85,13 @@ public class RunController implements EventHandler<ActionEvent> {
 		int nbVarEff = mainApp.getValueSpinVarEff();
 		int nbCopy = mainApp.getValueSpinCopy();
 		if (filePath != null) {
-			this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
+			if(this.oraclePath != null) {
+				this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath, oraclePath);
+			}
+			else {
+				this.cav = new CAV("cavtest", nbEffectors, nbSituations, nbVarEff, nbCopy, filePath);
+
+			}
 			this.cavModel.setCav(cav);
 			CentralPanel centralPanelV2 = new CentralPanel(cavModel);
 			cavModel.addModifiables(centralPanelV2);

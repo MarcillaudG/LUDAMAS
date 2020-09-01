@@ -140,10 +140,10 @@ public class CoalitionAgent implements CompetitiveAgent{
 		for(DataAgent data : this.datasActifs) {
 			data.computeValueForInput(this.input);
 			this.avtAgents.get(data.getDataName()).cycle();
-			//valueofProposition += this.avtAgents.get(data.getDataName()).getValue();
-			valueofProposition += data.askMorphedValue(input) * data.askMorphUsefulness(input);
-			//sumWeight += this.avtAgents.get(data.getDataName()).getWeight();
-			sumWeight += data.askMorphUsefulness(input);
+			valueofProposition += this.avtAgents.get(data.getDataName()).getValue();
+			//valueofProposition += data.askMorphedValue(input) * data.askMorphUsefulness(input);
+			sumWeight += this.avtAgents.get(data.getDataName()).getWeight();
+			//sumWeight += data.askMorphUsefulness(input);
 		}
 		this.proposition = valueofProposition / sumWeight;
 	}

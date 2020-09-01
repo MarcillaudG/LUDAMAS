@@ -140,6 +140,8 @@ public class CAV {
 
 	private FileWriter resultingDataset;
 
+	private FileWriter resultingCoalition;
+
 	public CAV(String name, int nbEffectors, int nbSituation) {
 		this.name = name;
 		this.currentTime = 0;
@@ -208,7 +210,7 @@ public class CAV {
 	public CAV(String name, Integer nbEffectors, Integer nbSituation, Integer nbVarEff, Integer nbCopy, String filePath, String filePathNotNoised) {
 		Date date = new Date(System.currentTimeMillis());
 		//this.name = name+"->"+filePath+":"+date;
-		String[] splitFile = filePath.split("\\");
+		String[] splitFile = filePath.split("\\\\");
 		this.name = name+"_"+splitFile[splitFile.length-1]+":"+date;
 		this.currentTime = 0;
 		this.nbCopy = nbCopy;
@@ -387,11 +389,13 @@ public class CAV {
 	private void initDatasetCoalition() {
 		System.out.println("Init");
 
+		Date date = new Date(System.currentTimeMillis());
 		this.links = new Links(this.name,"C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.createExperiment(this.name + "IN SITU", "C:\\Users\\gmarcill\\git\\LUDAMAS\\LUDAMAS\\linksCoal.css");
 		//this.links.deleteExperiment(name);
 		try {
-			this.resultingDataset = new FileWriter(new File("C:\\Users\\gmarcill\\Documents\\Dataset\\Results\\result1.csv"));
+			this.resultingDataset = new FileWriter(new File("C:\\Users\\gmarcill\\Documents\\Dataset\\Results\\result2.csv"));
+			this.resultingCoalition = new FileWriter(new File("C:\\Users\\gmarcill\\Documents\\Dataset\\Results\\resultCoal2.csv"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -673,7 +677,7 @@ public class CAV {
 			}
 			this.truePlaning.addRes(new Result(i, res));
 		}
-
+		this.writePlaning(cycle);
 		// TODO visu Difference
 		//System.out.println("MEAN difference --->> "+truePlaning.computeMeanDifference(planingSituation));
 
@@ -712,12 +716,6 @@ public class CAV {
 
 
 		this.writeResults(cycle);
-		try {
-			this.resultingDataset.write("\n");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		System.out.println("END CYCLE");
 
 		//UI
@@ -729,6 +727,49 @@ public class CAV {
 		/*for(EffectorAgent eff : this.effectors.values()) {
 			eff.saveExperiment();
 		}*/
+	}
+
+	/**
+	 * Write the value computed by coalitions in a file
+	 * 
+	 * @param cycle
+	 */
+	private void writePlaning(int cycle) {
+		if(cycle < 1) {
+			for(String input: this.allInputs) {
+				try {
+					this.resultingCoalition.write(input+";");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			try {
+				this.resultingCoalition.write("\n");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		for(String input: this.allInputs) {
+			try {
+				if(this.getInputInSituation().contains(input)) {
+					this.resultingCoalition.write(this.inputConstraints.get(input).getOffers().get(0).getAgent().getValue()+";");
+				}
+				else {
+					this.resultingCoalition.write(" "+";");
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
+			this.resultingCoalition.write("\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -763,6 +804,12 @@ public class CAV {
 					e.printStackTrace();
 				}
 			}
+		}
+		try {
+			this.resultingDataset.write("\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

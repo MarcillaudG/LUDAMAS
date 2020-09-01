@@ -23,6 +23,8 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private static final int MAX_SIZE_HISTORIC = 100;
 
+
+
 	private String dataName;
 
 	private String inputName;
@@ -57,6 +59,10 @@ public class DataMorphAgent implements CompetitiveAgent{
 
 	private Float b = 0.0f;
 
+	private AVT avta;
+
+	private AVT avtb;
+
 	private final float sensibility = 5.f;
 
 	private final float accepted_error = 15.f;
@@ -90,6 +96,7 @@ public class DataMorphAgent implements CompetitiveAgent{
 		this.distribution = new TreeMap<>();
 		this.neighbours = new ArrayList<>();
 		this.historiques = new ArrayList<>();
+
 	}
 
 
@@ -421,35 +428,132 @@ public class DataMorphAgent implements CompetitiveAgent{
 		float x1 = this.historiques.get(indMaxSup).valueData;
 		float x2 = this.historiques.get(indMaxInf).valueData;
 
-		if(this.historiques.size() > 2) {
+		if(this.historiques.size() > 3) {
 
-			float newa = (y2 - y1)/(x2 -x1);
-			float newb = y1 - (y2-y1)/(x2-x1) * x1;
-			this.a = (this.a + newa) / 2;
-			this.b = (this.b + newb) / 2;
+			this.changeAB(y1,y2, x1,x2);
+
 			for(Historic histo : this.historiques) {
 				histo.computeCrit(this.a, this.b);
 			}
 			Collections.sort(this.historiques);
-			if(maxi > this.historiques.get(0).crit) {
+			/*if(maxi > this.historiques.get(0).crit) {
 				this.usefulness = Math.min(this.usefulness +0.05f, 1.0f);
-			}
+			}*/
 			this.usefulness = 1.0f - this.historiques.get(0).crit / this.etendu;
 
-			int ind = this.dataName.indexOf(':');
 		}
 		else {
 			if(this.historiques.size() == 2) {
 				this.a = (y2 - y1)/(x2 -x1);
 				this.b = y1 - (y2-y1)/(x2-x1) * x1;
+				//this.changeAB(y1,y2, x1,x2);
 			}
-			for(Historic histo : this.historiques) {
-				histo.computeCrit(this.a, this.b);
+			if(this.historiques.size()==3) {
+				this.customLR();
+
+				this.avta = new AVT(this.a);
+				this.avtb = new AVT(this.b);
+				for(Historic histo : this.historiques) {
+					histo.computeCrit(this.a, this.b);
+				}
+				this.usefulness = 1.0f - this.historiques.get(0).crit / this.etendu;
 			}
 		}
 		//this.usefulness = 1.0f - this.historiques.get(0).crit / this.etendu;
-		
+
 	}
+
+	/**
+	 * Compute the LR for the first 3 historiques
+	 */
+	private void customLR() {
+		float xbar = 0.0f;
+		float ybar = 0.0f;
+		for(int i =0; i < 3 ; i++) {
+			Historic histo = this.historiques.get(i);
+			xbar += histo.getValueData();
+			ybar += histo.getValueInput();
+		}
+		xbar = xbar /3;
+		ybar = ybar /3;
+
+		float xxbar = 0.0f;
+		float yybar = 0.0f;
+		float xybar = 0.0f;
+		for(Historic histo : this.historiques) {
+			xxbar += Math.pow(histo.getValueData()-xbar,2);
+			yybar += Math.pow(histo.getValueInput()-ybar,2);
+			xybar += (histo.getValueData()-xbar)*(histo.getValueInput()-ybar);
+		}
+
+		float slope  = xybar / xxbar;
+		float intercept = ybar - slope * xbar;
+		this.a = slope;
+		this.b = intercept;
+	}
+
+
+	/**
+	 * Change the value of a and b according to the equation resolution
+	 * @param y1
+	 * @param y2
+	 * @param x1
+	 * @param x2
+	 */
+	private void changeAB(float y1, float y2, float x1, float x2) {
+		float olda = this.a;
+		float oldb = this.b;
+
+		this.customLR();
+
+		int histoa = 0;
+		int histob = 0;
+
+		float tolerancea = this.a*this.sensibility/100;
+		float toleranceb = this.b*this.sensibility/100;
+
+		if(Math.abs(this.a - olda) > tolerancea) {
+			if(this.a > olda) {
+				histoa = 1;
+			}
+			if(this.a < olda) {
+				histoa = -1;
+			}
+		}
+
+		if(Math.abs(this.b - oldb) > toleranceb) {
+			if(this.b > oldb) {
+				histob = 1;
+			}
+			if(this.b < oldb) {
+				histob = -1;
+			}
+		}
+
+		this.avta.addHisto(histoa);
+		this.avta.adaptWeightAVT();
+
+		this.avtb.addHisto(histob);
+		this.avtb.adaptWeightAVT();
+
+		/*if(this.dataName.equals("VType9") && this.inputName.equals("VType9:copy:0")) {
+			System.out.println("NEW CYCLE ---------------------------------------------");
+			System.out.println(this.a);
+			System.out.println(newa);
+			System.out.println(this.b);
+			System.out.println(newb);
+			System.out.println("x1 = "+x1 +" y1 ="+y1);
+			System.out.println("x2 = "+x2 +" y2 ="+y2);
+		}*/
+		/*if(this.historiques.size()>2) {
+			//this.avta.adaptWeightAVT();
+			//this.avtb.adaptWeightAVT();
+			this.a = this.avta.weight;
+			this.b = this.avtb.weight;
+		}*/
+
+	}
+
 
 	/**
 	 * Morph the value into a more adequate one
@@ -769,9 +873,106 @@ public class DataMorphAgent implements CompetitiveAgent{
 		}
 
 
+	}
 
-		
 
+	public class AVT {
+
+
+		private Integer lastHisto;
+
+		private Integer currentHisto;
+
+
+		private final float accelerationCoeff;
+
+		private final float deccelerationCoeff;
+
+		private float delta;
+
+		private float weight;
+
+
+		public AVT(float weight) {
+			this.weight = weight;
+			this.accelerationCoeff = 2.0f;
+			this.deccelerationCoeff = 1.0f/3.0f; 
+			this.delta = 0.01f*weight;
+		}
+
+
+		public void addHisto(int histo) {
+			if(this.currentHisto !=null) {
+				this.lastHisto = new Integer(this.currentHisto);
+			}
+			this.currentHisto = new Integer(histo);
+
+			//this.adaptWeightAVT();
+		}
+
+
+
+		/**
+		 * Use AVT to adapt the weight and delta
+		 * 
+		 * Yes I know, it is a long method, I hate it too
+		 */
+		public void adaptWeightAVT() {
+
+			if(this.currentHisto != null) {
+				if(this.lastHisto != null) {
+					if(this.currentHisto == -1) {
+						if(this.lastHisto == -1) {
+							this.delta = this.delta * this.accelerationCoeff;
+							this.weight -= this.delta;
+						}
+						if(this.lastHisto == 0) {
+							this.delta = this.delta * this.deccelerationCoeff;
+						}
+						if(this.lastHisto == 1) {
+							this.delta = this.delta * this.deccelerationCoeff;
+							this.weight += this.delta;
+						}
+					}
+					if(this.currentHisto == 0) {
+						if(this.lastHisto == -1) {
+							this.weight -= this.delta;
+						}
+						if(this.lastHisto == 0) {
+							this.delta = this.delta * this.deccelerationCoeff;
+						}
+						if(this.lastHisto == 1) {
+							this.weight += this.delta;
+						}
+					}
+					if(this.currentHisto == 1) {
+
+						if(this.lastHisto == -1) {
+							this.delta = this.delta * this.deccelerationCoeff;
+							this.weight -= this.delta;
+						}
+						if(this.lastHisto == 0) {
+							this.delta = this.delta * this.deccelerationCoeff;
+						}
+						if(this.lastHisto == 1) {
+							this.delta = this.delta * this.accelerationCoeff;
+							this.weight += this.delta;
+						}
+					}
+
+				}
+				else {
+					if(this.currentHisto == -1) {
+						this.weight = this.weight - this.delta;
+					}
+					if(this.currentHisto == 1) {
+						this.weight = this.weight + this.delta;
+					}
+				}
+			}
+
+
+		}
 	}
 
 }

@@ -25,6 +25,7 @@ public class MainUI extends Application {
 	private File selectedFile;
 	private RunController runController;
 	private FileChooser fileChooser;
+	private FileChooser fileChooserOracle;
 	private Spinner<Integer> spinNbEffector;
 	private Spinner<Integer> spinNbSituations;
 	private Spinner<Integer> spinNbVarEff;
@@ -56,7 +57,15 @@ public class MainUI extends Application {
 		Button fileChooserButton = new Button("Choose");
 		fileChooserButton.setId("fileChooserID");
 		fileChooserButton.setOnAction(runController);
+		
+		fileChooserOracle = new FileChooser();
+		fileChooserOracle.setTitle("Open resource oracle file");
+		fileChooserOracle.getExtensionFilters().add(new ExtensionFilter("CSV Files", "*.csv"));
 
+		Button fileChooserOracleButton = new Button("Choose Oracle");
+		fileChooserOracleButton.setId("fileChooserOracleID");
+		fileChooserOracleButton.setOnAction(runController);
+		
 		Button runButton = new Button("RUN");
 		runButton.setPadding(new Insets(10, 10, 10, 10));
 		runButton.setPrefSize(75, 40);
@@ -89,7 +98,7 @@ public class MainUI extends Application {
 		Label labelNbVarEff = new Label("Nombre Var Eff");
 		Label labelNbCopy = new Label("Nombre de copies");
 
-		root.getChildren().addAll(textSelectedFile, fileChooserButton, separator);
+		root.getChildren().addAll(textSelectedFile, fileChooserButton, fileChooserOracleButton, separator);
 		root.getChildren().addAll(labelNbEffector, spinNbEffector, labelNbSituations, spinNbSituations, labelNbVarEff,
 				spinNbVarEff, labelNbCopy, spinNbCopy);
 		root.getChildren().add(runButton);
@@ -104,6 +113,10 @@ public class MainUI extends Application {
 
 	public FileChooser getFileChooser() {
 		return fileChooser;
+	}
+	
+	public FileChooser getFileChooserOracle() {
+		return fileChooserOracle;
 	}
 
 	public Stage getPrimaryStage() {
