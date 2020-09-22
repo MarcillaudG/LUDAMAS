@@ -24,6 +24,14 @@ public class AVTAgent {
 	
 	private final float delta_max = 0.20f;
 	
+	private static float ALPHA = 0.1f;
+	
+	private static float BETA = 0.05f;
+	
+	private static float GAMA = 1.0f/30.0f;
+	
+	public static final float tolerance = 0.05f;
+	
 	private Float variation;
 	
 	private Float weightedValue;
@@ -52,6 +60,26 @@ public class AVTAgent {
 		this.accelerationCoeff = acceCoeff;
 		this.deccelerationCoeff = deceCoeff;
 		this.delta = 0.1f;
+	}
+	
+	/**
+	 * Met a jour de facon static les parametres d'experiences
+	 * 
+	 * @param param
+	 * 	Le nom du parametre
+	 * @param value
+	 * 	la valeur du parametre
+	 */
+	public static void setParam(String param, Number value) {
+		if(param.equals("alpha")) {
+			ALPHA = (float) value;
+		}
+		if(param.equals("beta")) {
+			BETA = (float) value;
+		}
+		if(param.equals("gama")) {
+			GAMA = (float) value;
+		}
 	}
 
 	public CoalitionAgent getCoalition() {
@@ -95,26 +123,35 @@ public class AVTAgent {
 	 */
 	public void sendFeedback(int feed, float value) {
 		if(feed > 0) {
-			if(value > this.currentValue) {
-				this.historic[this.indHisto] = Feedback.UP;
-			}
-			if(value <= this.currentValue) {
-				this.historic[this.indHisto] = Feedback.DOWN;
-			}
-		}
-		if(feed < 0) {
 			if(value < this.currentValue) {
 				this.historic[this.indHisto] = Feedback.UP;
 			}
-			if(value >= this.currentValue) {
+			if(value > this.currentValue) {
 				this.historic[this.indHisto] = Feedback.DOWN;
+			}
+			if(Math.abs(value - this.currentValue) < value * AVTAgent.tolerance) {
+				this.historic[this.indHisto] = Feedback.EQUALS;
+			}
+		}
+		if(feed < 0) {
+			if(value > this.currentValue) {
+				this.historic[this.indHisto] = Feedback.UP;
+			}
+			if(value < this.currentValue) {
+				this.historic[this.indHisto] = Feedback.DOWN;
+			}
+			if(value == this.currentValue) {
+				this.historic[this.indHisto] = Feedback.EQUALS;
+			}
+			if(Math.abs(value - this.currentValue) < value * AVTAgent.tolerance) {
+				this.historic[this.indHisto] = Feedback.EQUALS;
 			}
 		}
 		if(feed == 0) {
 			this.historic[this.indHisto] = Feedback.EQUALS;
 		}
-		this.adaptWeightAVT();
-		//this.adaptWeight(value);
+		//this.adaptWeightAVT();
+		this.adaptWeight(value);
 	}
 
 	public void sendFeedback(Float trueValueForInput) {
@@ -123,7 +160,23 @@ public class AVTAgent {
 	}
 
 	private void adaptWeight(float value) {
-		this.weight = 1.0f - Math.abs((this.currentValue - value)) / value;
+		//this.weight = 1.0f - Math.abs((this.currentValue - value)) / value;
+		if(Math.abs(this.weightedValue - value) < value * .05f) {
+			this.weight = Math.min(weight + ALPHA, 2.0f);
+		}
+		else {
+			this.weight = Math.max(0.05f, this.weight - GAMA);
+		}
+		// TO CHANGE
+		if(this.weightedValue > value && this.coalition.getValue() < value) {
+			this.weight = Math.min(weight + BETA, 2.0f);
+		}
+		if(this.weightedValue < value && this.coalition.getValue() > value) {
+			this.weight = Math.min(weight + BETA, 2.0f);
+		}
+		/*if(Math.abs(this.weightedValue - value) < Math.abs(this.coalition.getValue() - value)) {
+			this.weight = Math.min(weight + beta, 2.0f);
+		}*/
 	}
 
 	/**

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.irit.smac.planification.agents.DataMorphAgent;
-import fr.irit.smac.planification.agents.EffectorAgent;
-import fr.irit.smac.planification.agents.MorphingAgent;
 import fr.irit.smac.planification.generic.CompetitiveAgent;
 
 public class DataUnicityConstraint {

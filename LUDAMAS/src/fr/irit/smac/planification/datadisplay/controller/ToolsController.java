@@ -54,6 +54,9 @@ public class ToolsController implements EventHandler<ActionEvent>, ChangeListene
 			buttonSource.setText("PAUSE");
 			buttonSource.setId("pauseID");
 			display.getOneCycleButton().setDisable(true);
+
+		} else if (buttonSource.getId().equals("stopID")) {
+			cavModel.setEndValue(true);
 		} else if (buttonSource.getId().equals("oneCycleID")) {
 			Thread taskThread = new Thread(new Runnable() {
 				@Override

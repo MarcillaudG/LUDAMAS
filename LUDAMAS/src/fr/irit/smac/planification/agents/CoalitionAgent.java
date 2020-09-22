@@ -26,6 +26,8 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	private float proposition;
 
+	private float criticality = 0.0f;
+
 	private Map<String,DataAgent> datas;
 
 	private List<DataAgent> datasActifs;
@@ -36,13 +38,15 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	private DataUnicityConstraint dataConstraint;
 
-	private static final float SEUIL_REJECT = 0.2f;
+	private static final float SEUIL_REJECT = 0.4f;
 
-	private static final float SEUIL_ACCEPT = 0.5f;
+	public static final float SEUIL_ACCEPT = 0.6f;
 
 	private static final float ADVANTAGE = 0.5f;
 
-	private static final float SEUIL_MERGE = 0.7f;
+	private static final float SEUIL_MERGE = 0.6f;
+
+	private static float DELTA = 0.6f;
 
 
 	public CoalitionAgent(int id, CAV cav, DataAgent data1, DataAgent data2) {
@@ -61,6 +65,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 		this.avtAgents.put(data2.getDataName(), new AVTAgent(this, data2));
 
 		this.datasActifs = new ArrayList<>();
+
 	}
 
 	public CoalitionAgent(int id, CAV cav, DataAgent data1) {
@@ -77,6 +82,20 @@ public class CoalitionAgent implements CompetitiveAgent{
 		this.avtAgents.put(data1.getDataName(), new AVTAgent(this, data1));
 
 		this.datasActifs = new ArrayList<>();
+	}
+
+	/**
+	 * Met a jour de facon static les parametres d'experiences
+	 * 
+	 * @param param
+	 * 	Le nom du parametre
+	 * @param value
+	 * 	la valeur du parametre
+	 */
+	public static void setParam(String param, Number value) {
+		if(param.equals("delta")) {
+			DELTA = (float) value;
+		}
 	}
 
 	public void addData(DataAgent data) {
@@ -98,6 +117,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 	}
 
 	public void decide() {
+		this.decideCriticality();
 		/*if(this.datasActifs.size()>0) {
 			float meanSum = 0.0f;
 			float sumUseful = 0.0f;
@@ -147,6 +167,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 		}
 		this.proposition = valueofProposition / sumWeight;
 	}
+
 
 
 	public void act() {
@@ -209,7 +230,7 @@ public class CoalitionAgent implements CompetitiveAgent{
 				//data.removeAllOffer();
 			}
 			this.datas.clear();
-			this.cav.coalitionDestroyed(this);
+			//this.cav.coalitionDestroyed(this);
 			return true;
 		}
 		return false;
@@ -264,10 +285,11 @@ public class CoalitionAgent implements CompetitiveAgent{
 		dataAgent.removeAllOffer();
 		dataAgent.RemoveFromCoalition();
 		this.datas.remove(dataAgent.getDataName());
-		
+		this.avtAgents.remove(dataAgent.getDataName());
+
 		//TEST
 		if(this.datas.size() < 1) {
-			destroy();
+			//destroy();
 		}
 	}
 
@@ -453,17 +475,51 @@ public class CoalitionAgent implements CompetitiveAgent{
 	 */
 	public void sendFeedbackToAVT(Float trueValueForInput) {
 		int feed = 0;
-		if(trueValueForInput > this.proposition) {
-			feed = -1;
+		if(Math.abs(trueValueForInput-this.proposition) < trueValueForInput*AVTAgent.tolerance) {
+			feed = 0;
 		}
-		if(trueValueForInput < this.proposition) {
-			feed = 1;
+		else {
+			if(trueValueForInput > this.proposition) {
+				feed = 1;
+			}
+			if(trueValueForInput < this.proposition) {
+				feed = -1;
+			}
 		}
 		for(DataAgent data : this.datasActifs) {
-			//this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
-			this.avtAgents.get(data.getDataName()).sendFeedback(trueValueForInput);
+			this.avtAgents.get(data.getDataName()).sendFeedback(feed, this.proposition);
+			//this.avtAgents.get(data.getDataName()).sendFeedback(trueValueForInput);
 		}
 
+	}
+
+	/**
+	 * Evaluate the crit of all data agent
+	 * 
+	 * propose to other if it is bad
+	 */
+	public void evaluateCritData() {
+		if(this.datas.size() > 1) {
+			List<String> datasIterate= new ArrayList<>(this.datas.keySet());
+			List<String> dataLeaving = new ArrayList<>();
+			for(String data : datasIterate) {
+				float critData = 0.0f;
+				List<String> dataNames = new ArrayList<>(this.datas.keySet());
+				dataNames.remove(data);
+				for(String otherData : dataNames) {
+					critData += this.datas.get(data).getUsefulnessForData(otherData);
+				}
+				float meanCrit = critData / (this.datas.size()-1);
+				if(meanCrit <= 1.0f-DELTA) {
+					if(!this.cav.proposeDataAgent(data, meanCrit, this)) {
+						dataLeaving.add(data);
+					}
+				}
+			}
+			for(String data : dataLeaving) {
+				this.leave(this.datas.get(data));
+			}
+		}
 	}
 
 	public DataUnicityConstraint getConstraint() {
@@ -481,5 +537,74 @@ public class CoalitionAgent implements CompetitiveAgent{
 
 	public Collection<DataAgent> getDatas() {
 		return this.datas.values();
+	}
+
+	/**
+	 * Evaluate a data proposed
+	 * @param dataName
+	 * 
+	 * @return the crit of adding this data
+	 */
+	public float evaluateData(String dataName) {
+		/*float meanCrit = 0.0f;
+		for(DataAgent data : this.datas.values()) {
+			if(!dataName.equals(data.getDataName())) {
+				meanCrit += data.getUsefulnessForData(dataName);
+			}
+			meanCrit = meanCrit / (this.datas.size());
+		}
+		return meanCrit;*/
+		this.decideCriticality();
+		return criticalityAfterAgent(dataName) - this.criticality;
+	}
+
+	public void exchange(DataAgent dataAgent) {
+		if(this.inputConstraint != null && this.inputConstraint.hasMyOffer(this)) {
+			this.inputConstraint.removeOffer(this);
+		}
+		dataAgent.removeAllOffer();
+		this.datas.remove(dataAgent.getDataName());
+		this.avtAgents.remove(dataAgent.getDataName());
+
+		//TEST
+		/*if(this.datas.size() < 1) {
+			destroy();
+		}*/
+	}
+
+	public float criticalityAfterAgent(String agent) {
+		float crit =0.0f;
+		for(DataAgent data : this.datas.values()) {
+			if(!agent.equals(data.getDataName())) {
+				crit += 1.0f - data.getUsefulnessForData(agent);
+			}
+		}
+		crit = crit / this.datas.size() - DELTA;
+		return crit;
+	}
+
+	/**
+	 * Decide its criticality
+	 */
+	private void decideCriticality() {
+		float crit =0.0f;
+		if(this.datas.size()>1) {
+			for(DataAgent agent : this.datas.values()) {
+				float critAgent = 0.0f;
+				for(DataAgent data : this.datas.values()) {
+					if(!agent.equals(data)) {
+						crit += 1.0f-data.getUsefulnessForData(agent.getDataName());
+					}
+				}
+				critAgent = critAgent / (this.datas.size()-1) -DELTA;
+				crit += critAgent;
+			}
+		}
+		this.criticality = crit / this.datas.size();
+	}
+
+	public float getCriticality() {
+		this.decideCriticality();
+		return this.criticality;
 	}
 }

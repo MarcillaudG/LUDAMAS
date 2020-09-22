@@ -90,7 +90,8 @@ public class VisuEffector extends JFrame {
 				Thread t = new Thread() {
 					public void run() {
 
-						int i =0;
+						int i =1;
+						cav.generateNewValues(i);
 						while(i < 1000) {
 							System.out.println("CYCLE : "+i);
 							cav.manageSituation(i);
@@ -109,7 +110,7 @@ public class VisuEffector extends JFrame {
 		Thread t = new Thread() {
 			public void run() {
 
-				int i =0;
+				int i =1;
 				cav.generateNewValues(i);
 				while(i < 1000) {
 					System.out.println("CYCLE : "+i);

@@ -11,8 +11,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fr.irit.smac.planification.agents.DataAgent;
-import fr.irit.smac.planification.agents.EffectorAgent;
-import fr.irit.smac.planification.agents.MorphingAgent;
 import fr.irit.smac.planification.system.CAV;
 import fr.irit.smac.planification.ui.MatrixUI;
 import fr.irit.smac.planification.ui.MatrixUITable;
@@ -25,7 +23,6 @@ public class Matrix {
 
 	private int nbInput;
 
-	private EffectorAgent effectorAgent;
 
 	private MatrixUITable myUI;
 
@@ -49,18 +46,6 @@ public class Matrix {
 		this.cav = cav;
 		this.name = cav.getName();
 		this.nbInput =0;
-		for(int i =0; i < dataExteroceptive.size();i++) {
-			String s = dataExteroceptive.get(i);
-			this.matrix.put(new Input(s,i),new TreeMap<String,Float>());
-			this.matrix.get(new Input(s,i)).put(s, 1.0f);
-			nbInput++;
-		}
-	}
-
-	public Matrix (List<String> dataExteroceptive, EffectorAgent eff) {
-		this.matrix = new HashMap<Input,Map<String,Float>>();
-		this.nbInput =0;
-		this.effectorAgent = eff;
 		for(int i =0; i < dataExteroceptive.size();i++) {
 			String s = dataExteroceptive.get(i);
 			this.matrix.put(new Input(s,i),new TreeMap<String,Float>());
@@ -237,9 +222,9 @@ public class Matrix {
 	public void updateUI() {
 		if(this.myUI == null) {
 			this.myUI = new MatrixUITable(this);
-			if(this.effectorAgent.sendUI(this.myUI) != 0) {
+			/*if(this.effectorAgent.sendUI(this.myUI) != 0) {
 				this.myUI.setVisible(true);
-			}
+			}*/
 		}
 		this.myUI.update();
 
@@ -251,16 +236,17 @@ public class Matrix {
 	}
 
 	public String getMorphValue(String input, String data) {
-		if(this.effectorAgent != null) {
+		/*if(this.effectorAgent != null) {
 			return this.effectorAgent.getMorphValue(input,data);
 		}
 		else {
 			return this.cav.getMorphLR(input,data);
-		}
+		}*/
+		return null;
 	}
 
 	public String getname() {
-		return this.effectorAgent.getName();
+		return null;
 	}
 
 	public String getName() {

@@ -22,7 +22,6 @@ public class DataAgent {
 	/**
 	 * For the tests
 	 */
-	private EffectorAgent effector;
 
 	private String dataName;
 
@@ -32,7 +31,6 @@ public class DataAgent {
 
 	private Float max;
 
-	private float morphedValue;
 
 	private boolean actif;
 
@@ -40,7 +38,8 @@ public class DataAgent {
 
 	private List<DataMorphAgent> morphActifs;
 
-	private Map<String,DataAgent> neighbours;
+	private List<String> morphUseless;
+
 
 	private List<String> allInputs;
 
@@ -52,17 +51,17 @@ public class DataAgent {
 
 	private CoalitionAgent coalition;
 
-	private boolean wantToCoal;
 
 	private DataUnicityConstraint dataConstraint;
 
-	private String inputObj;
+	//private String inputObj;
 
-	private float maxUseful;
+	//private float maxUseful;
+
 
 	private static final float SEUILMORPH = 5.0f;
 
-	private static final float SEUIL_COAL = 0.7f;
+	private static final float SEUIL_COAL = 0.6f;
 
 	private static final float SEUIL_LEAVE = 0.5f;
 
@@ -72,10 +71,10 @@ public class DataAgent {
 		this.morphs = new TreeMap<>();
 		this.morphActifs = new ArrayList<>();
 		this.submissed = false;
-		this.neighbours = new TreeMap<>();
 		this.inputInSituation = new ArrayList<>();
 		this.dataInSituation = new ArrayList<>();
 		this.allInputs = new ArrayList<>(allInputs);
+		this.morphUseless = new ArrayList<>();
 		//this.dataConstraint = new DataUnicityConstraint(this.dataName);
 
 		if(this.allInputs.contains(dataName)) {
@@ -88,29 +87,6 @@ public class DataAgent {
 		}
 	}
 
-	/**
-	 * For the test
-	 * @param cav
-	 * @param dataName
-	 * @param allInputs
-	 * @param effector
-	 */
-	public DataAgent(CAV cav, String dataName, List<String> allInputs, EffectorAgent effector) {
-		this.cav = cav;
-		this.dataName = dataName;
-		this.morphs = new TreeMap<>();
-		this.morphActifs = new ArrayList<>();
-		this.submissed = false;
-		this.neighbours = new TreeMap<>();
-		this.inputInSituation = new ArrayList<>();
-		this.dataInSituation = new ArrayList<>();
-
-		this.effector = effector;
-
-		/*for(String s : allInputs) {
-			this.morphs.put(s,new MorphingAgent(dataName, s));
-		}*/
-	}
 
 	public void perceive() {
 		// si ma donnee est disponible, je suis actif
@@ -132,21 +108,27 @@ public class DataAgent {
 		//on cree les morphs
 		if(!this.morphs.keySet().containsAll(this.dataInSituation)) {
 			for(String other : this.cav.getDataPerceivedInSituation()) {
-				if(!this.morphs.containsKey(other) && !other.equals(this.dataName)) {
-					this.morphs.put(other, new DataMorphAgent(this.dataName, other, this));
-				}
-			}
-		}
-		
-		if(!this.morphs.keySet().containsAll(this.cav.getInputInSituation())) {
-			for(String other : this.cav.getInputInSituation()) {
-				if(!this.morphs.containsKey(other) && !other.equals(this.dataName)) {
+				if(!this.morphs.containsKey(other) && !other.equals(this.dataName) && !this.morphUseless.contains(other)) {
 					this.morphs.put(other, new DataMorphAgent(this.dataName, other, this));
 				}
 			}
 		}
 
-		this.wantToCoal = false;
+		if(!this.morphs.keySet().containsAll(this.cav.getInputInSituation())) {
+			for(String other : this.cav.getInputInSituation()) {
+				if(!this.morphs.containsKey(other) && !other.equals(this.dataName) && !this.morphUseless.contains(other)) {
+					this.morphs.put(other, new DataMorphAgent(this.dataName, other, this));
+				}
+			}
+		}
+
+		for(String other : this.coalition.getAllData()) {
+			if(!other.equals(this.dataName) && !this.morphs.containsKey(other)) {
+				this.morphs.put(other, new DataMorphAgent(this.dataName, other, this));
+				this.morphUseless.remove(other);
+			}
+		}
+
 		this.morphActifs.clear();
 		this.submissed = this.coalition != null;
 
@@ -186,6 +168,7 @@ public class DataAgent {
 
 				if(this.coalition.getAllData().size()>1) {
 					for(DataAgent other : this.coalition.getOtherDataAgent(this)) {
+
 						sumUse += this.morphs.get(other.dataName).getUsefulness();
 						nbOther++;
 					}
@@ -195,19 +178,6 @@ public class DataAgent {
 					}
 				}
 
-				//Copier coller foireux
-				/*for(DataAgent other : this.coalition.getOtherDataAgent(this)) {
-					sumUse += this.morphs.get(other.dataName).getUsefulness();
-					nbOther++;
-				}
-				if(sumUse / nbOther < SEUIL_LEAVE) {
-					this.coalition.leave(this);
-					this.coalition = null;
-					this.submissed = false;
-					System.gc();
-				}
-				else {
-				}*/
 			}
 
 			if(!this.submissed) {
@@ -220,10 +190,8 @@ public class DataAgent {
 					}
 				}
 				// morphvalue for the input
-				this.morphedValue = best.morph(this.myValue);
 
 				if(bestUseful > SEUIL_COAL) {
-					this.wantToCoal = true;
 					//this.neighbours.get(best.getInput()).proposeCoalition(this.dataName, this.morphedValue);
 					if(this.cav.applyForCoalition(this.dataName, best.getMorphValue(), best.getInput())) {
 						this.submissed = true;
@@ -232,17 +200,17 @@ public class DataAgent {
 
 			}
 			// met a jour l'objectif pour la coalition
-			this.maxUseful = -1.0f;
+			//this.maxUseful = -1.0f;
 			for(DataMorphAgent agent : this.morphActifs) {
 
 				agent.cycleValue(agent.getInput());
 
-				if(this.inputInSituation.contains(agent.getInput()) && agent.getUsefulness()> this.maxUseful) {
+				/*if(this.inputInSituation.contains(agent.getInput()) && agent.getUsefulness()> this.maxUseful) {
 					this.maxUseful = agent.getUsefulness();
 					this.inputObj = agent.getInput();
 
 
-				}
+				}*/
 			}
 		}
 	}
@@ -321,17 +289,13 @@ public class DataAgent {
 	 */
 	public float getUsefulnessForData(String asker) {
 		if(!this.morphs.containsKey(asker)) {
-			System.out.println(this.dataName);
-			System.out.println(asker);
+			return 0.0f;
 		}
 		return this.morphs.get(asker).getUsefulness();
 	}
 
 	public void mergeToCoalition(CoalitionAgent coalition2) {
-		//this.coalition = coalition2;
-
 		coalition2.addData(this);
-		//this.submissed = true;
 		this.bindToCoalition(coalition2);
 	}
 
@@ -424,10 +388,6 @@ public class DataAgent {
 		return res;
 	}
 
-	public String getInputObj() {
-		return this.inputObj;
-	}
-
 	/**
 	 * Gives the feedback to morphs
 	 * 
@@ -451,7 +411,8 @@ public class DataAgent {
 		List<DataMorphAgent> res = new ArrayList<>();
 		//if(!submissed) {
 		for(String input : this.cav.getInputInSituation()) {
-			res.add(this.morphs.get(input));
+			if(this.morphs.containsKey(input))
+				res.add(this.morphs.get(input));
 		}
 		//}
 		return res;
@@ -553,6 +514,29 @@ public class DataAgent {
 
 	public int getCurrentCycle() {
 		return this.cav.getCycle();
+	}
+
+	public void destroyMorphAgent(DataMorphAgent dataMorphAgent) {
+		if(!this.allInputs.contains(dataMorphAgent.getInput())){
+			this.morphs.remove(dataMorphAgent.getInput());
+			this.morphActifs.remove(dataMorphAgent);
+			this.morphUseless.add(dataMorphAgent.getInput());
+		}
+
+	}
+
+	/**
+	 * Return if  the data is in the same coalition as the data in input
+	 * @param inputName
+	 * @return
+	 */
+	public boolean isInCoalitionWith(String inputName) {
+		return this.coalition.getAllData().contains(inputName);
+	}
+
+	public void exchangeCoalition(CoalitionAgent best) {
+		this.coalition.exchange(this);
+		this.mergeToCoalition(best);
 	}
 
 

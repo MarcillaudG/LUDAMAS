@@ -99,14 +99,30 @@ public class MainUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				if(txtfNotNoised.getText().equals("")) {
-					CAV cav = new CAV("CAV", (Integer) spinEff.getValue(), (Integer)spinSitu.getValue(), (Integer)spinVarEff.getValue(), (Integer)spinCopy.getValue(), txtFC.getText());
-					new VisuEffector("Test", (Integer) spinEff.getValue(), cav);
+					Thread t = new Thread() {
+						@Override
+						public void run() {
+							CAV cav = new CAV("CAV", (Integer) spinEff.getValue(), (Integer)spinSitu.getValue(), (Integer)spinVarEff.getValue(), (Integer)spinCopy.getValue(), txtFC.getText());
+							int i = 0;
+							cav.generateNewValues(0);
+							while(i < 200) {
+								System.out.println("CYCLE : "+i);
+								cav.manageSituation(i);
+								i++;
+								cav.generateNewValues(i);
+
+							}
+						}
+					};
+					t.start();
+					//CAV cav = new CAV("CAV", (Integer) spinEff.getValue(), (Integer)spinSitu.getValue(), (Integer)spinVarEff.getValue(), (Integer)spinCopy.getValue(), txtFC.getText());
+					//new VisuEffector("Test", (Integer) spinEff.getValue(), cav);
 				}
 				else {
 					CAV cav = new CAV("CAV", (Integer) spinEff.getValue(), (Integer)spinSitu.getValue(), (Integer)spinVarEff.getValue(), (Integer)spinCopy.getValue(), txtFC.getText(), txtfNotNoised.getText());
 					new VisuEffector("Test", (Integer) spinEff.getValue(), cav);
 				}
-				dispose();
+				//dispose();
 			}
 		});
 		contentPane.add(btnRunDataset);

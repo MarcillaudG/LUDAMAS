@@ -3,6 +3,7 @@ package fr.irit.smac.planification.datadisplay.ui;
 
 import fr.irit.smac.planification.datadisplay.controller.ToolsController;
 import fr.irit.smac.planification.datadisplay.model.CAVModel;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -24,6 +25,7 @@ public class ToolsDisplay {
 	private Button oneCycleButton;
 	private Button oneStepButton;
 	private Button pauseButton;
+	private Button stopButton;
 	private Slider periodSlider;
 	private Slider stepSpeed;
 	
@@ -50,6 +52,11 @@ public class ToolsDisplay {
 		pauseButton.setPrefSize(90, 30);
 		pauseButton.setOnAction(new ToolsController(cavModel, this));
 		pauseButton.setAlignment(Pos.BASELINE_CENTER);
+		
+		stopButton = new Button("STOP");
+		stopButton.setId("stopID");
+		stopButton.setPrefSize(90, 30);
+		stopButton.setOnAction(new ToolsController(cavModel, this));
 		
 		oneCycleButton = new Button("ONE CYCLE");
 		oneCycleButton.setId("oneCycleID");
@@ -92,7 +99,7 @@ public class ToolsDisplay {
 		stepSpeed.setShowTickMarks(true);
 		stepSpeed.valueProperty().addListener(new ToolsController(cavModel, periodSlider, this));
 		
-		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, hboxButtons, pauseButton);
+		root.getChildren().addAll(labelSliderPeriod, periodSlider, labelStepSpeedSlider, stepSpeed, hboxButtons, pauseButton, stopButton);
 		Scene scene = new Scene(root, 400, 300);
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -107,5 +114,9 @@ public class ToolsDisplay {
 	
 	public Button getOneCycleButton() {
 		return oneCycleButton;
+	}
+
+	public void endExp() {
+		Platform.exit();
 	}
 }
